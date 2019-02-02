@@ -4,8 +4,8 @@ from lib import core
 
 class sources:
     def __init__(self):
-        self._base_link = 'https://thepiratebay3.org'
-        self._search_link = '/index.php?q=%s&video=on&category=0&page=0&orderby=99'
+        self._base_link = 'https://pirateproxy.bet'
+        self._search_link = '/search/%s/0/99/200'
         self._request = core.Request()
 
     def _search_request(self, query):
