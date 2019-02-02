@@ -18,7 +18,8 @@ except:
     import source_utils
     tools = lambda: None
     tools.addonName = "Seren"
-    tools.log = lambda msg, level=None: print(msg)
+    def log(msg, level=None): print(msg)
+    tools.log = log
 
 try:
     from urlparse import unquote
@@ -64,7 +65,7 @@ class TorrentScraper:
         self._title_filter = title_filter
         self._info = info
         self._use_thread_for_info = use_thread_for_info
-        self._dev_mode = os.environ['BTSCRAPER_TEST'] == '1'
+        self._dev_mode = os.getenv('BTSCRAPER_TEST') == '1'
 
         filterMovieTitle = lambda t: source_utils.filterMovieTitle(t, self.title, self.year)
         self.filterMovieTitle = Filter(fn=filterMovieTitle, type='single')
