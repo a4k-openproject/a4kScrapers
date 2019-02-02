@@ -3,6 +3,7 @@
 import os
 import sys
 import unittest
+import warnings
 
 dir_name = os.path.dirname(__file__)
 providers = os.path.join(dir_name, 'providers')
@@ -32,6 +33,10 @@ from providers.btScraper.en.torrent import yourbittorrent2
 from providers.btScraper.en.torrent import zooqle
 
 def assert_result(test, scraper, torrent_list):
+    warnings.filterwarnings(action='ignore',
+                            message='unclosed',
+                            category=ResourceWarning)
+
     caller_name = os.path.basename(scraper.__file__)[:-3]
 
     test.assertEqual(len(torrent_list), 1, '%s failed to find torrent' % caller_name)

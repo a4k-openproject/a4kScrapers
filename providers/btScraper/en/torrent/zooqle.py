@@ -4,7 +4,7 @@ from lib import core
 
 class sources:
     def __init__(self):
-        self._base_link = 'https://zooqle.com'
+        self._base_link = 'https://zooqle.me'
         self._search_link = '/search?q=%s'
         self._request = core.Request()
 
