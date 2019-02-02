@@ -4,21 +4,21 @@ from lib import core
 
 class sources:
     def __init__(self):
-        self.base_link = 'https://thepiratebay3.org'
-        self.search_link = '/index.php?q=%s&video=on&category=0&page=0&orderby=99'
-        self.request = core.Request()
+        self._base_link = 'https://thepiratebay3.org'
+        self._search_link = '/index.php?q=%s&video=on&category=0&page=0&orderby=99'
+        self._request = core.Request()
 
-    def search_request(self, query):
-        url = self.base_link + self.search_link % core.quote_plus(query)
-        return self.request.get(url)
+    def _search_request(self, query):
+        url = self._base_link + self._search_link % core.quote_plus(query)
+        return self._request.get(url)
 
-    def soup_filter(self, soup):
+    def _soup_filter(self, soup):
         return soup.find_all('tr')
 
-    def title_filter(self, el):
+    def _title_filter(self, el):
         return el.find_all('a', {'class', 'detLink'})[0].text
 
-    def info(self, torrent, torrent_info):
+    def _info(self, torrent, torrent_info):
         el = torrent_info.el
         link = el.find_all('td')[1]
         torrent['magnet'] = link.find_all('a')[1]['href']
@@ -36,11 +36,11 @@ class sources:
 
         return torrent
 
-    def get_scraper(self):
-        return core.TorrentScraper(self.search_request, self.soup_filter, self.title_filter, self.info)
+    def _get_scraper(self):
+        return core.TorrentScraper(self._search_request, self._soup_filter, self._title_filter, self._info)
 
     def movie(self, title, year):
-        return self.get_scraper().movie_query(title, year)
+        return self._get_scraper().movie_query(title, year)
 
     def episode(self, simple_info, all_info):
-        return self.get_scraper().episode_query(simple_info)
+        return self._get_scraper().episode_query(simple_info)
