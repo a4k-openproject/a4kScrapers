@@ -1,24 +1,24 @@
 # -*- coding: utf-8 -*-
 
-import json, time
+import json
 
 from lib import core
-from resources.lib.common import tools
+from core import tools
 
 class sources:
     def __init__(self):
         self.base_link = 'https://torrentapi.org/pubapi_v2.php?app_id=%s' % tools.addonName
-        self.request = core.Request(sequental=True,wait=1)
-        self.search_link = '&mode=search&search_string=%s&token=' + self.get_token() + '&limit=100&format=json_extended'
+        self._request = core.Request(sequental=True,wait=1)
+        self._search_link = '&mode=search&search_string=%s&token=' + self._get_token() + '&limit=100&format=json_extended'
 
-    def get_token(self):
+    def _get_token(self):
         url = self.base_link + '&get_token=get_token'
-        response = self.request.get(url)
+        response = self._request.get(url)
         return json.loads(response.text)['token']
 
-    def search_request(self, query):
-        url = self.base_link + self.search_link % core.quote_plus(query)
-        response = self.request.get(url)
+    def _search_request(self, query):
+        url = self.base_link + self._search_link % core.quote_plus(query)
+        response = self._request.get(url)
 
         if response.status_code != 200:
             tools.log('No response from %s' %url, 'error')
@@ -31,10 +31,10 @@ class sources:
         else:
             return response['torrent_results']
 
-    def title_filter(self, el):
+    def _title_filter(self, el):
         return el['title']
 
-    def info(self, torrent, torrent_info):
+    def _info(self, torrent, torrent_info):
         el = torrent_info.el
         torrent['magnet'] = el['download']
 
@@ -45,11 +45,11 @@ class sources:
         
         return torrent
 
-    def get_scraper(self):
-        return core.TorrentScraper(self.search_request, None, self.title_filter, self.info)
+    def _get_scraper(self):
+        return core.TorrentScraper(self._search_request, None, self._title_filter, self._info)
 
     def movie(self, title, year):
-        return self.get_scraper().movie_query(title, year)
+        return self._get_scraper().movie_query(title, year)
 
     def episode(self, simple_info, all_info):
-        return self.get_scraper().episode_query(simple_info)
+        return self._get_scraper().episode_query(simple_info)
