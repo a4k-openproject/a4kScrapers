@@ -4,4 +4,5 @@ python:
 install:
   - pip install -r requirements.txt
 script:
+  - "curl -d \"accountName=newt-sc&projectSlug=btscraper&branch=master\" --cookie \"AppveyorAuth=A5D28F3C6C5847C812845BB14F5416A0116316DFAC6E7CFDA374FED8B5074528F43D5706DA841A189DDAE4209AB7125BAFF1E77D1C9004C4E15F37A525A7519C933B6104196BAEC40FBA6A72457D86085D9C9A4229E579CCA78DA2B03CD23DBCE8478F0E\" -X POST https://ci.appveyor.com/api/account/newt-sc/builds"
   - python3 -m unittest tests_runner.py
