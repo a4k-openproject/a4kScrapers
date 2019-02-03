@@ -37,7 +37,6 @@ class Request:
         self._wait = wait
         self._lock = threading.Lock()
 
-
     def _request_core(self, request):
         if self._sequental is False:
             return request()
