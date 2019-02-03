@@ -14,22 +14,22 @@ class sources:
         return soup.find_all('tr')
 
     def _title_filter(self, el):
-        return el.find_all('a', {'class', 'detLink'})[0].text
+        return el.find('div', {'class', 'torrentname'}).find_all('a')[2].text
 
     def _info(self, url, torrent, torrent_info):
         el = torrent_info.el
-        link = el.find_all('td')[1]
-        torrent['magnet'] = link.find_all('a')[1]['href']
+        magnet = core.unquote(el.find_all('a')[1]['href'])
+        magnet = magnet[magnet.index('magnet:?'):]
+        torrent['magnet'] = magnet
 
         try:
-            info = el.find_all('font', {'class':'detDesc'})[0]
-            sub_info = info.text[info.text.find('Size') + 5:]
-            size = sub_info[:sub_info.find(',')].replace('i', '').replace('&nbsp;', '')
+            size = el.find_all('td')[1].text
             torrent['size'] = core.source_utils.de_string_size(size)
         except: pass
 
         try:
-            torrent['seeds'] = int(el.find_all('td')[2].text)
+            seeds = el.find_all('td')[1].find_next().find_next().text
+            torrent['seeds'] = int(seeds)
         except: pass
 
         return torrent

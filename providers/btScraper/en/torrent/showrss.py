@@ -7,14 +7,14 @@ Show = core.namedtuple('Show', 'title id')
 
 class sources:
     def __init__(self):
-        self._base_link = 'https://showrss.info'
-        self._search_link = '/browse'
+        self._request = core.Request()
+        self._url = core.UrlParts(base='https://showrss.info',
+                                  search='/browse')
         self._feed_url = '/show/%s.rss'
-        self.request = core.Request()
         self._scraper = None
 
-    def _init_show_list(self):
-        response = self.request.get(self._base_link + self._search_link)
+    def _init_show_list(self, url):
+        response = self._request.get(url.base + url.search)
         result = core.BeautifulSoup(response.text, 'html.parser').find_all('option')
 
         clean_show_list = []
@@ -25,11 +25,11 @@ class sources:
 
         return clean_show_list
 
-    def _search_request(self, query):
+    def _search_request(self, url, query):
         global show_list
 
         if show_list is None:
-            show_list = self._init_show_list()
+            show_list = self._init_show_list(url)
 
         show_title = self._scraper.show_title.lower()
         show_id = None
@@ -41,7 +41,7 @@ class sources:
         if show_id is None:
             return
 
-        return self.request.get(self._base_link + self._feed_url % show_id)
+        return self._request.get(url.base + self._feed_url % show_id)
 
     def _soup_filter(self, soup):
         return soup.find_all('item')
@@ -49,14 +49,14 @@ class sources:
     def _title_filter(self, el):
         return core.re.findall(r'<tv:raw_title>(.*?)</tv:raw_title>', str(el))[0]
 
-    def _info(self, torrent, torrent_info):
+    def _info(self, url, torrent, torrent_info):
         el = torrent_info.el
         torrent['magnet'] = core.re.findall(r'"(magnet:?.*?)"', str(el))[0]
 
         return torrent
 
     def _get_scraper(self):
-        return core.TorrentScraper(self._search_request, self._soup_filter, self._title_filter, self._info)
+        return core.TorrentScraper(self._url, self._search_request, self._soup_filter, self._title_filter, self._info, use_thread_for_info=False)
 
     def episode(self, simple_info, all_info):
         self._scraper = self._get_scraper()

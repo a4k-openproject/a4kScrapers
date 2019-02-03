@@ -4,13 +4,11 @@ from lib import core
 
 class sources:
     def __init__(self):
-        self._base_link = 'https://1337x.to'
-        self._search_link = '/search/%s/1/'
         self._request = core.Request()
 
-    def _search_request(self, query):
-        url = self._base_link + self._search_link % core.quote_plus(query)
-        return self._request.get(url)
+    def _search_request(self, url, query):
+        search_url = url.base + url.search % core.quote_plus(query)
+        return self._request.get(search_url)
 
     def _soup_filter(self, soup):
         return soup.find_all('tr')
@@ -18,9 +16,9 @@ class sources:
     def _title_filter(self, el):
         return el.find_all('a')[1].text
 
-    def _info(self, torrent, torrent_info):
-        url = torrent_info.el.find_all('a')[1]['href']
-        response = self._request.get(self._base_link + url)
+    def _info(self, url, torrent, torrent_info):
+        torrent_url = torrent_info.el.find_all('a')[1]['href']
+        response = self._request.get(url.base + torrent_url)
 
         torrent['magnet'] = core.re.findall(r'"(magnet:?.*?)"', response.text)[0]
 
@@ -36,7 +34,7 @@ class sources:
         return torrent
 
     def _get_scraper(self):
-        return core.TorrentScraper(self._search_request, self._soup_filter, self._title_filter, self._info, use_thread_for_info=True)
+        return core.get_scraper(self._request, self._search_request, self._soup_filter, self._title_filter, self._info, use_thread_for_info=True)
 
     def movie(self, title, year):
         return self._get_scraper().movie_query(title, year)

@@ -1,0 +1,180 @@
+{
+    "bitlord": [
+        {
+            "base": "https://bitlordsearch.com",
+            "search": "/search?q=%s"
+        }
+    ],
+    "eztv": [
+        {
+            "base": "https://eztv.io",
+            "search": "/search/%s"
+        },
+        {
+            "base": "https://eztv.unblocked.llc",
+            "search": "/search/%s"
+        },
+        {
+            "base": "https://eztv.unblocker.cc",
+            "search": "/search/%s"
+        }
+    ],
+    "_kat": [
+        {
+            "base": "https://katcr.co",
+            "search": "/katsearch/page/1/%s"
+        },
+        {
+            "base": "https://kat.unblocked.llc",
+            "search": "/katsearch/page/1/%s"
+        }
+    ],
+    "kat2": [
+        {
+            "base": "https://kickass2.biz",
+            "search": "/usearch/%s"
+        },
+        {
+            "base": "https://kickass.unblocked.llc",
+            "search": "/usearch/%s"
+        },
+        {
+            "base": "https://thekat.info",
+            "search": "/usearch/%s"
+        }
+    ],
+    "leet": [
+        {
+            "base": "https://1337x.to",
+            "search": "/search/%s/1/"
+        },
+        {
+            "base": "https://1337x.st",
+            "search": "/search/%s/1/"
+        },
+        {
+            "base": "https://x1337x.ws",
+            "search": "/search/%s/1/"
+        },
+        {
+            "base": "https://x1337x.eu",
+            "search": "/search/%s/1/"
+        },
+        {
+            "base": "https://x1337x.se",
+            "search": "/search/%s/1/"
+        },
+        {
+            "base": "https://1337x.is",
+            "search": "/search/%s/1/"
+        },
+        {
+            "base": "https://1337x.unblocked.llc",
+            "search": "/search/%s/1/"
+        },
+        {
+            "base": "https://1337x.unblocker.cc",
+            "search": "/search/%s/1/"
+        },
+        {
+            "base": "https://1337x.unblockall.org",
+            "search": "/search/%s/1/"
+        }
+    ],
+    "magnetdl": [
+        {
+            "base": "https://www.magnetdl.com",
+            "search": "/%s/%s/"
+        }
+    ],
+    "piratebay": [
+        {
+            "base": "https://pirateproxy.bet",
+            "search": "/search/%s/0/99/200"
+        },
+        {
+            "base": "https://tpb.ukpass.co",
+            "search": "/search/%s/0/99/200"
+        },
+        {
+            "base": "https://thepiratebay.vip",
+            "search": "/search/%s/0/99/200"
+        },
+        {
+            "base": "https://theproxybay.net",
+            "search": "/search.php?q=%s&video=on&category=0&page=0&orderby=99"
+        },
+        {
+            "base": "https://theproxybay.ga",
+            "search": "/search.php?q=%s&video=on&category=0&page=0&orderby=99"
+        },
+        {
+            "base": "https://thepiratebay-org.prox1.info",
+            "search": "/s/?q=%s&video=on&category=0&page=0&orderby=99"
+        },
+        {
+            "base": "https://thepiratebay.myunblock.com",
+            "search": "/s/?q=%s&video=on&category=0&page=0&orderby=99"
+        },
+        {
+            "base": "https://ikwilthepiratebay.org",
+            "search": "/s/?q=%s&video=on&category=0&page=0&orderby=99"
+        },
+        {
+            "base": "https://piratebayblocked.com",
+            "search": "/search/%s/0/99/200"
+        },
+        {
+            "base": "https://thepiratebay.unblockthe.net",
+            "search": "/search/%s/0/99/200"
+        },
+        {
+            "base": "http://tpb.filepit.to",
+            "search": "/search/%s/0/99/200"
+        },
+        {
+            "base": "https://tpbproxy.online",
+            "search": "/search/%s/0/99/200"
+        },
+        {
+            "base": "https://cruzing.xyz",
+            "search": "/search/%s/0/99/200"
+        },
+        {
+            "base": "https://thepiratebay.unblocker.cc",
+            "search": "/search/%s/0/99/200"
+        },
+        {
+            "base": "https://thepiratebay.unblockall.org",
+            "search": "/search/%s/0/99/200"
+        },
+        {
+            "base": "https://thepiratebay3.org",
+            "search": "/index.php?q=%s&video=on&category=0&page=0&orderby=99"
+        }
+    ],
+    "yourbittorrent": [
+        {
+            "base": "https://yourbittorrent.com",
+            "search": "/?q=%s"
+        },
+        {
+            "base": "https://yourbittorrent2.com",
+            "search": "/?q=%s"
+        }
+    ],
+    "zooqle": [
+        {
+            "base": "https://zooqle.com",
+            "search": "/search?q=%s"
+        },
+        {
+            "base": "https://zooqle.me",
+            "search": "/search?q=%s"
+        },
+        {
+            "base": "https://zooqle.unblocked.llc",
+            "search": "/search?q=%s"
+        }
+    ]
+}
