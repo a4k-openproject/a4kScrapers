@@ -118,8 +118,7 @@ class TorrentScraper:
             if result is not None and result['magnet'].startswith('magnet:?'):
                 self._torrent_list.append(result)
         except:
-            tools.log(torrent_info.title, 'error')
-            traceback.print_exc()
+            pass
 
     def _get(self, query, filters):
         torrent_infos = self._search_core(query)

@@ -3,7 +3,7 @@
 import json
 
 from lib import core
-from core import tools
+from lib.core import tools
 
 class sources:
     def __init__(self):
