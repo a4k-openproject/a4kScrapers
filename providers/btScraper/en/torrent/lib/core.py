@@ -134,11 +134,12 @@ class TorrentScraper:
 
                     if self._use_thread_for_info:
                         threads.append(threading.Thread(target=self._info_core, args=(torrent, ti)))
+                        if self._dev_mode:
+                            self._wait_threads(threads)
                     else:
                         self._info_core(torrent, ti)
 
-                    if self._dev_mode:
-                        self._wait_threads(threads)
+                    if self._dev_mode and len(self._torrent_list) > 0:
                         return
 
         self._wait_threads(threads)
