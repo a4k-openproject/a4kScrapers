@@ -46,39 +46,39 @@
     "leet": [
         {
             "base": "https://1337x.to",
-            "search": "/search/%s/1/"
+            "search": "/sort-search/%s/size/desc/1/"
         },
         {
             "base": "https://1337x.st",
-            "search": "/search/%s/1/"
+            "search": "/sort-search/%s/size/desc/1/"
         },
         {
             "base": "https://x1337x.ws",
-            "search": "/search/%s/1/"
+            "search": "/sort-search/%s/size/desc/1/"
         },
         {
             "base": "https://x1337x.eu",
-            "search": "/search/%s/1/"
+            "search": "/sort-search/%s/size/desc/1/"
         },
         {
             "base": "https://x1337x.se",
-            "search": "/search/%s/1/"
+            "search": "/sort-search/%s/size/desc/1/"
         },
         {
             "base": "https://1337x.is",
-            "search": "/search/%s/1/"
+            "search": "/sort-search/%s/size/desc/1/"
         },
         {
             "base": "https://1337x.unblocked.llc",
-            "search": "/search/%s/1/"
+            "search": "/sort-search/%s/size/desc/1/"
         },
         {
             "base": "https://1337x.unblocker.cc",
-            "search": "/search/%s/1/"
+            "search": "/sort-search/%s/size/desc/1/"
         },
         {
             "base": "https://1337x.unblockall.org",
-            "search": "/search/%s/1/"
+            "search": "/sort-search/%s/size/desc/1/"
         }
     ],
     "magnetdl": [
@@ -151,6 +151,22 @@
         {
             "base": "https://thepiratebay3.org",
             "search": "/index.php?q=%s&video=on&category=0&page=0&orderby=99"
+        }
+    ],
+    "torrentz2_": [
+        {
+            "base": "https://torrentz2.eu",
+            "search": "/search?f=%s"
+        },
+        {
+            "base": "https://torrentz2.is",
+            "search": "/search?f=%s"
+        }
+    ],
+    "torrentz2": [
+        {
+            "base": "https://torrentz2.cc",
+            "search": "/search?f=%s"
         }
     ],
     "yourbittorrent": [

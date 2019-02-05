@@ -56,7 +56,7 @@ class sources:
         return torrent
 
     def _get_scraper(self):
-        return core.TorrentScraper(self._url, self._search_request, self._soup_filter, self._title_filter, self._info, use_thread_for_info=False)
+        return core.TorrentScraper(self._url, self._search_request, self._soup_filter, self._title_filter, self._info)
 
     def episode(self, simple_info, all_info):
         self._scraper = self._get_scraper()

@@ -4,24 +4,22 @@ from lib import core
 
 class sources:
     def _soup_filter(self, soup):
-        return soup.find_all('tr')
+        return soup.find_all('dl')
 
     def _title_filter(self, el):
-        return el.find('div', {'class', 'torrentname'}).find_all('a')[2].text
+        return el.find('dt').find('a').text
 
     def _info(self, url, torrent, torrent_info):
         el = torrent_info.el
-        magnet = core.unquote(el.find_all('a')[1]['href'])
-        magnet = magnet[magnet.index('magnet:?'):]
-        torrent['magnet'] = magnet
+        torrent['magnet'] = 'magnet:?xt=urn:btih:%s&' % el.find('dt').find('a')['href'][1:]
 
         try:
-            size = el.find_all('td')[1].text
+            size = el.find('dd').find_all('span')[2].text
             torrent['size'] = core.source_utils.de_string_size(size)
         except: pass
 
         try:
-            seeds = el.find_all('td')[1].find_next().find_next().text
+            seeds = el.find('dd').find_all('span')[3].text
             torrent['seeds'] = int(seeds)
         except: pass
 

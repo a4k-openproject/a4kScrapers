@@ -4,6 +4,9 @@ import os
 import sys
 import unittest
 import warnings
+import importlib
+
+from types import MethodType
 
 dir_name = os.path.dirname(__file__)
 providers = os.path.join(dir_name, 'providers')
@@ -22,17 +25,10 @@ sys.path.append(lib)
 os.environ['BTSCRAPER_TEST'] = '1'
 
 from providers.btScraper.en.torrent.lib import core
-from providers.btScraper.en.torrent import bitlord
-from providers.btScraper.en.torrent import eztv
-from providers.btScraper.en.torrent import kat
-from providers.btScraper.en.torrent import kat2
-from providers.btScraper.en.torrent import leet
-from providers.btScraper.en.torrent import magnetdl
-from providers.btScraper.en.torrent import piratebay
-from providers.btScraper.en.torrent import showrss
-from providers.btScraper.en.torrent import torrentapi
-from providers.btScraper.en.torrent import yourbittorrent
-from providers.btScraper.en.torrent import zooqle
+from providers.btScraper.en import torrent as torrent_module
+
+for scraper in torrent_module.__all__:
+    importlib.import_module('providers.btScraper.en.torrent.%s' % scraper)
 
 def assert_result(test, scraper, torrent_list):
     warnings.filterwarnings(action='ignore',
@@ -79,28 +75,18 @@ def episode(test, scraper):
     assert_result(test, scraper, torrent_list)
 
 class TestScraping(unittest.TestCase):
-    def test_bitlord(self):
-        torrent_list = movie(self, bitlord)
-    def test_kat(self):
-        torrent_list = movie(self, kat)
-    def test_kat2(self):
-        torrent_list = movie(self, kat2)
-    def test_leet(self):
-        torrent_list = movie(self, leet)
-    def test_magnetdl(self):
-        torrent_list = movie(self, magnetdl)
-    def test_piratebay(self):
-        torrent_list = movie(self, piratebay)
-    def test_torrentapi(self):
-        torrent_list = movie(self, torrentapi)
-    def test_yourbittorrent(self):
-        torrent_list = movie(self, yourbittorrent)
-    def test_zooqle(self):
-        torrent_list = movie(self, zooqle)
-    def test_eztv(self):
-        torrent_list = episode(self, eztv)
-    def test_showrss(self):
-        torrent_list = episode(self, showrss)
+    pass
+
+def test(self, scraper):
+    scraper_module = getattr(torrent_module, scraper)
+    if scraper not in ['showrss', 'eztv']:
+        movie(self, scraper_module)
+    else:
+        episode(self, scraper_module)
+
+for scraper in torrent_module.__all__:
+    method = lambda scraper: lambda self: test(self, scraper)
+    setattr(TestScraping, 'test_%s' % scraper, method(scraper))
 
 if __name__ == '__main__':
     unittest.main()

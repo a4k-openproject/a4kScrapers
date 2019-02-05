@@ -39,7 +39,7 @@ class sources:
         return torrent
 
     def _get_scraper(self):
-        return core.get_scraper(self._request, self._search_request, self._soup_filter, self._title_filter, self._info)
+        return core.get_scraper(self._soup_filter, self._title_filter, self._info, request=self._request, search_request=self._search_request)
 
     def movie(self, title, year):
         return self._get_scraper().movie_query(title, year)
