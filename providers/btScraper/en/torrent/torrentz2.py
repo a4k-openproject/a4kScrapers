@@ -14,13 +14,18 @@ class sources:
         torrent['magnet'] = 'magnet:?xt=urn:btih:%s&' % el.find('dt').find('a')['href'][1:]
 
         try:
-            size = el.find('dd').find_all('span')[2].text
-            torrent['size'] = core.source_utils.de_string_size(size)
-        except: pass
+            span_elements = el.find('dd').find_all('span')
 
-        try:
-            seeds = el.find('dd').find_all('span')[3].text
-            torrent['seeds'] = int(seeds)
+            try:
+                size = span_elements[2].text
+                torrent['size'] = core.source_utils.de_string_size(size)
+            except: pass
+
+            try:
+                seeds = span_elements[3].text
+                torrent['seeds'] = int(seeds)
+            except: pass
+
         except: pass
 
         return torrent

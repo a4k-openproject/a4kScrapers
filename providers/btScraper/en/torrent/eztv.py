@@ -13,13 +13,15 @@ class sources:
         el = torrent_info.el
         torrent['magnet'] = el.find('a', {'class': 'magnet'})['href']
 
+        td_elements = el.find_all('td')
+
         try:
-            size = el.find_all('td')[3].text
+            size = td_elements[3].text
             torrent['size'] = core.source_utils.de_string_size(size)
         except: pass
 
         try:
-            torrent['seeds'] = el.find_all('td')[5].text
+            torrent['seeds'] = td_elements[5].text
         except: pass
 
         return torrent

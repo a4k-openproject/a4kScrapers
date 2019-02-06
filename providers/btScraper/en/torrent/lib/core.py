@@ -30,9 +30,10 @@ try:
 except:
     from urllib.parse import quote_plus, quote, unquote
 
-TorrentInfo = namedtuple('TorrentInfo', 'el title')
+TorrentInfo = namedtuple('TorrentInfo', 'el title title_filter_el')
 Filter = namedtuple('Filter', 'fn type')
 UrlParts = namedtuple('UrlParts', 'base search')
+SoupValue = namedtuple('SoupResult', 'el value')
 
 DEV_MODE = os.getenv('BTSCRAPER_TEST') == '1'
 
@@ -195,7 +196,11 @@ class TorrentScraper:
         for el in search_results:
             try:
                 title = self._title_filter(el)
-                torrents.append(TorrentInfo(el=el, title=title))
+                title_filter_el = None
+                if isinstance(title, SoupValue):
+                    title_filter_el = title.el
+                    title = title.value
+                torrents.append(TorrentInfo(el=el, title=title, title_filter_el=title_filter_el))
             except:
                 continue
 
@@ -311,6 +316,12 @@ class TorrentScraper:
 
     def episode_query(self, simple_info, auto_query=True, single_query=False):
         caller_name = get_caller_name()
+
+        if '.' in simple_info['show_title']:
+            no_dot_show_title = simple_info['show_title'].replace('.', '')
+            simple_info['show_aliases'].append(source_utils.cleanTitle(no_dot_show_title))
+            simple_info['show_aliases'] = list(set(simple_info['show_aliases']))
+            simple_info['show_title'] = no_dot_show_title
 
         self.simple_info = simple_info
         self.year = simple_info['year']

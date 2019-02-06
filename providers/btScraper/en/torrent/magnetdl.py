@@ -21,19 +21,21 @@ class sources:
         return soup.find_all('tr')
 
     def _title_filter(self, el):
-        return el.find_all('a')[1]['title']
+        el = el.find_all('a')
+        return core.SoupValue(el=el, value=el[1]['title'])
 
     def _info(self, url, torrent, torrent_info):
         el = torrent_info.el
-        torrent['magnet'] = el.find_all('a')[0]['href']
+        torrent['magnet'] = torrent_info.title_filter_el[0]['href']
+
+        td_elements = el.find_all('td')
 
         try:
-            size = el.find_all('td')[5].text
+            size = td_elements[5].text
             torrent['size'] = core.source_utils.de_string_size(size)
         except: pass
-
         try:
-            torrent['seeds'] = el.find_all('td', {'class': 's'})[0].text
+            torrent['seeds'] = td_elements[6].text
         except: pass
 
         return torrent

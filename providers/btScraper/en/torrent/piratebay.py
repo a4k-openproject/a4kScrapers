@@ -11,7 +11,9 @@ class sources:
 
     def _info(self, url, torrent, torrent_info):
         el = torrent_info.el
-        link = el.find_all('td')[1]
+        td_elements = el.find_all('td')
+
+        link = td_elements[1]
         torrent['magnet'] = link.find_all('a')[1]['href']
 
         try:
@@ -22,7 +24,7 @@ class sources:
         except: pass
 
         try:
-            torrent['seeds'] = int(el.find_all('td')[2].text)
+            torrent['seeds'] = int(td_elements[2].text)
         except: pass
 
         return torrent

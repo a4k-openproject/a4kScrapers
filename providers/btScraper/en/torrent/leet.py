@@ -10,10 +10,11 @@ class sources:
         return soup.find_all('tr')
 
     def _title_filter(self, el):
-        return el.find_all('a')[1].text
+        el = el.find_all('a')
+        return core.SoupValue(el=el, value=el[1].text)
 
     def _info(self, url, torrent, torrent_info):
-        torrent_url = torrent_info.el.find_all('a')[1]['href']
+        torrent_url = torrent_info.title_filter_el[1]['href']
         response = self._request.get(url.base + torrent_url)
 
         torrent['magnet'] = core.re.findall(r'"(magnet:?.*?)"', response.text)[0]

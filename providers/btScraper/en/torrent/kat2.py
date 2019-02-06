@@ -15,13 +15,15 @@ class sources:
         magnet = magnet[magnet.index('magnet:?'):]
         torrent['magnet'] = magnet
 
+        td_elements = el.find_all('td')
+
         try:
-            size = el.find_all('td')[1].text
+            size = td_elements[1].text
             torrent['size'] = core.source_utils.de_string_size(size)
         except: pass
 
         try:
-            seeds = el.find_all('td')[1].find_next().find_next().text
+            seeds = td_elements[1].find_next().find_next().text
             torrent['seeds'] = int(seeds)
         except: pass
 

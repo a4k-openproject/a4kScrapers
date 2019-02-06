@@ -62,14 +62,14 @@ def movie(test, scraper):
 
 def episode(test, scraper):
     simple_info = {}
-    simple_info['show_title'] = 'Game of Thrones'
-    simple_info['episode_title'] = 'The Dragon and the Wolf'
-    simple_info['year'] = '2011'
-    simple_info['season_number'] = '7'
-    simple_info['episode_number'] = '7'
-    simple_info['show_aliases'] = ''
+    simple_info['show_title'] = 'Mr. Robot'
+    simple_info['episode_title'] = 'eps3.0_power-saver-mode.h'
+    simple_info['year'] = '2015'
+    simple_info['season_number'] = '3'
+    simple_info['episode_number'] = '1'
+    simple_info['show_aliases'] = []
     simple_info['country'] = 'US'
-    simple_info['no_seasons'] = '7'
+    simple_info['no_seasons'] = '3'
 
     torrent_list = scraper.sources().episode(simple_info, {})
     assert_result(test, scraper, torrent_list)
@@ -79,7 +79,7 @@ class TestScraping(unittest.TestCase):
 
 def test(self, scraper):
     scraper_module = getattr(torrent_module, scraper)
-    if scraper not in ['showrss', 'eztv']:
+    if scraper not in ['showrss', 'eztv', 'magnetdl']:
         movie(self, scraper_module)
     else:
         episode(self, scraper_module)
