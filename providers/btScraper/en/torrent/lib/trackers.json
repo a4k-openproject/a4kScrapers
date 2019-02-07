@@ -11,6 +11,22 @@
             "search": "/search/%s"
         },
         {
+            "base": "https://eztv.re",
+            "search": "/search/%s"
+        },
+        {
+            "base": "https://eztv.ag",
+            "search": "/search/%s"
+        },
+        {
+            "base": "https://eztv.it",
+            "search": "/search/%s"
+        },
+        {
+            "base": "https://eztv.ch",
+            "search": "/search/%s"
+        },
+        {
             "base": "https://eztv.unblocked.llc",
             "search": "/search/%s"
         },
@@ -19,24 +35,14 @@
             "search": "/search/%s"
         }
     ],
-    "_kat": [
-        {
-            "base": "https://katcr.co",
-            "search": "/katsearch/page/1/%s"
-        },
-        {
-            "base": "https://kat.unblocked.llc",
-            "search": "/katsearch/page/1/%s"
-        }
-    ],
-    "kat2": [
+    "kickass": [
         {
             "base": "https://kickass2.biz",
             "search": "/usearch/%s"
         },
         {
             "base": "https://kickass.unblocked.llc",
-            "search": "/usearch/%s"
+            "search": "/search.php?q=%s"
         },
         {
             "base": "https://thekat.info",
@@ -105,14 +111,6 @@
             "search": "/search.php?q=%s&video=on&category=0&page=0&orderby=99"
         },
         {
-            "base": "https://theproxybay.ga",
-            "search": "/search.php?q=%s&video=on&category=0&page=0&orderby=99"
-        },
-        {
-            "base": "https://thepiratebay-org.prox1.info",
-            "search": "/s/?q=%s&video=on&category=0&page=0&orderby=99"
-        },
-        {
             "base": "https://thepiratebay.myunblock.com",
             "search": "/s/?q=%s&video=on&category=0&page=0&orderby=99"
         },
@@ -167,16 +165,10 @@
         {
             "base": "https://torrentz2.cc",
             "search": "/search?f=%s"
-        }
-    ],
-    "yourbittorrent": [
-        {
-            "base": "https://yourbittorrent.com",
-            "search": "/?q=%s"
         },
         {
-            "base": "https://yourbittorrent2.com",
-            "search": "/?q=%s"
+            "base": "https://torrentz2.tv",
+            "search": "/search?f=%s"
         }
     ],
     "zooqle": [

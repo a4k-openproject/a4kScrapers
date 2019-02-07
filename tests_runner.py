@@ -23,6 +23,7 @@ sys.path.append(torrent)
 sys.path.append(lib)
 
 os.environ['BTSCRAPER_TEST'] = '1'
+#os.environ['BTSCRAPER_TEST_ALL'] = '1' # verify all urls per tracker
 
 from providers.btScraper.en.torrent.lib import core
 from providers.btScraper.en import torrent as torrent_module
@@ -44,15 +45,18 @@ def assert_result(test, scraper, torrent_list):
         print('tracker %s is disabled' % caller_name)
         return
 
-    test.assertEqual(results_count, 1, '%s failed to find torrent' % caller_name)
+    expected_count = 1
+    if os.getenv('BTSCRAPER_TEST_ALL') == '1' and caller_name not in ['showrss', 'torrentapi']:
+        expected_count = len(core.trackers[caller_name])
+
+    test.assertEqual(results_count, expected_count, '%s failed to find torrent' % caller_name)
 
     if caller_name == 'showrss':
         return
 
-    torrent = torrent_list[0]
-
-    test.assertIsNotNone(torrent['size'], '%s missing size info' % caller_name)
-    test.assertIsNotNone(torrent['seeds'], '%s missing seeds info' % caller_name)
+    for torrent in torrent_list:
+        test.assertIsNotNone(torrent['size'], '%s missing size info' % caller_name)
+        test.assertIsNotNone(torrent['seeds'], '%s missing seeds info' % caller_name)
 
 def movie(test, scraper):
     movie_title = 'Fantastic Beasts and Where to Find Them'
@@ -62,14 +66,14 @@ def movie(test, scraper):
 
 def episode(test, scraper):
     simple_info = {}
-    simple_info['show_title'] = 'Mr. Robot'
-    simple_info['episode_title'] = 'eps3.0_power-saver-mode.h'
-    simple_info['year'] = '2015'
-    simple_info['season_number'] = '3'
-    simple_info['episode_number'] = '1'
-    simple_info['show_aliases'] = []
+    simple_info['show_title'] = 'Game of Thrones'
+    simple_info['episode_title'] = 'The Dragon and the Wolf'
+    simple_info['year'] = '2011'
+    simple_info['season_number'] = '7'
+    simple_info['episode_number'] = '7'
+    simple_info['show_aliases'] = ''
     simple_info['country'] = 'US'
-    simple_info['no_seasons'] = '3'
+    simple_info['no_seasons'] = '7'
 
     torrent_list = scraper.sources().episode(simple_info, {})
     assert_result(test, scraper, torrent_list)
@@ -79,7 +83,7 @@ class TestScraping(unittest.TestCase):
 
 def test(self, scraper):
     scraper_module = getattr(torrent_module, scraper)
-    if scraper not in ['showrss', 'eztv', 'magnetdl']:
+    if scraper not in ['showrss', 'eztv']:
         movie(self, scraper_module)
     else:
         episode(self, scraper_module)

@@ -15,7 +15,7 @@ class sources:
 
     def _init_show_list(self, url):
         response = self._request.get(url.base + url.search)
-        result = core.BeautifulSoup(response.text, 'html.parser').find_all('option')
+        result = core.beautifulSoup(response).find_all('option')
 
         clean_show_list = []
         for show in result:
@@ -43,8 +43,8 @@ class sources:
 
         return self._request.get(url.base + self._feed_url % show_id)
 
-    def _soup_filter(self, soup):
-        return soup.find_all('item')
+    def _soup_filter(self, response):
+        return core.beautifulSoup(response).find_all('item')
 
     def _title_filter(self, el):
         return core.re.findall(r'<tv:raw_title>(.*?)</tv:raw_title>', str(el))[0]

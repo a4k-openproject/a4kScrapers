@@ -6,18 +6,22 @@ class sources:
     def __init__(self):
         self._request = core.Request(sequental=True)
 
-    def _soup_filter(self, soup):
-        return soup.find_all('tr')
+    def _soup_filter(self, response):
+        return core.beautifulSoup(response).find_all('tr')
 
     def _title_filter(self, el):
         el = el.find_all('a')
-        return core.SoupValue(el=el, value=el[1].text)
+        result = lambda: None
+        result.title = el[1].text
+        title = self._genericScraper.title_filter(result)
+
+        return core.SoupValue(el=el, value=title)
 
     def _info(self, url, torrent, torrent_info):
         torrent_url = torrent_info.title_filter_el[1]['href']
         response = self._request.get(url.base + torrent_url)
 
-        torrent['magnet'] = core.re.findall(r'"(magnet:?.*?)"', response.text)[0]
+        torrent['magnet'] = core.re.findall(r'"(magnet:\?.*?)"', response.text)[0]
 
         try:
             size = core.re.findall(r'<strong>Total size</strong> <span>(.*?)</span>', response.text)[0]
@@ -30,11 +34,12 @@ class sources:
 
         return torrent
 
-    def _get_scraper(self):
+    def _get_scraper(self, title):
+        self._genericScraper = core.GenericTorrentScraper(title)
         return core.get_scraper(self._soup_filter, self._title_filter, self._info, request=self._request, use_thread_for_info=True)
 
     def movie(self, title, year):
-        return self._get_scraper().movie_query(title, year)
+        return self._get_scraper(title).movie_query(title, year)
 
     def episode(self, simple_info, all_info):
-        return self._get_scraper().episode_query(simple_info)
+        return self._get_scraper(simple_info['show_title']).episode_query(simple_info)

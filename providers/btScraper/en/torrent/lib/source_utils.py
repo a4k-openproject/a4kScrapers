@@ -95,9 +95,8 @@ def filterMovieTitle(release_title, movieTitle, year):
     movieTitle = cleanTitle(movieTitle.lower())
     release_title = cleanTitle(release_title.lower())
     string_list = []
-    string_list.append('%s (%s)' % (movieTitle, year))
-    string_list.append('%s %s' % (movieTitle, year))
-    string_list.append('%s.%s' % (movieTitle.replace(' ', '.'), year))
+    string_list.append('%s' % (movieTitle))
+    string_list.append('%s' % (movieTitle.replace(' ', '.')))
 
     if any(i in release_title for i in string_list):
         if any(i in release_title for i in exclusions):
@@ -118,6 +117,7 @@ def filterSeasonPack(simpleInfo, release_title):
         simpleInfo['year'], \
         simpleInfo['country']
 
+    aliasList = list(aliasList)
     stringList = []
     release_title = cleanTitle(release_title)
     if '.' in show_title:
@@ -169,6 +169,7 @@ def filterSingleEpisode(simpleInfo, release_title):
         simpleInfo['show_aliases'], \
         simpleInfo['year'], \
         simpleInfo['country']
+    aliasList = list(aliasList)
     stringList = []
     if '.' in show_title:
         aliasList.append(cleanTitle(show_title.replace('.', '')))
@@ -205,6 +206,7 @@ def filterShowPack(simpleInfo, release_title):
     release_title = cleanTitle(release_title.lower().replace('the complete', '').replace('complete', ''))
     season = simpleInfo['season_number']
     aliasList = [searchTitleClean(x) for x in simpleInfo['show_aliases']]
+    aliasList = list(aliasList)
     if '.' in simpleInfo['show_title']:
         aliasList.append(cleanTitle(simpleInfo['show_title'].replace('.', '')))
     showTitle = cleanTitle(simpleInfo['show_title'])
@@ -279,7 +281,7 @@ def filterShowPack(simpleInfo, release_title):
         if release_title.startswith(i):
             return True
 
-
+    return False
 
 class serenRequests(Session):
     def __init__(self, *args, **kwargs):
