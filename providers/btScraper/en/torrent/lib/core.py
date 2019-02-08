@@ -179,18 +179,30 @@ class Request:
         return self._request_core(request)
 
 class DefaultSources(object):
-    def __init__(self, module_name):
-        self.caller_name = module_name.split('.')[-1:][0]
+    def __init__(self, module_name, single_query=False, request=None, search_request=None):
+        self._caller_name = module_name.split('.')[-1:][0]
+        self._single_query = single_query
+        self._request = request
+        self._search_request = search_request
 
     def _get_scraper(self, title):
         genericScraper = GenericTorrentScraper(title)
-        return get_scraper(genericScraper.soup_filter, genericScraper.title_filter, genericScraper.info, caller_name=self.caller_name)
+        return get_scraper(genericScraper.soup_filter,
+                           genericScraper.title_filter,
+                           genericScraper.info,
+                           caller_name=self._caller_name,
+                           request=self._request,
+                           search_request=self._search_request)
 
     def movie(self, title, year):
-        return self._get_scraper(title).movie_query(title, year, caller_name=self.caller_name)
+        return self._get_scraper(title) \
+                   .movie_query(title, year, caller_name=self._caller_name)
 
     def episode(self, simple_info, all_info):
-        return self._get_scraper(simple_info['show_title']).episode_query(simple_info, caller_name=self.caller_name)
+        return self._get_scraper(simple_info['show_title']) \
+                   .episode_query(simple_info,
+                                  caller_name=self._caller_name,
+                                  single_query=self._single_query)
 
 class NoResultsScraper():
     def movie_query(self, title, year, caller_name=None):
