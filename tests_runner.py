@@ -14,6 +14,7 @@ bt_scraper = os.path.join(providers, 'btScraper')
 en = os.path.join(bt_scraper, 'en')
 torrent = os.path.join(en, 'torrent')
 lib = os.path.join(torrent, 'lib')
+third_party = os.path.join(lib, 'third_party')
 
 sys.path.append(dir_name)
 sys.path.append(providers)
@@ -21,6 +22,7 @@ sys.path.append(bt_scraper)
 sys.path.append(en)
 sys.path.append(torrent)
 sys.path.append(lib)
+sys.path.append(third_party)
 
 os.environ['BTSCRAPER_TEST'] = '1'
 #os.environ['BTSCRAPER_TEST_ALL'] = '1' # verify all urls per tracker

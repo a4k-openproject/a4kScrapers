@@ -15,12 +15,12 @@ from bs4 import BeautifulSoup
 from urllib3.exceptions import ConnectTimeoutError
 from requests.exceptions import ReadTimeout
 
-import source_utils
+from third_party import source_utils
 
 try:
     from resources.lib.common import tools, cfscrape
 except:
-    import cfscrape
+    from third_party import cfscrape
     tools = lambda: None
     tools.addonName = "Seren"
     def log(msg, level=None): print(msg)
@@ -236,7 +236,7 @@ class GenericTorrentScraper:
                 torrent.magnet = safe_list_get(magnet_links, 0)
                 torrent.title = safe_list_get(torrent.magnet.split('dn='), 1)
                 torrent.size = self._parse_size(row)
-                torrent.seeds = self._parse_number(row, -2)
+                torrent.seeds = self._parse_seeds(row)
                 results.append(torrent)
 
         return results
@@ -252,6 +252,17 @@ class GenericTorrentScraper:
                 size += ' MB'
 
         return size
+
+    def _parse_seeds(self, row):
+        seeds = safe_list_get(re.findall(r'Seeders:?\s*?(\d+)', row), 0)
+        if seeds == '':
+            seeds = safe_list_get(re.findall(r'Seed:?\s*?(\d+)', row), 0)
+        if seeds == '':
+            seeds = self._parse_number(row, -2)
+        if seeds == 'N/A':
+            seeds = '0'
+
+        return seeds
 
     def _parse_number(self, row, idx):
         number = safe_list_get(re.findall(r'>\s*?(\d+)\s*?<', row)[idx:], 0)

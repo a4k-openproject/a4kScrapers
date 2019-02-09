@@ -51,7 +51,7 @@ class sources:
 
     def _info(self, url, torrent, torrent_info):
         el = torrent_info.el
-        torrent['magnet'] = core.re.findall(r'"(magnet:?.*?)"', str(el))[0]
+        torrent['magnet'] = core.re.findall(r'"(magnet:\?.*?)"', str(el))[0]
 
         return torrent
 
