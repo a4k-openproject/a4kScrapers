@@ -37,8 +37,12 @@ except:
 
 SoupValue = namedtuple('SoupResult', 'el value')
 TorrentInfo = namedtuple('TorrentInfo', 'el title title_filter_el')
-Filter = namedtuple('Filter', 'fn type')
 UrlParts = namedtuple('UrlParts', 'base search')
+
+class Filter:
+    def __init__(self, fn, type):
+        self.fn = fn
+        self.type = type
 
 DEV_MODE = os.getenv('BTSCRAPER_TEST') == '1'
 DEV_MODE_ALL = os.getenv('BTSCRAPER_TEST_ALL') == '1'
@@ -76,7 +80,7 @@ def get_caller_name():
     filename_without_ext = os.path.splitext(filename)[0]
     return filename_without_ext
 
-def get_scraper(soup_filter, title_filter, info, request=None, search_request=None, use_thread_for_info=False, caller_name=None):
+def get_scraper(soup_filter, title_filter, info, request=None, search_request=None, use_thread_for_info=False, custom_filter=None, caller_name=None):
     if caller_name is None:
         caller_name = get_caller_name()
 
@@ -103,7 +107,7 @@ def get_scraper(soup_filter, title_filter, info, request=None, search_request=No
     if DEV_MODE_ALL:
         scrapers = []
         for url in urls:
-            scraper = TorrentScraper(url, search_request, soup_filter, title_filter, info, use_thread_for_info)
+            scraper = TorrentScraper(url, search_request, soup_filter, title_filter, info, use_thread_for_info, custom_filter)
             scrapers.append(scraper)
 
         return MultiUrlScraper(scrapers)
@@ -113,7 +117,7 @@ def get_scraper(soup_filter, title_filter, info, request=None, search_request=No
     if url is None: 
         return NoResultsScraper()
 
-    return TorrentScraper(url, search_request, soup_filter, title_filter, info, use_thread_for_info)
+    return TorrentScraper(url, search_request, soup_filter, title_filter, info, use_thread_for_info, custom_filter)
 
 def is_cloudflare_on(response):
     return (response.status_code == 503
@@ -185,14 +189,16 @@ class DefaultSources(object):
         self._request = request
         self._search_request = search_request
 
-    def _get_scraper(self, title):
+    def _get_scraper(self, title, custom_filter=None):
         genericScraper = GenericTorrentScraper(title)
-        return get_scraper(genericScraper.soup_filter,
-                           genericScraper.title_filter,
-                           genericScraper.info,
-                           caller_name=self._caller_name,
-                           request=self._request,
-                           search_request=self._search_request)
+        self.scraper = get_scraper(genericScraper.soup_filter,
+                                   genericScraper.title_filter,
+                                   genericScraper.info,
+                                   caller_name=self._caller_name,
+                                   request=self._request,
+                                   search_request=self._search_request,
+                                   custom_filter=custom_filter)
+        return self.scraper
 
     def movie(self, title, year):
         return self._get_scraper(title) \
@@ -323,7 +329,7 @@ class MultiUrlScraper:
         return results
 
 class TorrentScraper:
-    def __init__(self, url, search_request, soup_filter, title_filter, info, use_thread_for_info=False):
+    def __init__(self, url, search_request, soup_filter, title_filter, info, use_thread_for_info=False, custom_filter=None):
         self._torrent_list = []
         self._url = url
         self._search_request = search_request
@@ -331,13 +337,17 @@ class TorrentScraper:
         self._title_filter = title_filter
         self._info = info
         self._use_thread_for_info = use_thread_for_info
+        self._custom_filter = custom_filter
 
         filterMovieTitle = lambda t: source_utils.filterMovieTitle(t, self.title, self.year)
         self.filterMovieTitle = Filter(fn=filterMovieTitle, type='single')
 
         filterSingleEpisode = lambda t: source_utils.filterSingleEpisode(self.simple_info, t)
         self.filterSingleEpisode = Filter(fn=filterSingleEpisode, type='single')
-        
+
+        filterSingleSpecialEpisode = lambda t: source_utils.filterSingleSpecialEpisode(self.simple_info, t)
+        self.filterSingleSpecialEpisode = Filter(fn=filterSingleSpecialEpisode, type='single')
+
         filterSeasonPack = lambda t: source_utils.filterSeasonPack(self.simple_info, t)
         self.filterSeasonPack = Filter(fn=filterSeasonPack, type='season')
 
@@ -391,9 +401,16 @@ class TorrentScraper:
         threads = []
         for ti in torrent_infos:
             for filter in filters:
-                if filter.fn(ti.title):
+                custom_filter = False
+                packageType = filter.type
+                if self._custom_filter is not None:
+                    if self._custom_filter.fn(ti.title):
+                        custom_filter = True
+                        packageType = self._custom_filter.type
+
+                if custom_filter or filter.fn(ti.title):
                     torrent = {}
-                    torrent['package'] = filter.type
+                    torrent['package'] = packageType
                     torrent['release_title'] = ti.title
                     torrent['size'] = None
                     torrent['seeds'] = None
@@ -454,6 +471,9 @@ class TorrentScraper:
     def _episode(self, query):
         return self._query_thread(query, [self.filterSingleEpisode])
 
+    def _episode_special(self, query):
+        return self._query_thread(query, [self.filterSingleSpecialEpisode])
+
     def _season(self, query):
         return self._query_thread(query, [self.filterSeasonPack])
 
@@ -508,6 +528,12 @@ class TorrentScraper:
 
         if auto_query is False:
             self._wait_threads([self._episode('')])
+            self._episode_notice(caller_name)
+            return self._torrent_list
+
+        # specials
+        if self.season_x == '0':
+            self._wait_threads([self._episode_special(self.show_title + ' %s' % self.episode_title)])
             self._episode_notice(caller_name)
             return self._torrent_list
 

@@ -202,6 +202,16 @@ def filterSingleEpisode(simpleInfo, release_title):
     return False
 
 
+def filterSingleSpecialEpisode(simpleInfo, release_title):
+    episode_title_parts = simpleInfo['episode_title'].split(' ')
+
+    for episode_title_part in episode_title_parts:
+        if episode_title_part not in release_title:
+            return False
+
+    return True
+
+
 def filterShowPack(simpleInfo, release_title):
     release_title = cleanTitle(release_title.lower().replace('the complete', '').replace('complete', ''))
     season = simpleInfo['season_number']
