@@ -1,6 +1,6 @@
 {
   "author": "newt-sc",
-  "version":"0.0.8",
+  "version":"0.1.0",
   "name":"btScraper",
   "update_directory": "https://github.com/newt-sc/btScraper/archive/",
   "remote_meta": "https://raw.githubusercontent.com/newt-sc/btScraper/master/meta.json"
