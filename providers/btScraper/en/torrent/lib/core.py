@@ -1,84 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import threading
-import re
-import time
 import traceback
-import ntpath
-import os
-import json
-import unicodedata
-
-from collections import namedtuple
-from inspect import getframeinfo, stack
-from bs4 import BeautifulSoup
-from urllib3.exceptions import ConnectTimeoutError
-from requests.exceptions import ReadTimeout
 
 from third_party import source_utils
-
-try:
-    from resources.lib.common import tools, cfscrape
-except:
-    from third_party import cfscrape
-    tools = lambda: None
-    tools.addonName = "Seren"
-    def log(msg, level=None): print(msg)
-    tools.log = log
-
-try:
-    from urlparse import unquote
-    from urllib import quote_plus, quote
-    from HTMLParser import HTMLParser
-    unescape = HTMLParser().unescape
-except:
-    from html import unescape
-    from urllib.parse import quote_plus, quote, unquote
-
-SoupValue = namedtuple('SoupResult', 'el value')
-TorrentInfo = namedtuple('TorrentInfo', 'el title title_filter_el')
-UrlParts = namedtuple('UrlParts', 'base search')
-
-class Filter:
-    def __init__(self, fn, type):
-        self.fn = fn
-        self.type = type
-
-DEV_MODE = os.getenv('BTSCRAPER_TEST') == '1'
-DEV_MODE_ALL = os.getenv('BTSCRAPER_TEST_ALL') == '1'
-
-try:
-    if DEV_MODE:
-        raise
-
-    trackers_json_url = 'https://raw.githubusercontent.com/newt-sc/btScraper/master/providers/btScraper/en/torrent/lib/trackers.json'
-    response = source_utils.serenRequests().get(trackers_json_url)
-    trackers = json.loads(response.text)
-except:
-    trackers_json_path = os.path.join(os.path.dirname(__file__), 'trackers.json')
-
-    with open(trackers_json_path) as trackers_json:
-        trackers = json.load(trackers_json)
-
-def normalize(string):
-    unescaped = unescape(string)
-    unquoted = unquote(unescaped)
-    return unicodedata.normalize("NFKD", unquoted).replace('\n', '')
-
-def safe_list_get(l, idx, default=''):
-  try:
-    return l[idx]
-  except IndexError:
-    return default
-
-def beautifulSoup(response):
-    return BeautifulSoup(response.text, 'html.parser')
-
-def get_caller_name():
-    caller = getframeinfo(stack()[2][0])
-    filename = ntpath.basename(caller.filename)
-    filename_without_ext = os.path.splitext(filename)[0]
-    return filename_without_ext
+from utils import tools, beautifulSoup, get_caller_name, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL
+from common_types import namedtuple, SoupValue, TorrentInfo, UrlParts, Filter
+from request import threading, Request, ConnectTimeoutError, ReadTimeout
+from scrapers import re, NoResultsScraper, GenericTorrentScraper, MultiUrlScraper
+from trackers import trackers
 
 def get_scraper(soup_filter, title_filter, info, request=None, search_request=None, use_thread_for_info=False, custom_filter=None, caller_name=None):
     if caller_name is None:
@@ -119,69 +48,6 @@ def get_scraper(soup_filter, title_filter, info, request=None, search_request=No
 
     return TorrentScraper(url, search_request, soup_filter, title_filter, info, use_thread_for_info, custom_filter)
 
-def is_cloudflare_on(response):
-    return (response.status_code == 503
-            and response.headers.get("Server").startswith("cloudflare"))
-
-class Request:
-    def __init__(self, sequental=False, wait=0.3):
-        self._request = source_utils.serenRequests()
-        self._cfscrape = cfscrape.create_scraper()
-        self._sequental = sequental
-        self._wait = wait
-        self._lock = threading.Lock()
-
-    def _request_core(self, request):
-        if self._sequental is False:
-            return request()
-
-        with self._lock:
-            response = request()
-            time.sleep(self._wait)
-            return response
-
-    def _head(self, url):
-        tools.log('HEAD: %s' % url, 'info')
-        try:
-            response = self._request.head(url, timeout=8)
-            if is_cloudflare_on(response):
-                response = lambda: None
-                response.url = url
-                response.status_code = 200
-                return response
-
-            if response.status_code == 302 or response.status_code == 301:
-                redirect_url = response.headers['Location']
-                return self._head(redirect_url)
-            return response
-        except:
-            response = lambda: None
-            response.status_code = 501
-            return response
-
-    def find_url(self, urls):
-        for url in urls:
-            try:
-                response = self._head(url.base)
-                if response.status_code == 200:
-                    response_url = response.url
-
-                    if response_url.endswith("/"):
-                        response_url = response_url[:-1]
-
-                    return UrlParts(base=response_url, search=url.search)
-            except ConnectTimeoutError:
-                continue
-            except ReadTimeout:
-                continue
-
-        return None
-
-    def get(self, url, headers={}):
-        tools.log('GET: %s' % url, 'info')
-        request = lambda: self._cfscrape.get(url, headers=headers, timeout=8)
-        return self._request_core(request)
-
 class DefaultSources(object):
     def __init__(self, module_name, single_query=False, request=None, search_request=None):
         self._caller_name = module_name.split('.')[-1:][0]
@@ -210,124 +76,6 @@ class DefaultSources(object):
                                   caller_name=self._caller_name,
                                   single_query=self._single_query)
 
-class NoResultsScraper():
-    def movie_query(self, title, year, caller_name=None):
-        return []
-    def episode_query(self, simple_info, auto_query=True, single_query=False, caller_name=None):
-        return []
-
-class GenericTorrentScraper:
-    def __init__(self, title):
-        title = title.strip()
-        title = title[:title.find(' ')]
-        self._title_start = title.lower()
-
-    def _parse_rows(self, response, sep):
-        results = []
-        rows = response.split(sep)
-        for row in rows:
-            magnet_links = []
-            if sep == '<tr':
-                magnet_links = re.findall(r'(magnet:\?.*?&dn=.*?)[&"]', row)
-            elif sep == '<dl': # torrentz2
-                matches = safe_list_get(re.findall(r'href=\/([0-9a-zA-Z]*)>(.*?)<', row), 0, [])
-                if len(matches) == 2:
-                    magnet_links = ['magnet:?xt=urn:btih:%s&dn=%s' % (matches[0], matches[1])]
-
-            if len(magnet_links) == 0:
-                continue
-
-            if len(magnet_links) > 0:
-                torrent = lambda: None
-                torrent.magnet = safe_list_get(magnet_links, 0)
-                torrent.title = safe_list_get(torrent.magnet.split('dn='), 1)
-                torrent.size = self._parse_size(row)
-                torrent.seeds = self._parse_seeds(row)
-                results.append(torrent)
-
-        return results
-
-    def _parse_size(self, row):
-        size = safe_list_get(re.findall(r'(\d+\.?\d*\s*[GM]i?B)', row), 0) \
-            .replace('GiB', 'GB') \
-            .replace('MiB', 'MB')
-
-        if size == '': # bitlord
-            size = self._parse_number(row, -3)
-            if size is not '':
-                size += ' MB'
-
-        return size
-
-    def _parse_seeds(self, row):
-        seeds = safe_list_get(re.findall(r'Seeders:?\s*?(\d+)', row), 0)
-        if seeds == '':
-            seeds = safe_list_get(re.findall(r'Seed:?\s*?(\d+)', row), 0)
-        if seeds == '':
-            seeds = self._parse_number(row, -2)
-        if seeds == 'N/A':
-            seeds = '0'
-
-        return seeds
-
-    def _parse_number(self, row, idx):
-        number = safe_list_get(re.findall(r'>\s*?(\d+)\s*?<', row)[idx:], 0)
-        return number
-
-    def soup_filter(self, response):
-        response = normalize(response.text)
-        results = self._parse_rows(response, sep='<tr')
-        if len(results) == 0:
-            results = self._parse_rows(response, sep='<dl')
-
-        return results
-
-    def title_filter(self, result):
-        title = result.title[result.title.lower().find(self._title_start):]
-        title = normalize(title).replace('+', ' ')
-        return title
-
-    def info(self, url, torrent, torrent_info):
-        torrent['magnet'] = torrent_info.el.magnet
-
-        try:
-            torrent['size'] = source_utils.de_string_size(torrent_info.el.size)
-        except: pass
-
-        try:
-            torrent['seeds'] = int(torrent_info.el.seeds)
-        except: pass
-
-        return torrent
-
-class MultiUrlScraper:
-    def __init__(self, torrent_scrapers):
-        self._torrent_scrapers = torrent_scrapers
-
-    def movie_query(self, title, year, caller_name=None):
-        if caller_name is None:
-            caller_name = get_caller_name()
-
-        results = []
-        for scraper in self._torrent_scrapers:
-            result = scraper.movie_query(title, year, caller_name)
-            for item in result:
-                results.append(item)
-        
-        return results
-
-    def episode_query(self, simple_info, auto_query=True, single_query=False, caller_name=None):
-        if caller_name is None:
-            caller_name = get_caller_name()
-
-        results = []
-        for scraper in self._torrent_scrapers:
-            result = scraper.episode_query(simple_info, auto_query, single_query, caller_name)
-            for item in result:
-                results.append(item)
-
-        return results
-
 class TorrentScraper:
     def __init__(self, url, search_request, soup_filter, title_filter, info, use_thread_for_info=False, custom_filter=None):
         self._torrent_list = []
@@ -353,12 +101,6 @@ class TorrentScraper:
 
         filterShowPack = lambda t: source_utils.filterShowPack(self.simple_info, t)
         self.filterShowPack = Filter(fn=filterShowPack, type='show')
-
-    def _wait_threads(self, threads):
-        for thread in threads:
-            thread.start()
-        for thread in threads:
-            thread.join()
 
     def _search_core(self, query):
         try:
@@ -421,7 +163,7 @@ class TorrentScraper:
 
                         threads.append(threading.Thread(target=self._info_core, args=(torrent, ti)))
                         if DEV_MODE:
-                            self._wait_threads(threads)
+                            wait_threads(threads)
                             threads = []
                     else:
                         self._info_core(torrent, ti)
@@ -429,7 +171,7 @@ class TorrentScraper:
                     if DEV_MODE and len(self._torrent_list) > 0:
                         return
 
-        self._wait_threads(threads)
+        wait_threads(threads)
 
     def _query_thread(self, query, filters):
         return threading.Thread(target=self._get, args=(query.encode('utf-8'), filters))
@@ -493,14 +235,14 @@ class TorrentScraper:
         movie = lambda query: self._query_thread(query, [self.filterMovieTitle])
 
         try:
-            self._wait_threads([movie(title + ' ' + year)])
+            wait_threads([movie(title + ' ' + year)])
         except ConnectTimeoutError:
             return []
         except ReadTimeout:
             return []
 
         if len(self._torrent_list) == 0:
-            self._wait_threads([movie(title)])
+            wait_threads([movie(title)])
 
         self._movie_notice(caller_name)
 
@@ -527,18 +269,18 @@ class TorrentScraper:
         self.episode_xx = self.episode_x.zfill(2)
 
         if auto_query is False:
-            self._wait_threads([self._episode('')])
+            wait_threads([self._episode('')])
             self._episode_notice(caller_name)
             return self._torrent_list
 
         # specials
         if self.season_x == '0':
-            self._wait_threads([self._episode_special(self.show_title + ' %s' % self.episode_title)])
+            wait_threads([self._episode_special(self.show_title + ' %s' % self.episode_title)])
             self._episode_notice(caller_name)
             return self._torrent_list
 
         try:
-            self._wait_threads([
+            wait_threads([
                 self._episode(self.show_title + ' S%sE%s' % (self.season_xx, self.episode_xx))
             ])
         except ConnectTimeoutError:
@@ -558,9 +300,9 @@ class TorrentScraper:
         ]
 
         if self._use_thread_for_info:
-            self._wait_threads([queries[0]])
+            wait_threads([queries[0]])
         else:
-            self._wait_threads(queries)
+            wait_threads(queries)
 
         self._episode_notice(caller_name)
 
