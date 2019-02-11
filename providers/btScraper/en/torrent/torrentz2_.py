@@ -26,9 +26,10 @@ class sources(core.DefaultSources):
                 self._filter.type = 'show'
                 return True
 
-        if season_str in ['season', 'S%s' % self.scraper.season_x, 'S%s' % self.scraper.season_xx]:
-            self._filter.type = 'season'
-            return True
+        for season_str in ['season', 'S%s' % self.scraper.season_x, 'S%s' % self.scraper.season_xx]:
+            if season_str in title:
+                self._filter.type = 'season'
+                return True
 
         return False
 
