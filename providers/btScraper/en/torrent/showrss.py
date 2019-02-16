@@ -5,7 +5,7 @@ from lib import core
 show_list = None
 Show = core.namedtuple('Show', 'title id')
 
-class sources:
+class sources(object):
     def __init__(self):
         self._request = core.Request()
         self._url = core.UrlParts(base='https://showrss.info',
@@ -49,8 +49,7 @@ class sources:
     def _title_filter(self, el):
         return core.re.findall(r'<tv:raw_title>(.*?)</tv:raw_title>', str(el))[0]
 
-    def _info(self, url, torrent, torrent_info):
-        el = torrent_info.el
+    def _info(self, el, url, torrent):
         torrent['magnet'] = core.re.findall(r'"(magnet:\?.*?)"', str(el))[0]
 
         return torrent

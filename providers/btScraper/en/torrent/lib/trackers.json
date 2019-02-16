@@ -87,10 +87,30 @@
             "search": "/sort-search/%s/size/desc/1/"
         }
     ],
+    "lime": [
+        {
+            "base": "https://www.limetorrents.info",
+            "search": "/search/all/%s"
+        },
+        {
+            "base": "https://www.limetorrents.asia",
+            "search": "/search/all/%s"
+        },
+        {
+            "base": "https://www.limetorrents.zone",
+            "search": "/search/all/%s"
+        }
+    ],
     "magnetdl": [
         {
             "base": "https://www.magnetdl.com",
             "search": "/%s/%s/"
+        }
+    ],
+    "movcr": [
+        {
+            "base": "https://movcr.cc",
+            "search": "/search/search.php?q=%s"
         }
     ],
     "piratebay": [
@@ -151,6 +171,16 @@
             "search": "/index.php?q=%s&video=on&category=0&page=0&orderby=99"
         }
     ],
+    "torrentdownloads": [
+        {
+            "base": "https://www.torrentdownloads.me",
+            "search": "/search/?search=%s"
+        },
+        {
+            "base": "https://www.torrentdownloads.info",
+            "search": "/search/?search=%s"
+        }
+    ],
     "torrentz2_": [
         {
             "base": "https://torrentz2.eu",
@@ -169,6 +199,12 @@
         {
             "base": "https://torrentz2.tv",
             "search": "/search?f=%s"
+        }
+    ],
+    "yts": [
+        {
+            "base": "https://yts.am",
+            "search": "/api/v2/list_movies.json?query_term=%s"
         }
     ],
     "zooqle": [

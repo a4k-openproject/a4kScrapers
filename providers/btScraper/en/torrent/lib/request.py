@@ -19,8 +19,8 @@ def is_cloudflare_on(response):
     return (response.status_code == 503
             and response.headers.get("Server").startswith("cloudflare"))
 
-class Request:
-    def __init__(self, sequental=False, wait=0.3):
+class Request(object):
+    def __init__(self, sequental=False, wait=1):
         self._request = source_utils.serenRequests()
         self._cfscrape = cfscrape.create_scraper()
         self._sequental = sequental

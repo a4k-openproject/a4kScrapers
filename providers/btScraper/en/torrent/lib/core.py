@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import traceback
+import json
 
 from third_party import source_utils
 from utils import tools, beautifulSoup, get_caller_name, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL
-from common_types import namedtuple, SoupValue, TorrentInfo, UrlParts, Filter
+from common_types import namedtuple, SearchResult, UrlParts, Filter
 from request import threading, Request, ConnectTimeoutError, ReadTimeout
-from scrapers import re, NoResultsScraper, GenericTorrentScraper, MultiUrlScraper
+from scrapers import re, NoResultsScraper, GenericTorrentScraper, GenericExtraQueryTorrentScraper, MultiUrlScraper
 from trackers import trackers
 
 def get_scraper(soup_filter, title_filter, info, request=None, search_request=None, use_thread_for_info=False, custom_filter=None, caller_name=None):
@@ -49,20 +50,36 @@ def get_scraper(soup_filter, title_filter, info, request=None, search_request=No
     return TorrentScraper(url, search_request, soup_filter, title_filter, info, use_thread_for_info, custom_filter)
 
 class DefaultSources(object):
-    def __init__(self, module_name, single_query=False, request=None, search_request=None):
+    def __init__(self, module_name, request=None, single_query=False, search_request=None):
         self._caller_name = module_name.split('.')[-1:][0]
-        self._single_query = single_query
         self._request = request
+        self._single_query = single_query
         self._search_request = search_request
 
-    def _get_scraper(self, title, custom_filter=None):
-        genericScraper = GenericTorrentScraper(title)
-        self.scraper = get_scraper(genericScraper.soup_filter,
-                                   genericScraper.title_filter,
-                                   genericScraper.info,
+    def _get_scraper(self, title, genericScraper=None, use_thread_for_info=False, custom_filter=None):
+        if genericScraper is None:
+            genericScraper = GenericTorrentScraper(title)
+
+        soup_filter = getattr(self, 'soup_filter', None)
+        if soup_filter is None:
+            soup_filter = genericScraper.soup_filter
+
+        title_filter = getattr(self, 'title_filter', None)
+        if title_filter is None:
+            title_filter = genericScraper.title_filter
+
+        info = getattr(self, 'info', None)
+        if info is None:
+            info = genericScraper.info
+
+        self.genericScraper = genericScraper
+        self.scraper = get_scraper(soup_filter,
+                                   title_filter,
+                                   info,
                                    caller_name=self._caller_name,
                                    request=self._request,
                                    search_request=self._search_request,
+                                   use_thread_for_info=use_thread_for_info,
                                    custom_filter=custom_filter)
         return self.scraper
 
@@ -76,7 +93,23 @@ class DefaultSources(object):
                                   caller_name=self._caller_name,
                                   single_query=self._single_query)
 
-class TorrentScraper:
+class DefaultExtraQuerySources(DefaultSources):
+    def __init__(self, module_name, single_query=False, search_request=None):
+        super(DefaultExtraQuerySources, self).__init__(module_name,
+                                                       request=Request(sequental=True),
+                                                       single_query=single_query,
+                                                       search_request=search_request)
+
+    def _get_scraper(self, title, custom_filter=None):
+        genericScraper = GenericExtraQueryTorrentScraper(title,
+                                                         context=self,
+                                                         request=self._request)
+        return super(DefaultExtraQuerySources, self)._get_scraper(title,
+                                                                  genericScraper=genericScraper,
+                                                                  use_thread_for_info=True,
+                                                                  custom_filter=custom_filter)
+
+class TorrentScraper(object):
     def __init__(self, url, search_request, soup_filter, title_filter, info, use_thread_for_info=False, custom_filter=None):
         self._torrent_list = []
         self._url = url
@@ -115,45 +148,43 @@ class TorrentScraper:
             traceback.print_exc()
             return []
 
-        torrents = []
+        results = []
         for el in search_results:
             try:
                 title = self._title_filter(el)
-                title_filter_el = None
-                if isinstance(title, SoupValue):
-                    title_filter_el = title.el
-                    title = title.value
-                torrents.append(TorrentInfo(el=el, title=title, title_filter_el=title_filter_el))
+                results.append(SearchResult(el=el, title=title))
             except:
                 continue
 
-        return torrents
+        return results
 
-    def _info_core(self, torrent, torrent_info):
+    def _info_core(self, el, torrent):
         try:
-            result = self._info(self._url, torrent, torrent_info)
+            result = self._info(el, self._url, torrent)
             if result is not None and result['magnet'].startswith('magnet:?'):
                 self._torrent_list.append(result)
         except:
             pass
 
     def _get(self, query, filters):
-        torrent_infos = self._search_core(query)
+        results = self._search_core(query)
 
         threads = []
-        for ti in torrent_infos:
+        for result in results:
+            el = result.el
+            title = result.title
             for filter in filters:
                 custom_filter = False
                 packageType = filter.type
                 if self._custom_filter is not None:
-                    if self._custom_filter.fn(ti.title):
+                    if self._custom_filter.fn(title):
                         custom_filter = True
                         packageType = self._custom_filter.type
 
-                if custom_filter or filter.fn(ti.title):
+                if custom_filter or filter.fn(title):
                     torrent = {}
                     torrent['package'] = packageType
-                    torrent['release_title'] = ti.title
+                    torrent['release_title'] = title
                     torrent['size'] = None
                     torrent['seeds'] = None
 
@@ -161,12 +192,12 @@ class TorrentScraper:
                         if len(threads) >= 5:
                             break
 
-                        threads.append(threading.Thread(target=self._info_core, args=(torrent, ti)))
+                        threads.append(threading.Thread(target=self._info_core, args=(el, torrent)))
                         if DEV_MODE:
                             wait_threads(threads)
                             threads = []
                     else:
-                        self._info_core(torrent, ti)
+                        self._info_core(el, torrent)
 
                     if DEV_MODE and len(self._torrent_list) > 0:
                         return

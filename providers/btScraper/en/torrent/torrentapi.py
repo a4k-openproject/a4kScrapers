@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import json
-
 from lib import core
 from lib.core import tools
 
-class sources:
+class sources(object):
     def __init__(self):
-        self._request = core.Request(sequental=True,wait=1)
+        self._request = core.Request(sequental=True)
         self._url = core.UrlParts(base='https://torrentapi.org/pubapi_v2.php?app_id=%s' % tools.addonName,
                                   search='&mode=search&search_string=%s&token=%s&limit=100&format=json_extended')
         self._token = None
@@ -18,7 +16,7 @@ class sources:
 
         token_url = url.base + '&get_token=get_token'
         response = self._request.get(token_url)
-        self._token = json.loads(response.text)['token']
+        self._token = core.json.loads(response.text)['token']
 
         return self._token
 
@@ -30,7 +28,7 @@ class sources:
             tools.log('No response from %s' %url, 'error')
             return []
 
-        response = json.loads(response.text)
+        response = core.json.loads(response.text)
 
         if 'error_code' in response:
             return []
@@ -40,8 +38,7 @@ class sources:
     def _title_filter(self, el):
         return el['title']
 
-    def _info(self, url, torrent, torrent_info):
-        el = torrent_info.el
+    def _info(self, el, url, torrent):
         torrent['magnet'] = el['download']
 
         try: torrent['size'] = int((el['size'] / 1024) / 1024)

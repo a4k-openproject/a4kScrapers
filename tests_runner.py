@@ -33,40 +33,43 @@ from providers.btScraper.en import torrent as torrent_module
 for scraper in torrent_module.__all__:
     importlib.import_module('providers.btScraper.en.torrent.%s' % scraper)
 
-def assert_result(test, scraper, torrent_list):
+def assert_result(test, scraper, scraper_name, torrent_list):
     warnings.filterwarnings(action='ignore',
                             message='unclosed',
                             category=ResourceWarning)
 
-    caller_name = os.path.basename(scraper.__file__)[:-3]
     results_count = len(torrent_list)
 
     if results_count == 0 \
-       and caller_name not in core.trackers \
-       and caller_name not in ['showrss', 'torrentapi']:
-        print('tracker %s is disabled' % caller_name)
+       and scraper_name not in core.trackers \
+       and scraper_name not in ['showrss', 'torrentapi']:
+        print('tracker %s is disabled' % scraper_name)
         return
 
     expected_count = 1
-    if os.getenv('BTSCRAPER_TEST_ALL') == '1' and caller_name not in ['showrss', 'torrentapi']:
-        expected_count = len(core.trackers[caller_name])
+    if os.getenv('BTSCRAPER_TEST_ALL') == '1' and scraper_name not in ['showrss', 'torrentapi']:
+        expected_count = len(core.trackers[scraper_name])
 
-    test.assertEqual(results_count, expected_count, '%s failed to find torrent' % caller_name)
+    test.assertEqual(results_count, expected_count, '%s failed to find torrent' % scraper_name)
 
-    if caller_name == 'showrss':
+    if scraper_name == 'showrss':
         return
 
     for torrent in torrent_list:
-        test.assertIsNotNone(torrent['size'], '%s missing size info' % caller_name)
-        test.assertIsNotNone(torrent['seeds'], '%s missing seeds info' % caller_name)
+        test.assertIsNotNone(torrent['size'], '%s missing size info' % scraper_name)
+        test.assertIsNotNone(torrent['seeds'], '%s missing seeds info' % scraper_name)
 
-def movie(test, scraper):
-    movie_title = 'Fantastic Beasts and Where to Find Them'
-    movie_year = '2016'
+def movie(test, scraper, scraper_name):
+    if scraper_name == 'movcr':
+        movie_title = 'Gully Boy'
+        movie_year = '2019'
+    else:
+        movie_title = 'Fantastic Beasts and Where to Find Them'
+        movie_year = '2016'
     torrent_list = scraper.sources().movie(movie_title, movie_year)
-    assert_result(test, scraper, torrent_list)
+    assert_result(test, scraper, scraper_name, torrent_list)
 
-def episode(test, scraper):
+def episode(test, scraper, scraper_name):
     simple_info = {}
     simple_info['show_title'] = 'Game of Thrones'
     simple_info['episode_title'] = 'The Dragon and the Wolf'
@@ -78,17 +81,18 @@ def episode(test, scraper):
     simple_info['no_seasons'] = '7'
 
     torrent_list = scraper.sources().episode(simple_info, {})
-    assert_result(test, scraper, torrent_list)
+    assert_result(test, scraper, scraper_name, torrent_list)
 
 class TestScraping(unittest.TestCase):
     pass
 
 def test(self, scraper):
     scraper_module = getattr(torrent_module, scraper)
+
     if scraper not in ['showrss', 'eztv']:
-        movie(self, scraper_module)
+        movie(self, scraper_module, scraper)
     else:
-        episode(self, scraper_module)
+        episode(self, scraper_module, scraper)
 
 for scraper in torrent_module.__all__:
     method = lambda scraper: lambda self: test(self, scraper)

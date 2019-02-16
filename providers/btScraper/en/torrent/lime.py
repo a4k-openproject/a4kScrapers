@@ -2,6 +2,6 @@
 
 from lib import core
 
-class sources(core.DefaultExtraQuerySources):
+class sources(core.DefaultSources):
     def __init__(self):
         super(sources, self).__init__(__name__)

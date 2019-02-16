@@ -2,11 +2,10 @@
 
 from collections import namedtuple
 
-SoupValue = namedtuple('SoupResult', 'el value')
-TorrentInfo = namedtuple('TorrentInfo', 'el title title_filter_el')
+SearchResult = namedtuple('SearchResult', 'el title')
 UrlParts = namedtuple('UrlParts', 'base search')
 
-class Filter:
+class Filter(object):
     def __init__(self, fn, type):
         self.fn = fn
         self.type = type

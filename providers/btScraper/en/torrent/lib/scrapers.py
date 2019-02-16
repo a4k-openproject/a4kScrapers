@@ -3,44 +3,66 @@
 import re
 
 from third_party import source_utils
-from utils import normalize, safe_list_get, get_caller_name
+from utils import normalize, safe_list_get, get_caller_name, beautifulSoup
 
-class NoResultsScraper():
+class NoResultsScraper(object):
     def movie_query(self, title, year, caller_name=None):
         return []
     def episode_query(self, simple_info, auto_query=True, single_query=False, caller_name=None):
         return []
 
-class GenericTorrentScraper:
+class GenericTorrentScraper(object):
     def __init__(self, title):
+        self.magnet_template = 'magnet:?xt=urn:btih:%s&dn=%s'
+
         title = title.strip()
         title = title[:title.find(' ')]
         self._title_start = title.lower()
 
-    def _parse_rows(self, response, sep):
+    def _parse_rows(self, response, row_tag):
         results = []
-        rows = response.split(sep)
+        rows = response.split(row_tag)
         for row in rows:
-            magnet_links = []
-            if sep == '<tr':
-                magnet_links = re.findall(r'(magnet:\?.*?&dn=.*?)[&"]', row)
-            elif sep == '<dl': # torrentz2
-                matches = safe_list_get(re.findall(r'href=\/([0-9a-zA-Z]*)>(.*?)<', row), 0, [])
-                if len(matches) == 2:
-                    magnet_links = ['magnet:?xt=urn:btih:%s&dn=%s' % (matches[0], matches[1])]
-
-            if len(magnet_links) == 0:
-                continue
-
-            if len(magnet_links) > 0:
-                torrent = lambda: None
-                torrent.magnet = safe_list_get(magnet_links, 0)
-                torrent.title = safe_list_get(torrent.magnet.split('dn='), 1)
-                torrent.size = self._parse_size(row)
-                torrent.seeds = self._parse_seeds(row)
+            torrent = self._parse_torrent(row, row_tag)
+            if torrent is not None:
                 results.append(torrent)
 
         return results
+
+    def _parse_torrent(self, row, row_tag):
+        magnet_link = self._parse_magnet(row, row_tag)
+
+        if magnet_link is not None:
+            torrent = lambda: None
+            torrent.magnet = magnet_link
+            torrent.title = safe_list_get(torrent.magnet.split('dn='), 1)
+            torrent.size = self._parse_size(row)
+            torrent.seeds = self._parse_seeds(row)
+            return torrent
+
+        return None
+
+    def _parse_magnet(self, row, row_tag='<tr'):
+        magnet_links = []
+        def build_magnet(matches):
+            if len(matches) == 2:
+                return [self.magnet_template % (matches[0], matches[1])]
+            return []
+
+        if row_tag == '<tr':
+            magnet_links = re.findall(r'(magnet:\?.*?&dn=.*?)[&"]', row)
+            if len(magnet_links) == 0: # lime
+                matches = safe_list_get(re.findall(r'\/([0-9a-zA-Z]*).torrent\?title=(.*?)"', row), 0, [])
+                magnet_links = build_magnet(matches)
+
+        elif row_tag == '<dl': # torrentz2
+            matches = safe_list_get(re.findall(r'href=\/([0-9a-zA-Z]*)>(.*?)<', row), 0, [])
+            magnet_links = build_magnet(matches)
+
+        if len(magnet_links) > 0:
+            return safe_list_get(magnet_links, 0)
+
+        return None
 
     def _parse_size(self, row):
         size = safe_list_get(re.findall(r'(\d+\.?\d*\s*[GM]i?B)', row), 0) \
@@ -71,9 +93,9 @@ class GenericTorrentScraper:
 
     def soup_filter(self, response):
         response = normalize(response.text)
-        results = self._parse_rows(response, sep='<tr')
+        results = self._parse_rows(response, row_tag='<tr')
         if len(results) == 0:
-            results = self._parse_rows(response, sep='<dl')
+            results = self._parse_rows(response, row_tag='<dl')
 
         return results
 
@@ -82,20 +104,95 @@ class GenericTorrentScraper:
         title = normalize(title).replace('+', ' ')
         return title
 
-    def info(self, url, torrent, torrent_info):
-        torrent['magnet'] = torrent_info.el.magnet
+    def info(self, el, url, torrent):
+        torrent['magnet'] = el.magnet
 
         try:
-            torrent['size'] = source_utils.de_string_size(torrent_info.el.size)
+            torrent['size'] = source_utils.de_string_size(el.size)
         except: pass
 
         try:
-            torrent['seeds'] = int(torrent_info.el.seeds)
+            torrent['seeds'] = int(el.seeds)
         except: pass
 
         return torrent
 
-class MultiUrlScraper:
+class GenericExtraQueryTorrentScraper(GenericTorrentScraper):
+    def __init__(self, title, context, request):
+        super(GenericExtraQueryTorrentScraper, self).__init__(title)
+        self._request = request
+
+        find_title = getattr(context, 'find_title', None)
+        if find_title is not None:
+            self._find_title = find_title
+
+        find_url = getattr(context, 'find_url', None)
+        if find_url is not None:
+            self._find_url = find_url
+
+        find_seeds = getattr(context, 'find_seeds', None)
+        if find_seeds is not None:
+            self._find_seeds = find_seeds
+
+        title_index = getattr(context, 'title_index', None)
+        if title_index is None:
+            title_index = 1
+        self._title_index = title_index
+
+        url_index = getattr(context, 'url_index', None)
+        if url_index is None:
+            url_index = 1
+        self._url_index = url_index
+
+        seeds_index = getattr(context, 'seeds_index', None)
+        if seeds_index is None:
+            seeds_index = 2
+        self._seeds_index = seeds_index
+
+        self._custom_parse_seeds = getattr(context, 'parse_seeds', None)
+
+    def _find_title(self, el):
+        return el.text.split('\n')[self._title_index]
+
+    def _find_url(self, el):
+        return el.find_all('a')[self._url_index]['href']
+
+    def _find_seeds(self, el):
+        return el.text.split('\n')[self._seeds_index]
+
+    def soup_filter(self, response):
+        return beautifulSoup(response).find_all('tr')
+
+    def title_filter(self, el):
+        torrent_title = self._find_title(el)
+        result = lambda: None
+        result.title = torrent_title
+        title = super(GenericExtraQueryTorrentScraper, self).title_filter(result)
+        return title
+
+    def info(self, el, url, torrent):
+        torrent_url = self._find_url(el)
+        if torrent_url[0] != '/':
+            return None
+
+        response = self._request.get(url.base + torrent_url)
+        torrent['magnet'] = self._parse_magnet(response.text)
+
+        try:
+            size = self._parse_size(str(el))
+            torrent['size'] = source_utils.de_string_size(size)
+        except: pass
+
+        try:
+            seeds = self._find_seeds(el)
+            if self._custom_parse_seeds is not None:
+                seeds = self._custom_parse_seeds(seeds)
+            torrent['seeds'] = int(seeds)
+        except: pass
+
+        return torrent
+
+class MultiUrlScraper(object):
     def __init__(self, torrent_scrapers):
         self._torrent_scrapers = torrent_scrapers
 
