@@ -63,6 +63,9 @@ def movie(test, scraper, scraper_name):
     if scraper_name == 'movcr':
         movie_title = 'Gully Boy'
         movie_year = '2019'
+    elif scraper_name == 'nyaa':
+        movie_title = 'Ghost in the Shell'
+        movie_year = '1995'
     else:
         movie_title = 'Fantastic Beasts and Where to Find Them'
         movie_year = '2016'

@@ -30,19 +30,23 @@ class GenericTorrentScraper(object):
         return results
 
     def _parse_torrent(self, row, row_tag):
-        magnet_link = self._parse_magnet(row, row_tag)
+        magnet_link = self.parse_magnet(row, row_tag)
 
         if magnet_link is not None:
             torrent = lambda: None
             torrent.magnet = magnet_link
             torrent.title = safe_list_get(torrent.magnet.split('dn='), 1)
-            torrent.size = self._parse_size(row)
-            torrent.seeds = self._parse_seeds(row)
+            torrent.size = self.parse_size(row)
+            torrent.seeds = self.parse_seeds(row)
             return torrent
 
         return None
 
-    def _parse_magnet(self, row, row_tag='<tr'):
+    def _parse_number(self, row, idx):
+        number = safe_list_get(re.findall(r'>\s*?(\d+)\s*?<', row)[idx:], 0)
+        return number
+
+    def parse_magnet(self, row, row_tag='<tr'):
         magnet_links = []
         def build_magnet(matches):
             if len(matches) == 2:
@@ -64,7 +68,7 @@ class GenericTorrentScraper(object):
 
         return None
 
-    def _parse_size(self, row):
+    def parse_size(self, row):
         size = safe_list_get(re.findall(r'(\d+\.?\d*\s*[GM]i?B)', row), 0) \
             .replace('GiB', 'GB') \
             .replace('MiB', 'MB')
@@ -76,7 +80,7 @@ class GenericTorrentScraper(object):
 
         return size
 
-    def _parse_seeds(self, row):
+    def parse_seeds(self, row):
         seeds = safe_list_get(re.findall(r'Seeders:?\s*?(\d+)', row), 0)
         if seeds == '':
             seeds = safe_list_get(re.findall(r'Seed:?\s*?(\d+)', row), 0)
@@ -86,10 +90,6 @@ class GenericTorrentScraper(object):
             seeds = '0'
 
         return seeds
-
-    def _parse_number(self, row, idx):
-        number = safe_list_get(re.findall(r'>\s*?(\d+)\s*?<', row)[idx:], 0)
-        return number
 
     def soup_filter(self, response):
         response = normalize(response.text)
@@ -176,10 +176,10 @@ class GenericExtraQueryTorrentScraper(GenericTorrentScraper):
             return None
 
         response = self._request.get(url.base + torrent_url)
-        torrent['magnet'] = self._parse_magnet(response.text)
+        torrent['magnet'] = self.parse_magnet(response.text)
 
         try:
-            size = self._parse_size(str(el))
+            size = self.parse_size(str(el))
             torrent['size'] = source_utils.de_string_size(size)
         except: pass
 

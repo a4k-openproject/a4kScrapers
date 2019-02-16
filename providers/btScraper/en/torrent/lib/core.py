@@ -4,7 +4,7 @@ import traceback
 import json
 
 from third_party import source_utils
-from utils import tools, beautifulSoup, get_caller_name, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL
+from utils import tools, beautifulSoup, safe_list_get, get_caller_name, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL
 from common_types import namedtuple, SearchResult, UrlParts, Filter
 from request import threading, Request, ConnectTimeoutError, ReadTimeout
 from scrapers import re, NoResultsScraper, GenericTorrentScraper, GenericExtraQueryTorrentScraper, MultiUrlScraper
@@ -71,6 +71,18 @@ class DefaultSources(object):
         info = getattr(self, 'info', None)
         if info is None:
             info = genericScraper.info
+
+        parse_magnet = getattr(self, 'parse_magnet', None)
+        if parse_magnet is not None:
+            genericScraper.parse_magnet = parse_magnet
+
+        parse_size = getattr(self, 'parse_size', None)
+        if parse_size is not None:
+            genericScraper.parse_size = parse_size
+
+        parse_seeds = getattr(self, 'parse_seeds', None)
+        if parse_seeds is not None:
+            genericScraper.parse_seeds = parse_seeds
 
         self.genericScraper = genericScraper
         self.scraper = get_scraper(soup_filter,
