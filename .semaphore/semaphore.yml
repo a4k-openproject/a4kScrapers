@@ -1,6 +1,6 @@
 # .semaphore/semaphore.yml
 version: v1.0
-name: btScraper
+name: a4kScrapers
 agent:
   machine:
     type: e1-standard-2

@@ -248,10 +248,10 @@ class TorrentScraper(object):
         return stats
 
     def _movie_notice(self, caller_name):
-        tools.log('btScraper.movie.%s: %s' % (caller_name, self._torrent_list_stats(caller_name)), 'notice')
+        tools.log('a4kScrapers.movie.%s: %s' % (caller_name, self._torrent_list_stats(caller_name)), 'notice')
 
     def _episode_notice(self, caller_name):
-        tools.log('btScraper.episode.%s: %s' % (caller_name, self._torrent_list_stats(caller_name)), 'notice')
+        tools.log('a4kScrapers.episode.%s: %s' % (caller_name, self._torrent_list_stats(caller_name)), 'notice')
 
     def _episode(self, query):
         return self._query_thread(query, [self.filterSingleEpisode])

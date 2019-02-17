@@ -10,7 +10,7 @@ try:
     if DEV_MODE:
         raise
 
-    trackers_json_url = 'https://raw.githubusercontent.com/newt-sc/btScraper/master/providers/btScraper/en/torrent/lib/trackers.json'
+    trackers_json_url = 'https://raw.githubusercontent.com/newt-sc/a4kScrapers/master/providers/a4kScrapers/en/torrent/lib/trackers.json'
     response = source_utils.serenRequests().get(trackers_json_url)
     trackers = json.loads(response.text)
 except:

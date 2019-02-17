@@ -10,7 +10,7 @@ from types import MethodType
 
 dir_name = os.path.dirname(__file__)
 providers = os.path.join(dir_name, 'providers')
-bt_scraper = os.path.join(providers, 'btScraper')
+bt_scraper = os.path.join(providers, 'a4kScrapers')
 en = os.path.join(bt_scraper, 'en')
 torrent = os.path.join(en, 'torrent')
 lib = os.path.join(torrent, 'lib')
@@ -27,11 +27,11 @@ sys.path.append(third_party)
 os.environ['BTSCRAPER_TEST'] = '1'
 #os.environ['BTSCRAPER_TEST_ALL'] = '1' # verify all urls per tracker
 
-from providers.btScraper.en.torrent.lib import core
-from providers.btScraper.en import torrent as torrent_module
+from providers.a4kScrapers.en.torrent.lib import core
+from providers.a4kScrapers.en import torrent as torrent_module
 
 for scraper in torrent_module.__all__:
-    importlib.import_module('providers.btScraper.en.torrent.%s' % scraper)
+    importlib.import_module('providers.a4kScrapers.en.torrent.%s' % scraper)
 
 def assert_result(test, scraper, scraper_name, torrent_list):
     warnings.filterwarnings(action='ignore',
