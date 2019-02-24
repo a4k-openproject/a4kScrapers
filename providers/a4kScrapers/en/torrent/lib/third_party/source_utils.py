@@ -5,9 +5,6 @@ import re
 
 from requests import Session
 
-COMMON_VIDEO_EXTENSIONS = ['.m4v', '.mkv', '.mka', '.mp4', '.avi', '.mpeg', '.asf', '.flv', '.m4a', '.aac', '.nut',
-                           '.ogg']
-
 BROWSER_AGENTS = [
     'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36',
     'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36',
@@ -22,50 +19,24 @@ BROWSER_AGENTS = [
 
 exclusions = ['soundtrack', 'gesproken']
 
+class serenRequests(Session):
+    def __init__(self, *args, **kwargs):
+        super(serenRequests, self).__init__(*args, **kwargs)
+        if "requests" in self.headers["User-Agent"]:
+            # Spoof common and random user agent
+            self.headers["User-Agent"] = random.choice(BROWSER_AGENTS)
 
-def getQuality(release_title):
-    quality = 'SD'
-    if '4K' in release_title:
-        quality = '4K'
-    if '2160p' in release_title:
-        quality = '4K'
-    if '1080p' in release_title:
-        quality = '1080p'
-    if ' 1080 ' in release_title:
-        quality = '1080p'
-    if ' 720 ' in release_title:
-        quality = '720p'
-    if ' HD ' in release_title:
-        quality = '720p'
-    if '720p' in release_title:
-        quality = '720p'
-
-    return quality
-
-
-def getInfo(release_title):
-    info = []
-    release_title = cleanTitle(release_title)
-    if any(i in release_title for i in [' x264', '.x264', ' h264', 'h 264']):
-        info.append('x264')
-    if any(i in release_title for i in [' 3d']):
-        info.append('3D')
-    if any(i in release_title for i in [' aac']):
-        info.append('AAC')
-    if any(i in release_title for i in [' dts']):
-        info.append('DTS')
-    if any(i in release_title for i in [' 5 1', ' 5 1ch', ' 6ch', ' ddp5 1']):
-        info.append('DDP5.1')
-    if any(i in release_title for i in [' 7 1']):
-        info.append('7.1')
-    if any(i in release_title for i in ['x265', '.x265', 'hevc', ' h265', '.h265', 'x265', ' h 265']):
-        info.append('x265')
-    if any(i in release_title for i in [' cam', ' camrip', ' hdcam', ' hd cam']):
-        info.append('CAM')
-    if any(i in release_title for i in [' dvdscr']):
-        info.append('DVD SCREENER')
-    return info
-
+def de_string_size(size):
+    try:
+        if 'GB' in size:
+            size = float(size.replace('GB', ''))
+            size = int(size * 1024)
+            return size
+        if 'MB' in size:
+            size = int(size.replace('MB', '').replace(' ', '').split('.')[0])
+            return size
+    except:
+        return 0
 
 def cleanTitle(title):
     title = title.lower()
@@ -74,13 +45,14 @@ def cleanTitle(title):
     title = title.replace('_', ' ')
     title = title.replace('?', '')
     title = title.replace('!', '')
+    title = title.replace('\'', '')
+    title = title.replace('"', '')
     title = title.replace('.', ' ')
     title = title.replace(',', ' ')
     title = title.replace('  ', ' ')
     title = title.replace('  ', ' ')
     title = title.replace('  ', ' ')
-    return title
-
+    return title.strip()
 
 def searchTitleClean(title):
     title = title.lower()
@@ -88,26 +60,33 @@ def searchTitleClean(title):
     title = re.sub(r'\:|\\|\/|\,|\!|\(|\)|\'', '', title)
     title = title.replace('.', '')
     title = title.replace('  ', ' ')
-    return title
+    return title.strip()
 
-
-def filterMovieTitle(release_title, movieTitle, year):
-    movieTitle = cleanTitle(movieTitle.lower())
+def filterMovieTitle(release_title, movie_title, year):
+    movie_title = cleanTitle(movie_title.lower())
     release_title = cleanTitle(release_title.lower())
-    string_list = []
-    string_list.append('%s' % (movieTitle))
-    string_list.append('%s' % (movieTitle.replace(' ', '.')))
+    movie_title_parts = movie_title.split(' ')
 
-    if any(i in release_title for i in string_list):
-        if any(i in release_title for i in exclusions):
+    for movie_title_part in movie_title_parts:
+        if movie_title_part == ' ':
+            continue
+        
+        if movie_title_part not in release_title:
             return False
-        else:
-            if release_title.startswith(movieTitle.split(' ')[0]):
-                return True
-            else:
-                return False
-    return False
 
+    if any(i in release_title for i in exclusions):
+        return False
+
+    if year not in release_title:
+        return False
+
+    if 'xxx' in release_title and 'xxx' not in movie_title:
+        return False
+
+    if release_title.startswith(movie_title_parts[0]):
+        return True
+
+    return False
 
 def filterSeasonPack(simpleInfo, release_title):
     show_title, season, aliasList, year, country = \
@@ -160,7 +139,6 @@ def filterSeasonPack(simpleInfo, release_title):
 
     return False
 
-
 def filterSingleEpisode(simpleInfo, release_title):
     show_title, season, episode, aliasList, year, country = \
         simpleInfo['show_title'], \
@@ -201,16 +179,16 @@ def filterSingleEpisode(simpleInfo, release_title):
 
     return False
 
-
 def filterSingleSpecialEpisode(simpleInfo, release_title):
-    episode_title_parts = simpleInfo['episode_title'].split(' ')
+    episode_title_parts = cleanTitle(simpleInfo['episode_title']).split(' ')
 
     for episode_title_part in episode_title_parts:
+        if episode_title_part == ' ':
+            continue
         if episode_title_part not in release_title:
             return False
 
     return True
-
 
 def filterShowPack(simpleInfo, release_title):
     release_title = cleanTitle(release_title.lower().replace('the complete', '').replace('complete', ''))
@@ -292,67 +270,3 @@ def filterShowPack(simpleInfo, release_title):
             return True
 
     return False
-
-class serenRequests(Session):
-    def __init__(self, *args, **kwargs):
-        super(serenRequests, self).__init__(*args, **kwargs)
-        if "requests" in self.headers["User-Agent"]:
-            # Spoof common and random user agent
-            self.headers["User-Agent"] = random.choice(BROWSER_AGENTS)
-
-
-def torrentCacheStrings(args):
-    episodeInfo = args['episodeInfo']['info']
-    episode_title = cleanTitle(episodeInfo['title'])
-    season_number = str(episodeInfo['season'])
-    episode_number = str(episodeInfo['episode'])
-    episodeStrings = ['s%se%s ' % (season_number.zfill(2), episode_number.zfill(2)),
-                      's%se%s ' % (season_number, episode_number.zfill(2)),
-                      's%se%s ' % (season_number.zfill(2), episode_number),
-                      's%se%s ' % (season_number, episode_number),
-                      'episode %s ' % episode_number.zfill(2),
-                      'episode %s ' % episode_number,
-                      '%sx%s ' % (season_number, episode_number),
-                      '%sx%s ' % (season_number.zfill(2), episode_number.zfill(2)),
-                      '%sx%s ' % (season_number, episode_number.zfill(2)),
-                      '[%s %s]' % (season_number.zfill(2), episode_number),
-                      '[%s %s]' % (season_number, episode_number.zfill(2)),
-                      '[%s %s]' % (season_number, episode_number),
-                      '[%sx%s]' % (season_number.zfill(2), episode_number),
-                      '[%sx%s]' % (season_number, episode_number.zfill(2)),
-                      '[%sx%s]' % (season_number, episode_number),
-                      ' %s' % cleanTitle(episode_title),
-                      ' ep%s' % episode_number,
-                      ' ep%s' % episode_number.zfill(2),
-                      '%s%s ' % (season_number, episode_number.zfill(2)),
-                      '%s%s ' % (season_number.zfill(2), episode_number.zfill(2)),
-                      '%s.%s ' % (season_number, episode_number.zfill(2)),
-                      '%s.%s ' % (season_number.zfill(2), episode_number),
-                      '%s.%s ' % (season_number.zfill(2), episode_number.zfill(2)),
-                      ]
-
-    if episode_number == '1' and season_number == '1':
-        episodeStrings.append('pilot')
-
-    seasonStrings = ['season %s' % season_number,
-                     'season %s' % season_number.zfill(2),
-                     's%s' % season_number,
-                     's%s' % season_number.zfill(2),
-                     'series %s' % season_number.zfill(2),
-                     'series %s' % season_number
-                     ]
-
-    return episodeStrings, seasonStrings
-
-
-def de_string_size(size):
-    try:
-        if 'GB' in size:
-            size = float(size.replace('GB', ''))
-            size = int(size * 1024)
-            return size
-        if 'MB' in size:
-            size = int(size.replace('MB', '').replace(' ', '').split('.')[0])
-            return size
-    except:
-        return 0
