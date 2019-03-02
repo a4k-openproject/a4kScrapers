@@ -106,9 +106,9 @@ class DefaultSources(object):
                                   single_query=self._single_query)
 
 class DefaultExtraQuerySources(DefaultSources):
-    def __init__(self, module_name, single_query=False, search_request=None):
+    def __init__(self, module_name, single_query=False, search_request=None, request_timeout=None):
         super(DefaultExtraQuerySources, self).__init__(module_name,
-                                                       request=Request(sequental=True),
+                                                       request=Request(sequental=True, timeout=request_timeout),
                                                        single_query=single_query,
                                                        search_request=search_request)
 
