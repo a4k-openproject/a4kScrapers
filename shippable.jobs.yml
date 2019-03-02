@@ -1,0 +1,6 @@
+jobs:
+  - name: a4kScrapers_runCI
+    type: runCI
+    steps:
+      - IN: nightly-trigger
+      - IN: a4kScrapers_ciRepo

@@ -1,0 +1,5 @@
+resources:
+  - name: nightly-trigger
+    type: time
+    seed:
+      interval: "0 22 * * *"
