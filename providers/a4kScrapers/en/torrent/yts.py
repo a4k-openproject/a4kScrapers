@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from lib import core
+from providerModules.a4kScrapers import core
 
 class sources(core.DefaultSources):
     def __init__(self):

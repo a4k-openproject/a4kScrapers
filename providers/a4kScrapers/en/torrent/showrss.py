@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from lib import core
+from providerModules.a4kScrapers import core
 
 show_list = None
 Show = core.namedtuple('Show', 'title id')
@@ -55,7 +55,7 @@ class sources(object):
         return torrent
 
     def _get_scraper(self):
-        return core.TorrentScraper(self._url, self._search_request, self._soup_filter, self._title_filter, self._info)
+        return core.TorrentScraper(None, self._request, self._search_request, self._soup_filter, self._title_filter, self._info, url=self._url)
 
     def episode(self, simple_info, all_info):
         self._scraper = self._get_scraper()
