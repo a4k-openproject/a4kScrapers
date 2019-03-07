@@ -38,6 +38,26 @@ def de_string_size(size):
     except:
         return 0
 
+
+def getQuality(release_title):
+    quality = 'SD'
+    if ' 4K' in release_title:
+        quality = '4K'
+    if '2160p' in release_title:
+        quality = '4K'
+    if '1080p' in release_title:
+        quality = '1080p'
+    if ' 1080 ' in release_title:
+        quality = '1080p'
+    if ' 720 ' in release_title:
+        quality = '720p'
+    if ' HD ' in release_title:
+        quality = '720p'
+    if '720p' in release_title:
+        quality = '720p'
+
+    return quality
+
 def cleanTitle(title):
     title = title.lower()
     title = title.replace('-', ' ')

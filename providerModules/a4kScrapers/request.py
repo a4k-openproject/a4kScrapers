@@ -62,7 +62,8 @@ class Request(object):
 
         if response.status_code == 302 or response.status_code == 301:
             redirect_url = response.headers['Location']
-            return self._head(redirect_url)
+            if not redirect_url.endswith('127.0.0.1') and not redirect_url.endswith('localhost'):
+                return self._head(redirect_url)
 
         return response
 
