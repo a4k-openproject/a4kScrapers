@@ -57,10 +57,7 @@ class sources(object):
     def _get_scraper(self):
         return core.TorrentScraper(None, self._request, self._search_request, None, self._title_filter, self._info, url=self._url)
 
-    def movie(self, title, year):
-        return self.movie(title, year, None)
-
-    def movie(self, title, year, imdb):
+    def movie(self, title, year, imdb=None):
         self._imdb = imdb
         return self._get_scraper().movie_query(title, year, single_query=True)
 
