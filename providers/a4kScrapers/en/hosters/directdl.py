@@ -7,7 +7,7 @@ class source(core.DefaultHosterSources):
         super(source, self).__init__(__name__)
 
     def movie(self, imdb, title, localtitle, aliases, year):
-        raise ValueError('source instance has no attribute \'movie\'')
+        return []
 
     def search(self, hoster_url, query):
         search_path = hoster_url.search % core.quote_plus(query)

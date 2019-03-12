@@ -7,4 +7,4 @@ class sources(core.DefaultSources):
         super(sources, self).__init__(__name__, single_query=True)
 
     def movie(self, title, year):
-        raise ValueError('sources instance has no attribute \'movie\'')
+        return []
