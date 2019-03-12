@@ -3,5 +3,6 @@
   "version":"0.1.8",
   "name":"a4kScrapers",
   "update_directory": "https://github.com/a4k-openproject/a4kScrapers/archive/",
-  "remote_meta": "https://raw.githubusercontent.com/newt-sc/a4kScrapers/master/meta.json"
+  "remote_meta": "https://raw.githubusercontent.com/newt-sc/a4kScrapers/master/meta.json",
+  "seren_version": "0.1.37"
 }
