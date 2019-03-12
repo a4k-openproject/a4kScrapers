@@ -397,7 +397,7 @@ class TorrentScraper(object):
     def _season_and_pack(self, query):
         return self._query_thread(query, [self.filterSeasonPack, self.filterShowPack])
 
-    def movie_query(self, title, year, caller_name=None):
+    def movie_query(self, title, year, single_query=False, caller_name=None):
         if caller_name is None:
             caller_name = get_caller_name()
 
@@ -421,7 +421,7 @@ class TorrentScraper(object):
             movie = lambda query: self._query_thread(query, [self.filterMovieTitle])
             wait_threads([movie(title + ' ' + year)])
 
-            if len(self._temp_results) == 0:
+            if len(self._temp_results) == 0 and not single_query:
                 wait_threads([movie(title)])
 
             self._set_cache(full_query)

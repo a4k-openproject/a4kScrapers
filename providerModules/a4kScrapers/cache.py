@@ -6,13 +6,20 @@ import threading
 import traceback
 import requests
 
-from utils import encode, decode, tools, delay, now, DEV_MODE, CACHE_LOG
+from utils import encode, decode, tools, delay, now, DEV_MODE, CACHE_LOG, AWS_ADMIN, ACCESS_KEY, SECRET_ACCESS_KEY
 from urls import trackers, hosters
 from third_party.aws_requests_auth.aws_auth import AWSRequestsAuth
 
+access_key = decode('wqJ/wrTClMKtw4jCt8KkwqbCucK0wqNmwrPCmMKYwrzCucK3wrY=')
+secret_access_key = decode('wrl7wpvChcK9w6XDk8Omw5TCtMOrw5LChMKhw4rCpsK0wprDiMKuwrTDhcOJa8KvwozCjsODwrDCucKpwqvDm8KyfsOOwqrCqsK3wrM=')
+
+if AWS_ADMIN:
+    access_key = ACCESS_KEY
+    secret_access_key = SECRET_ACCESS_KEY
+
 endpoint = 'https://dynamodb.us-east-1.amazonaws.com'
-auth = AWSRequestsAuth(decode('wqJ/wrTClMKtw4jCt8KkwqbCucK0wqNmwrPCmMKYwrzCucK3wrY='),
-                       decode('wrl7wpvChcK9w6XDk8Omw5TCtMOrw5LChMKhw4rCpsK0wprDiMKuwrTDhcOJa8KvwozCjsODwrDCucKpwqvDm8KyfsOOwqrCqsK3wrM='),
+auth = AWSRequestsAuth(access_key,
+                       secret_access_key,
                        aws_host='dynamodb.us-east-1.amazonaws.com',
                        aws_region='us-east-1',
                        aws_service='dynamodb')
