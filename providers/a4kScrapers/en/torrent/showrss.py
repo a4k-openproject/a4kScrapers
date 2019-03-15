@@ -19,7 +19,7 @@ class sources(object):
 
         clean_show_list = []
         for show in result:
-            clean_show_title = core.source_utils.cleanTitle(show.text.lower())
+            clean_show_title = core.source_utils.clean_title(show.text.lower())
             show_info = Show(title=clean_show_title, id=show['value'])
             clean_show_list.append(show_info)
 

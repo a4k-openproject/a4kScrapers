@@ -171,7 +171,7 @@ class DefaultHosterSources(DefaultSources):
             hoster_results = self.search(url, query)
 
             for result in hoster_results:
-                quality = source_utils.getQuality(result.title)
+                quality = source_utils.get_quality(result.title)
 
                 for url in result.urls:
                     domain = re.findall(r"https?:\/\/(www\.)?(.*?)\/.*?", url)[0][1]
@@ -181,7 +181,7 @@ class DefaultHosterSources(DefaultSources):
                     if any(x in url for x in ['.rar', '.zip', '.iso']):
                         continue
 
-                    quality_from_url = source_utils.getQuality(url)
+                    quality_from_url = source_utils.get_quality(url)
                     if quality_from_url != 'SD':
                         quality = quality_from_url
 
@@ -221,20 +221,20 @@ class TorrentScraper(object):
         self._use_thread_for_info = use_thread_for_info
         self._custom_filter = custom_filter
 
-        filterMovieTitle = lambda t: source_utils.filterMovieTitle(t, self.title, self.year)
-        self.filterMovieTitle = Filter(fn=filterMovieTitle, type='single')
+        filter_movie_title = lambda t: source_utils.filter_movie_title(t, self.title, self.year)
+        self.filter_movie_title = Filter(fn=filter_movie_title, type='single')
 
-        filterSingleEpisode = lambda t: source_utils.filterSingleEpisode(self.simple_info, t)
-        self.filterSingleEpisode = Filter(fn=filterSingleEpisode, type='single')
+        filter_single_episode = lambda t: source_utils.filter_single_episode(self.simple_info, t)
+        self.filter_single_episode = Filter(fn=filter_single_episode, type='single')
 
-        filterSingleSpecialEpisode = lambda t: source_utils.filterSingleSpecialEpisode(self.simple_info, t)
-        self.filterSingleSpecialEpisode = Filter(fn=filterSingleSpecialEpisode, type='single')
+        filter_single_special_episode = lambda t: source_utils.filter_single_special_episode(self.simple_info, t)
+        self.filter_single_special_episode = Filter(fn=filter_single_special_episode, type='single')
 
-        filterSeasonPack = lambda t: source_utils.filterSeasonPack(self.simple_info, t)
-        self.filterSeasonPack = Filter(fn=filterSeasonPack, type='season')
+        filter_season_pack = lambda t: source_utils.filter_season_pack(self.simple_info, t)
+        self.filter_season_pack = Filter(fn=filter_season_pack, type='season')
 
-        filterShowPack = lambda t: source_utils.filterShowPack(self.simple_info, t)
-        self.filterShowPack = Filter(fn=filterShowPack, type='show')
+        filter_show_pack = lambda t: source_utils.filter_show_pack(self.simple_info, t)
+        self.filter_show_pack = Filter(fn=filter_show_pack, type='show')
 
     def _search_core(self, query):
         try:
@@ -294,7 +294,7 @@ class TorrentScraper(object):
                     torrent['seeds'] = None
 
                     if self._use_thread_for_info:
-                        if len(threads) >= 5:
+                        if len(threads) >= 8:
                             break
 
                         threads.append(threading.Thread(target=self._info_core, args=(el, torrent)))
@@ -386,19 +386,19 @@ class TorrentScraper(object):
         return self._results
 
     def _episode(self, query):
-        return self._query_thread(query, [self.filterSingleEpisode])
+        return self._query_thread(query, [self.filter_single_episode])
 
     def _episode_special(self, query):
-        return self._query_thread(query, [self.filterSingleSpecialEpisode])
+        return self._query_thread(query, [self.filter_single_special_episode])
 
     def _season(self, query):
-        return self._query_thread(query, [self.filterSeasonPack])
+        return self._query_thread(query, [self.filter_season_pack])
 
     def _pack(self, query):
-        return self._query_thread(query, [self.filterShowPack])
+        return self._query_thread(query, [self.filter_show_pack])
 
     def _season_and_pack(self, query):
-        return self._query_thread(query, [self.filterSeasonPack, self.filterShowPack])
+        return self._query_thread(query, [self.filter_season_pack, self.filter_show_pack])
 
     def movie_query(self, title, year, single_query=False, caller_name=None):
         if caller_name is None:
@@ -422,7 +422,7 @@ class TorrentScraper(object):
                     self._set_cache(full_query)
                     return self._get_movie_results()
 
-            movie = lambda query: self._query_thread(query, [self.filterMovieTitle])
+            movie = lambda query: self._query_thread(query, [self.filter_movie_title])
             wait_threads([movie(title + ' ' + year)])
 
             if len(self._temp_results) == 0 and not single_query:
@@ -444,22 +444,27 @@ class TorrentScraper(object):
 
         self.caller_name = caller_name
 
+        simple_info['show_aliases'] = list(set(simple_info['show_aliases']))
         if '.' in simple_info['show_title']:
             no_dot_show_title = simple_info['show_title'].replace('.', '')
-            simple_info['show_aliases'].append(source_utils.cleanTitle(no_dot_show_title))
-            simple_info['show_aliases'] = list(set(simple_info['show_aliases']))
+            simple_info['show_aliases'].append(source_utils.clean_title(no_dot_show_title))
             simple_info['show_title'] = no_dot_show_title
+
+        for alias in simple_info['show_aliases']:
+            if '.' in alias:
+                simple_info['show_aliases'].append(alias.replace('.', ' '))
+                simple_info['show_aliases'].append(alias.replace('.', ''))
 
         self.simple_info = simple_info
         self.year = simple_info['year']
         self.country = simple_info['country']
-        self.show_title = source_utils.cleanTitle(simple_info['show_title'])
+        self.show_title = source_utils.clean_title(simple_info['show_title'])
         if self.year in self.show_title:
             self.show_title_fallback = self.show_title.replace(self.year, '').strip()
         else:
             self.show_title_fallback = None
 
-        self.episode_title = source_utils.cleanTitle(simple_info['episode_title'])
+        self.episode_title = source_utils.clean_title(simple_info['episode_title'])
         self.season_x = simple_info['season_number']
         self.episode_x = simple_info['episode_number']
         self.season_xx = self.season_x.zfill(2)

@@ -10,14 +10,7 @@ import base64
 from functools import wraps
 from inspect import getframeinfo, stack
 from bs4 import BeautifulSoup
-
-try:
-    from resources.lib.common import tools
-except:
-    tools = lambda: None
-    tools.addonName = "Seren"
-    def log(msg, level=None): print(msg)
-    tools.log = log
+from third_party.source_utils import tools
 
 try:
     from urlparse import unquote
@@ -30,6 +23,7 @@ except:
 
 DEV_MODE = os.getenv('A4KSCRAPERS_TEST') == '1'
 DEV_MODE_ALL = os.getenv('A4KSCRAPERS_TEST_ALL') == '1'
+DEV_MODE_TOTAL = os.getenv('A4KSCRAPERS_TEST_TOTAL') == '1'
 CACHE_LOG = os.getenv('A4KSCRAPERS_CACHE_LOG') == '1'
 AWS_ADMIN = os.getenv('A4KSCRAPERS_AWS_ADMIN') == '1'
 ACCESS_KEY = os.getenv('A4KSCRAPERS_ACCESS_KEY') == '1'
