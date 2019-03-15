@@ -38,6 +38,14 @@ class sources(object):
                 show_id = show.id
                 break
 
+        if show_id is None and self._scraper.show_title_fallback is not None:
+            self._scraper.simple_info['show_title'] = self._scraper.show_title_fallback
+            show_title = self._scraper.show_title_fallback.lower()
+            for show in show_list:
+                if show.title.startswith(show_title):
+                    show_id = show.id
+                    break
+
         if show_id is None:
             return
 
