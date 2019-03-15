@@ -152,6 +152,9 @@ class DefaultHosterSources(DefaultSources):
         return url
 
     def sources(self, simple_info, hostDict, hostprDict):
+        if simple_info is None:
+            return []
+
         supported_hosts = hostDict + hostprDict
         sources = []
 
@@ -410,6 +413,7 @@ class TorrentScraper(object):
         use_cache_only = self._get_cache(full_query)
         if use_cache_only:
             return self._get_movie_results()
+        skip_set_cache = False
 
         try:
             if self._url is None:
@@ -422,13 +426,16 @@ class TorrentScraper(object):
             wait_threads([movie(title + ' ' + year)])
 
             if len(self._temp_results) == 0 and not single_query:
+                skip_set_cache = True
                 wait_threads([movie(title)])
 
-            self._set_cache(full_query)
+            if not skip_set_cache:
+                self._set_cache(full_query)
             return self._get_movie_results()
 
         except:
-            self._set_cache(full_query)
+            if not skip_set_cache:
+                self._set_cache(full_query)
             return self._get_movie_results()
 
     def episode_query(self, simple_info, auto_query=True, single_query=False, caller_name=None):
@@ -447,58 +454,70 @@ class TorrentScraper(object):
         self.year = simple_info['year']
         self.country = simple_info['country']
         self.show_title = source_utils.cleanTitle(simple_info['show_title'])
+        if self.year in self.show_title:
+            self.show_title_fallback = self.show_title.replace(self.year, '').strip()
+        else:
+            self.show_title_fallback = None
+
         self.episode_title = source_utils.cleanTitle(simple_info['episode_title'])
         self.season_x = simple_info['season_number']
         self.episode_x = simple_info['episode_number']
         self.season_xx = self.season_x.zfill(2)
         self.episode_xx = self.episode_x.zfill(2)
 
-        full_query = '%s %s %s %s %s' % (self.show_title, self.year, self.season_xx, self.episode_xx, self.episode_title)
-        use_cache_only = self._get_cache(full_query)
-        if use_cache_only:
-            return self._get_episode_results()
+        #full_query = '%s %s %s %s %s' % (self.show_title, self.year, self.season_xx, self.episode_xx, self.episode_title)
+        # use_cache_only = self._get_cache(full_query)
+        # if use_cache_only:
+        #     return self._get_episode_results()
 
         try:
             if self._url is None:
                 self._url = self._request.find_url(self._urls)
                 if self._url is None:
-                    self._set_cache(full_query)
+                    #self._set_cache(full_query)
                     return self._get_episode_results()
 
             if auto_query is False:
                 wait_threads([self._episode('')])
-                self._set_cache(full_query)
+                #self._set_cache(full_query)
                 return self._get_episode_results()
 
-            # specials
-            if self.season_x == '0':
-                wait_threads([self._episode_special(self.show_title + ' %s' % self.episode_title)])
-                self._set_cache(full_query)
-                return self._get_episode_results()
+            def query_results():
+                # specials
+                if self.season_x == '0':
+                    wait_threads([self._episode_special(self.show_title + ' %s' % self.episode_title)])
+                    #self._set_cache(full_query)
+                    return self._get_episode_results()
 
-            wait_threads([
-                self._episode(self.show_title + ' S%sE%s' % (self.season_xx, self.episode_xx))
-            ])
+                wait_threads([
+                    self._episode(self.show_title + ' S%sE%s' % (self.season_xx, self.episode_xx))
+                ])
 
-            if single_query or DEV_MODE:
-                self._set_cache(full_query)
-                return self._get_episode_results()
+                if single_query or DEV_MODE:
+                    #self._set_cache(full_query)
+                    return self._get_episode_results()
 
-            queries = [
-                self._season(self.show_title + ' Season ' + self.season_x),
-                self._season(self.show_title + ' S%s' % self.season_xx),
-                self._pack(self.show_title + ' Seasons'),
-                self._season_and_pack(self.show_title + ' Complete')
-            ]
+                queries = [
+                    self._season(self.show_title + ' Season ' + self.season_x),
+                    self._season(self.show_title + ' S%s' % self.season_xx),
+                    self._pack(self.show_title + ' Seasons'),
+                    self._season_and_pack(self.show_title + ' Complete')
+                ]
 
-            if self._use_thread_for_info:
-                wait_threads([queries[0]])
-            else:
-                wait_threads(queries)
+                if self._use_thread_for_info:
+                    wait_threads([queries[0]])
+                else:
+                    wait_threads(queries)
 
-            self._set_cache(full_query)
+            query_results()
+            if len(self._temp_results) == 0 and self.show_title_fallback is not None:
+                self.show_title = self.show_title_fallback
+                self.simple_info['show_title'] = self.show_title_fallback
+                query_results()
+
+            #self._set_cache(full_query)
             return self._get_episode_results()
 
         except:
-            self._set_cache(full_query)
+            #self._set_cache(full_query)
             return self._get_episode_results()

@@ -7,4 +7,4 @@ def get_torrent():
     return torrent.__all__
 
 def get_hosters():
-    return hosters.__all__ 
+    return hosters.__all__
