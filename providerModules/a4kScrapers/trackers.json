@@ -213,11 +213,27 @@
             "search": "/api/v2/list_movies.json?query_term=%s"
         },
         {
-            "base": "https://ytss.unblocked.is",
+            "base": "https://yts.pm",
             "search": "/api/v2/list_movies.json?query_term=%s"
         },
         {
-            "base": "https://yts.unblocked.cx",
+            "base": "https://yts.gs",
+            "search": "/api/v2/list_movies.json?query_term=%s"
+        },
+        {
+            "base": "https://www4.yify.is",
+            "search": "/api/v2/list_movies.json?query_term=%s"
+        },
+        {
+            "base": "https://yts.unblocked.vet",
+            "search": "/api/v2/list_movies.json?query_term=%s"
+        },
+        {
+            "base": "https://yts.unblocked.krd",
+            "search": "/api/v2/list_movies.json?query_term=%s"
+        },
+        {
+            "base": "https://ytss.unblocked.is",
             "search": "/api/v2/list_movies.json?query_term=%s"
         }
     ],
