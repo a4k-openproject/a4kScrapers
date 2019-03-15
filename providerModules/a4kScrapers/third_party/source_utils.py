@@ -82,15 +82,18 @@ def searchTitleClean(title):
     title = title.replace('  ', ' ')
     return title.strip()
 
-def check_title_match(title, release_title):
-    title_parts = title.split(' ')
+def check_title_match(title_parts, release_title):
     part_index = 0
-
     for title_part in title_parts:
         index = release_title.find(title_part, part_index)
-        if index == -1:
-            return False
-        part_index = index + len(title_part)
+        if index != -1:
+            part_index = index + len(title_part)
+        else:
+            if '&' not in title_parts[0]:
+                return False
+            else:
+                title_parts[0] = title_parts[0].replace('&', 'and')
+                return check_title_match(title_parts, release_title)
 
     return True
 
@@ -137,33 +140,20 @@ def filterSeasonPack(simpleInfo, release_title):
     seasonFill = season.zfill(2)
     aliasList = [searchTitleClean(x) for x in aliasList]
 
-    if '&' in release_title: release_title = release_title.replace('&', 'and')
+    if '&' in release_title:
+        release_title = release_title.replace('&', 'and')
 
-    stringList.append('%s s%s ' % (show_title, seasonFill))
-    stringList.append('%s s%s ' % (show_title, season))
-    stringList.append('%s season %s ' % (show_title, seasonFill))
-    stringList.append('%s season %s ' % (show_title, season))
-    stringList.append('%s %s s%s' % (show_title, year, seasonFill))
-    stringList.append('%s %s s%s' % (show_title, year, season))
-    stringList.append('%s %s season %s ' % (show_title, year, seasonFill))
-    stringList.append('%s %s season %s ' % (show_title, year, season))
-    stringList.append('%s %s s%s' % (show_title, country, seasonFill))
-    stringList.append('%s %s s%s' % (show_title, country, season))
-    stringList.append('%s %s season %s ' % (show_title, country, seasonFill))
-    stringList.append('%s %s season %s ' % (show_title, country, season))
+    stringList.append([show_title, 's%s ' % seasonFill])
+    stringList.append([show_title, 's%s ' % season])
+    stringList.append([show_title, 'season %s ' % season])
 
     for i in aliasList:
-        stringList.append('%s s%s' % (i, seasonFill))
-        stringList.append('%s s%s' % (i, season))
-        stringList.append('%s season %s ' % (i, seasonFill))
-        stringList.append('%s season %s ' % (i, season))
+        stringList.append([i, 's%s ' % seasonFill])
+        stringList.append([i, 's%s ' % season])
+        stringList.append([i, 'season %s ' % season])
 
-    for x in stringList:
-        if '&' in x:
-            stringList.append(x.replace('&', 'and'))
-
-    for title in stringList:
-        if check_title_match(title, release_title) and len(re.findall(r'(s\d+e\d+ )', release_title)) == 0:
+    for title_parts in stringList:
+        if check_title_match(title_parts, release_title) and len(re.findall(r'(s\d+e\d+ )', release_title)) == 0:
             return True
 
     return False
@@ -185,25 +175,17 @@ def filterSingleEpisode(simpleInfo, release_title):
     seasonFill = season.zfill(2)
     episodeFill = episode.zfill(2)
     aliasList = [searchTitleClean(x) for x in aliasList]
-    for x in aliasList:
-        if '&' in x:
-            aliasList.append(x.replace('&', 'and'))
 
-    stringList.append('%s s%se%s' % (show_title, seasonFill, episodeFill))
-    stringList.append('%s %s s%se%s' % (show_title, year, seasonFill, episodeFill))
-    stringList.append('%s %s s%se%s' % (show_title, country, seasonFill, episodeFill))
+    if '&' in release_title:
+        release_title = release_title.replace('&', 'and')
+
+    stringList.append([show_title, 's%se%s' % (seasonFill, episodeFill)])
 
     for i in aliasList:
-        stringList.append('%s s%se%s' % (cleanTitle(i), seasonFill, episodeFill))
-        stringList.append('%s %s s%se%s' % (cleanTitle(i), year, seasonFill, episodeFill))
-        stringList.append('%s %s s%se%s' % (cleanTitle(i), country, seasonFill, episodeFill))
+        stringList.append([cleanTitle(i), 's%se%s' % (seasonFill, episodeFill)])
 
-    for x in stringList:
-        if '&' in x:
-            stringList.append(x.replace('&', 'and'))
-
-    for title in stringList:
-        if check_title_match(title, release_title):
+    for title_parts in stringList:
+        if check_title_match(title_parts, release_title):
             return True
 
     return False
@@ -256,8 +238,6 @@ def filterShowPack(simpleInfo, release_title):
 
     season_count = int(season)
 
-    season_count = int(season)
-
     while int(season_count) <= int(no_seasons):
         season = '%s seasons 1 %s' % (showTitle, str(season_count))
         seasons = '%s season 1 %s' % (showTitle, str(season_count))
@@ -294,8 +274,8 @@ def filterShowPack(simpleInfo, release_title):
         if '&' in x:
             stringList.append(x.replace('&', 'and'))
 
-    for title in stringList:
-        if check_title_match(title, release_title):
+    for i in stringList:
+        if release_title.startswith(i):
             return True
 
     return False
