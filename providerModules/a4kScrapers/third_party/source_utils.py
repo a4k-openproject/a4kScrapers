@@ -82,6 +82,18 @@ def searchTitleClean(title):
     title = title.replace('  ', ' ')
     return title.strip()
 
+def check_title_match(title, release_title):
+    title_parts = title.split(' ')
+    part_index = 0
+
+    for title_part in title_parts:
+        index = release_title.find(title_part, part_index)
+        if index == -1:
+            return False
+        part_index = index + len(title_part)
+
+    return True
+
 def filterMovieTitle(release_title, movie_title, year):
     movie_title = cleanTitle(movie_title.lower())
     release_title = cleanTitle(release_title.lower())
@@ -150,12 +162,9 @@ def filterSeasonPack(simpleInfo, release_title):
         if '&' in x:
             stringList.append(x.replace('&', 'and'))
 
-    for i in stringList:
-        if release_title.startswith(i):
-            try:
-                temp = re.findall(r'(s\d+e\d+ )', release_title)[0]
-            except:
-                return True
+    for title in stringList:
+        if check_title_match(title, release_title) and len(re.findall(r'(s\d+e\d+ )', release_title)) == 0:
+            return True
 
     return False
 
@@ -193,8 +202,8 @@ def filterSingleEpisode(simpleInfo, release_title):
         if '&' in x:
             stringList.append(x.replace('&', 'and'))
 
-    for i in stringList:
-        if release_title.startswith(cleanTitle(i)):
+    for title in stringList:
+        if check_title_match(title, release_title):
             return True
 
     return False
@@ -285,8 +294,8 @@ def filterShowPack(simpleInfo, release_title):
         if '&' in x:
             stringList.append(x.replace('&', 'and'))
 
-    for i in stringList:
-        if release_title.startswith(i):
+    for title in stringList:
+        if check_title_match(title, release_title):
             return True
 
     return False
