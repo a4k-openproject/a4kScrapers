@@ -41,6 +41,14 @@
             "search": "/usearch/%s"
         },
         {
+            "base": "https://kat.how",
+            "search": "/usearch/%s"
+        },
+        {
+            "base": "https://kat.li",
+            "search": "/usearch/%s"
+        },
+        {
             "base": "https://kickass.unblocked.llc",
             "search": "/search.php?q=%s"
         },
