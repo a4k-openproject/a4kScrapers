@@ -27,7 +27,7 @@ class sources(object):
             search = search.replace('search_string=', 'search_imdb=')
             query = self._imdb
 
-        search_url = url.base + url.search % (core.quote_plus(query), self._get_token(url))
+        search_url = url.base + search % (core.quote_plus(query), self._get_token(url))
         response = self._request.get(search_url)
 
         if response.status_code != 200:
