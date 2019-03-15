@@ -4,9 +4,6 @@ jobs:
     working_directory: ~/project
     docker:
       - image: circleci/python:3.6.4
-    branches:
-      only:
-        - develop
     steps:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
@@ -23,3 +20,9 @@ jobs:
       - store_artifacts:
           path: test-results
           destination: tr1
+
+workflows:
+  version: 2
+  tests:
+    jobs:
+      - build
