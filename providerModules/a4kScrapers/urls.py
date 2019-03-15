@@ -18,8 +18,8 @@ def get_json(json_url, filename):
         with open(json_path) as hosters_json:
             return json.load(hosters_json)
 
-trackers_json_url = 'https://raw.githubusercontent.com/newt-sc/a4kScrapers/master/providers/a4kScrapers/en/torrent/lib/trackers.json'
+trackers_json_url = 'https://raw.githubusercontent.com/newt-sc/a4kScrapers/master/providerModules/a4kScrapers/trackers.json'
 trackers = get_json(trackers_json_url, 'trackers.json')
 
-hosters_json_url = 'https://raw.githubusercontent.com/newt-sc/a4kScrapers/master/providers/a4kScrapers/en/torrent/lib/hosters.json'
+hosters_json_url = 'https://raw.githubusercontent.com/newt-sc/a4kScrapers/master/providerModules/a4kScrapers/hosters.json'
 hosters = get_json(hosters_json_url, 'hosters.json')
