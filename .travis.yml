@@ -6,9 +6,9 @@ install:
 script:
   - |
     if [ "$TRAVIS_EVENT_TYPE" = "cron" ]; then
-      "curl -d 'accountName=newt-sc&projectSlug=a4kScrapers&branch=master' -H \"Authorization: Bearer $appveyor\" -X POST https://ci.appveyor.com/api/account/newt-sc/builds"
-      "curl -d '{\"pipelineId\":\"5c7a9ea79fb4180b007ce3c5\"}' -H 'Content-Type: application/json' -H \"Authorization: Bearer $wercker\" -X POST https://app.wercker.com/api/v3/runs/"
-      "curl -d '{\"branchName\":\"master\",\"projectId\":\"5c7ab3b6867d9e0700f6fa64\"}' -H 'Content-Type: application/json' -H \"Authorization: apiToken $shippable\" -X POST https://api.shippable.com/projects/5c7ab3b6867d9e0700f6fa64/newBuild"
-      "curl -d '{}' -H 'Content-Type: application/json' -X POST \"https://circleci.com/api/v1.1/project/github/a4k-openproject/a4kScrapers/tree/master?circle-token=$circleci\""
+      curl -d 'accountName=newt-sc&projectSlug=a4kScrapers&branch=master' -H "Authorization: Bearer $appveyor" -X POST https://ci.appveyor.com/api/account/newt-sc/builds
+      curl -d '{"pipelineId":"5c7a9ea79fb4180b007ce3c5"}' -H 'Content-Type: application/json' -H "Authorization: Bearer $wercker" -X POST https://app.wercker.com/api/v3/runs/
+      curl -d '{"branchName":"master","projectId":"5c7ab3b6867d9e0700f6fa64"}' -H 'Content-Type: application/json' -H "Authorization: apiToken $shippable" -X POST https://api.shippable.com/projects/5c7ab3b6867d9e0700f6fa64/newBuild
+      curl -d '{}' -H 'Content-Type: application/json' -X POST "https://circleci.com/api/v1.1/project/github/a4k-openproject/a4kScrapers/tree/master?circle-token=$circleci"
     fi
   - python3 -m unittest tests_runner.py
