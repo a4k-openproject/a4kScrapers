@@ -129,6 +129,14 @@
     ],
     "piratebay": [
         {
+            "base": "https://thepiratebay.org",
+            "search": "/search/%s/0/99/200"
+        },
+        {
+            "base": "https://thepiratebay3.org",
+            "search": "/index.php?q=%s&video=on&category=0&page=0&orderby=99"
+        },
+        {
             "base": "https://pirateproxy.bet",
             "search": "/search/%s/0/99/200"
         },
@@ -179,10 +187,6 @@
         {
             "base": "https://thepiratebay.unblockall.org",
             "search": "/search/%s/0/99/200"
-        },
-        {
-            "base": "https://thepiratebay3.org",
-            "search": "/index.php?q=%s&video=on&category=0&page=0&orderby=99"
         }
     ],
     "torrentdownloads": [
