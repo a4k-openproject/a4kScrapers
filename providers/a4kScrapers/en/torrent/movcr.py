@@ -4,9 +4,9 @@ from providerModules.a4kScrapers import core
 
 class sources(core.DefaultExtraQuerySources):
     def __init__(self):
-        super(sources, self).__init__(__name__, request_timeout=20, search_request=self.search_request, single_query=True)
+        super(sources, self).__init__(__name__, request_timeout=20, single_query=True)
 
-    def search_request(self, url, query):
+    def _search_request(self, url, query):
         # trigger empty request since the first cfscrape pass cannot search
         self._request.get(url.base)
 

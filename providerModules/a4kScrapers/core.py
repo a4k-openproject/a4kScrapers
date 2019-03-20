@@ -12,7 +12,7 @@ from scrapers import re, NoResultsScraper, GenericTorrentScraper, GenericExtraQu
 from urls import trackers, hosters
 from cache import check_cache_result, get_cache, set_cache, get_config, set_config
 
-def get_scraper(soup_filter, title_filter, info, request=None, search_request=None, use_thread_for_info=False, custom_filter=None, caller_name=None):
+def get_scraper(soup_filter, title_filter, info, search_request, request=None, use_thread_for_info=False, custom_filter=None, caller_name=None):
     if caller_name is None:
         caller_name = get_caller_name()
 
@@ -21,17 +21,6 @@ def get_scraper(soup_filter, title_filter, info, request=None, search_request=No
 
     if request is None:
         request = Request()
-
-    def search(url, query):
-        if '=%s' in url.search:
-            query = quote_plus(query)
-        else:
-            query = query.decode('utf-8')
-
-        return request.get(url.base + url.search % query)
-
-    if search_request is None:
-        search_request = search
 
     if caller_name in trackers:
         scraper_urls = trackers[caller_name]
@@ -50,11 +39,18 @@ def get_scraper(soup_filter, title_filter, info, request=None, search_request=No
     return TorrentScraper(urls, request, search_request, soup_filter, title_filter, info, use_thread_for_info, custom_filter)
 
 class DefaultSources(object):
-    def __init__(self, module_name, request=None, single_query=False, search_request=None):
+    def __init__(self, module_name, request=None, single_query=False):
         self._caller_name = module_name.split('.')[-1:][0]
         self._request = request
         self._single_query = single_query
-        self._search_request = search_request
+
+    def _search_request(self, url, query):
+        if '=%s' in url.search:
+            query = quote_plus(query)
+        else:
+            query = query.decode('utf-8')
+
+        return self._request.get(url.base + url.search % query)
 
     def _get_scraper(self, title, genericScraper=None, use_thread_for_info=False, custom_filter=None):
         if genericScraper is None:
@@ -88,9 +84,9 @@ class DefaultSources(object):
         self.scraper = get_scraper(soup_filter,
                                    title_filter,
                                    info,
+                                   self._search_request,
                                    caller_name=self._caller_name,
                                    request=self._request,
-                                   search_request=self._search_request,
                                    use_thread_for_info=use_thread_for_info,
                                    custom_filter=custom_filter)
 
@@ -110,11 +106,10 @@ class DefaultSources(object):
                                   single_query=self._single_query)
 
 class DefaultExtraQuerySources(DefaultSources):
-    def __init__(self, module_name, single_query=False, search_request=None, request_timeout=None):
+    def __init__(self, module_name, single_query=False, request_timeout=None):
         super(DefaultExtraQuerySources, self).__init__(module_name,
                                                        request=Request(sequental=True, timeout=request_timeout),
-                                                       single_query=single_query,
-                                                       search_request=search_request)
+                                                       single_query=single_query)
 
     def _get_scraper(self, title, custom_filter=None):
         genericScraper = GenericExtraQueryTorrentScraper(title,
