@@ -18,7 +18,6 @@ hosters = os.path.join(en, 'hosters')
 providerModules = os.path.join(dir_name, 'providerModules')
 a4kScrapers2 = os.path.join(providerModules, 'a4kScrapers')
 third_party = os.path.join(a4kScrapers2, 'third_party')
-smaz = os.path.join(third_party, 'smaz')
 
 sys.path.append(dir_name)
 sys.path.append(providers)
@@ -30,7 +29,6 @@ sys.path.append(hosters)
 sys.path.append(providerModules)
 sys.path.append(a4kScrapers2)
 sys.path.append(third_party)
-sys.path.append(smaz)
 
 os.environ['A4KSCRAPERS_TEST'] = '1'
 #os.environ['A4KSCRAPERS_TEST_ALL'] = '1' # verify all urls per tracker

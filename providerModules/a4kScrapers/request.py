@@ -6,14 +6,9 @@ import time
 from urllib3.exceptions import ConnectTimeoutError
 from requests.exceptions import ReadTimeout
 
-from third_party import source_utils
+from third_party import source_utils, cfscrape
 from common_types import UrlParts
 from utils import tools
-
-try:
-    from resources.lib.common import cfscrape
-except:
-    from third_party import cfscrape
 
 def is_cloudflare_on(response):
     return (response.status_code == 503
