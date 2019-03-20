@@ -2,6 +2,7 @@
 
 import threading
 import time
+import traceback
 
 from urllib3.exceptions import ConnectTimeoutError
 from requests.exceptions import ReadTimeout
@@ -43,6 +44,7 @@ class Request(object):
 
             return self._request_core(request, retry=False)
         except:
+            traceback.print_exc()
             return response_err
 
     def _head(self, url):
