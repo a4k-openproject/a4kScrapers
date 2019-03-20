@@ -505,7 +505,7 @@ class TorrentScraper(object):
 
                 if single_query or DEV_MODE:
                     #self._set_cache(full_query)
-                    return self._get_episode_results()
+                    return
 
                 queries = [
                     self._season(self.show_title + ' Season ' + self.season_x),
