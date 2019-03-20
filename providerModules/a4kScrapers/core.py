@@ -94,7 +94,7 @@ class DefaultSources(object):
                                    use_thread_for_info=use_thread_for_info,
                                    custom_filter=custom_filter)
 
-        if self._request is None:
+        if self._request is None and not isinstance(self.scraper, NoResultsScraper):
             self._request = self.scraper._request
 
         return self.scraper

@@ -195,7 +195,7 @@
             "search": "/search/?search=%s"
         }
     ],
-    "torrentz2_": [
+    "_torrentz2_": [
         {
             "base": "https://torrentz2.eu",
             "search": "/search?f=%s"
