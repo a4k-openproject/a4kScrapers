@@ -298,7 +298,7 @@ class TorrentScraper(object):
                     torrent['seeds'] = None
 
                     if self._use_thread_for_info:
-                        if len(threads) >= 8:
+                        if len(threads) >= 5:
                             break
 
                         threads.append(threading.Thread(target=self._info_core, args=(el, torrent)))

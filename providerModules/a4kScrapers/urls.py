@@ -15,8 +15,8 @@ def get_json(json_url, filename):
         return json.loads(response.text)
     except:
         json_path = os.path.join(os.path.dirname(__file__), filename)
-        with open(json_path) as hosters_json:
-            return json.load(hosters_json)
+        with open(json_path) as json_result:
+            return json.load(json_result)
 
 trackers_json_url = 'https://raw.githubusercontent.com/newt-sc/a4kScrapers/master/providerModules/a4kScrapers/trackers.json'
 trackers = get_json(trackers_json_url, 'trackers.json')
