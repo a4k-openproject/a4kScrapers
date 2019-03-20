@@ -4,6 +4,7 @@ import re
 import subprocess
 import copy
 import time
+import cfdecoder
 
 from requests.sessions import Session
 
@@ -12,7 +13,7 @@ try:
 except ImportError:
     from urllib.parse import urlparse
 
-__version__ = "1.9.6"
+__version__ = "1.9.7"
 
 DEFAULT_USER_AGENTS = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36",
@@ -94,7 +95,12 @@ class CloudflareScraper(Session):
             raise ValueError("Unable to parse Cloudflare anti-bots page: %s %s" % (e.message, BUG_REPORT))
 
         # Solve the Javascript challenge
-        params["jschl_answer"] = self.solve_challenge(body, domain)
+        #params["jschl_answer"] = self.solve_challenge(body, domain)
+        request = {}
+        request['data'] = resp.text
+        request['url'] = resp.url
+        request['headers'] = resp.headers
+        params["jschl_answer"] = cfdecoder.Cloudflare(request).get_jschl_answer()
 
         # Requests transforms any request into a GET after a redirect,
         # so the redirect has to be handled manually here to allow for
