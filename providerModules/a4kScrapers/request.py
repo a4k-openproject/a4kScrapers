@@ -86,3 +86,8 @@ class Request(object):
         tools.log('GET: %s' % url, 'info')
         request = lambda: self._cfscrape.get(url, headers=headers, timeout=self._timeout)
         return self._request_core(request)
+
+    def post(self, url, data, headers={}):
+        tools.log('POST: %s' % url, 'info')
+        request = lambda: self._cfscrape.post(url, data, headers=headers, timeout=self._timeout)
+        return self._request_core(request)

@@ -93,6 +93,10 @@ class DefaultSources(object):
                                    search_request=self._search_request,
                                    use_thread_for_info=use_thread_for_info,
                                    custom_filter=custom_filter)
+
+        if self._request is None:
+            self._request = self.scraper._request
+
         return self.scraper
 
     def movie(self, title, year):
@@ -406,10 +410,10 @@ class TorrentScraper(object):
 
         self.caller_name = caller_name
 
-        self.title = title
+        self.title = source_utils.clean_title(title)
         self.year = year
 
-        full_query = '%s %s' % (self.title, self.year)
+        full_query = '%s %s' % (title, year)
         use_cache_only = self._get_cache(full_query)
         if use_cache_only:
             return self._get_movie_results()
@@ -423,11 +427,12 @@ class TorrentScraper(object):
                     return self._get_movie_results()
 
             movie = lambda query: self._query_thread(query, [self.filter_movie_title])
-            wait_threads([movie(title + ' ' + year)])
+            wait_threads([movie(self.title + ' ' + self.year)])
 
             if len(self._temp_results) == 0 and not single_query:
+                self._set_cache(full_query)
                 skip_set_cache = True
-                wait_threads([movie(title)])
+                wait_threads([movie(self.title)])
 
             if not skip_set_cache:
                 self._set_cache(full_query)

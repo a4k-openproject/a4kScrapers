@@ -5,7 +5,6 @@ from providerModules.a4kScrapers import core
 class sources(core.DefaultSources):
     def __init__(self):
         super(sources, self).__init__(__name__,
-                                      request=core.Request(),
                                       search_request=self._search_request)
 
     def _search_request(self, url, query):
