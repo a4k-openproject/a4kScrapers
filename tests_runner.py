@@ -66,9 +66,7 @@ def assert_result(test, scraper, scraper_sources, scraper_name, torrent_list):
             total_results[torrent['release_title']] = 1
         return
 
-    if results_count == 0 \
-       and scraper_name not in core.trackers \
-       and scraper_name not in ['showrss', 'torrentapi']:
+    if scraper_name not in core.trackers and scraper_name not in ['showrss', 'torrentapi']:
         core.tools.log('tracker %s is disabled' % scraper_name, '')
         return
 
@@ -86,6 +84,9 @@ def assert_result(test, scraper, scraper_sources, scraper_name, torrent_list):
         test.assertIsNotNone(torrent['seeds'], '%s missing seeds info' % scraper_name)
 
 def assert_hosters_result(test, scraper, scraper_sources, scraper_name, hoster_results):
+    if scraper_name not in core.hosters:
+        core.tools.log('hoster %s is disabled' % scraper_name, '')
+        return
     test.assertGreater(len(hoster_results), 0, '%s failed to find link' % scraper_name)
 
 def get_movie_query(scraper_name):

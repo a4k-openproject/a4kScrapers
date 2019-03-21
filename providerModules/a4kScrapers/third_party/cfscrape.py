@@ -46,6 +46,7 @@ https://github.com/Anorov/cloudflare-scrape/issues\
 
 class CloudflareScraper(Session):
     def __init__(self, *args, **kwargs):
+        self._solve_count = 0
         self.delay = kwargs.pop("delay", 8)
         super(CloudflareScraper, self).__init__(*args, **kwargs)
 
@@ -66,6 +67,9 @@ class CloudflareScraper(Session):
 
         # Check if Cloudflare anti-bot is on
         if self.is_cloudflare_challenge(resp):
+            if self._solve_count == 2:
+                raise Exception('Cloudflare challenge failed!')
+            self._solve_count += 1
             resp = self.solve_cf_challenge(resp, **kwargs)
 
         return resp
