@@ -122,7 +122,9 @@ class DefaultExtraQuerySources(DefaultSources):
 
 class DefaultHosterSources(DefaultSources):
     def movie(self, imdb, title, localtitle, aliases, year):
-        self._get_scraper(title)
+        if isinstance(self._get_scraper(title), NoResultsScraper):
+            return None
+
         self._request = self.scraper._request
 
         simple_info = {}
@@ -131,7 +133,9 @@ class DefaultHosterSources(DefaultSources):
         return simple_info
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
-        self._get_scraper(tvshowtitle)
+        if isinstance(self._get_scraper(tvshowtitle), NoResultsScraper):
+            return None
+
         self._request = self.scraper._request
 
         simple_info = {}
@@ -140,6 +144,9 @@ class DefaultHosterSources(DefaultSources):
         return simple_info
 
     def episode(self, simple_info, imdb, tvdb, title, premiered, season, episode):
+        if simple_info is None:
+            return None
+
         simple_info['episode_title'] = title
         simple_info['episode_number'] = episode
         simple_info['season_number'] = season

@@ -115,7 +115,7 @@
             "search": "/%s/%s/"
         }
     ],
-    "movcr": [
+    "_movcr": [
         {
             "base": "https://movcr.cc",
             "search": "/search/search.php?q=%s"
@@ -199,7 +199,7 @@
             "search": "/search/?search=%s"
         }
     ],
-    "torrentz2_": [
+    "_torrentz2_": [
         {
             "base": "https://torrentz2.eu",
             "search": "/search?f=%s"
