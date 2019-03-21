@@ -4,9 +4,7 @@ from providerModules.a4kScrapers import core
 
 class sources(core.DefaultSources):
     def __init__(self):
-        super(sources, self).__init__(__name__,
-                                      request=core.Request(),
-                                      search_request=self._search_request)
+        super(sources, self).__init__(__name__)
 
     def _search_request(self, url, query):
         query_first_letter = query.decode('utf-8')[0].lower()

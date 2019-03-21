@@ -2,18 +2,14 @@
 
 import threading
 import time
+import traceback
 
 from urllib3.exceptions import ConnectTimeoutError
 from requests.exceptions import ReadTimeout
 
-from third_party import source_utils
+from third_party import source_utils, cfscrape
 from common_types import UrlParts
 from utils import tools
-
-try:
-    from resources.lib.common import cfscrape
-except:
-    from third_party import cfscrape
 
 def is_cloudflare_on(response):
     return (response.status_code == 503
@@ -48,6 +44,7 @@ class Request(object):
 
             return self._request_core(request, retry=False)
         except:
+            traceback.print_exc()
             return response_err
 
     def _head(self, url):
@@ -85,4 +82,9 @@ class Request(object):
     def get(self, url, headers={}):
         tools.log('GET: %s' % url, 'info')
         request = lambda: self._cfscrape.get(url, headers=headers, timeout=self._timeout)
+        return self._request_core(request)
+
+    def post(self, url, data, headers={}):
+        tools.log('POST: %s' % url, 'info')
+        request = lambda: self._cfscrape.post(url, data, headers=headers, timeout=self._timeout)
         return self._request_core(request)

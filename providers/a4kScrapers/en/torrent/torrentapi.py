@@ -51,7 +51,7 @@ class sources(object):
         except: pass
 
         torrent['seeds'] = el['seeders']
-        
+
         return torrent
 
     def _get_scraper(self):

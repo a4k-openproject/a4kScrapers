@@ -135,7 +135,7 @@ def __get_cache_core(query):
                 'hash': result_key,
                 'package': package_keys[scraper_result[0]],
                 'release_title': decode(scraper_result[1]),
-                'size': 0,
+                'size': scraper_result[2],
                 'seeds': 0
             })
 
@@ -158,12 +158,23 @@ def __set_cache_core(scraper, query, results, cached_results):
         cached_results[scraper_key] = {}
 
     for result in results:
-        scraper_result = cached_results[scraper_key]
-        result_key = result['hash']
-        if scraper_result.get(result_key, None) is not None:
+        if result['size'] < 120:
             continue
+
+        result_key = result['hash']
+
+        duplicate = False
+        for cached_scraper in cached_results:
+            if cached_results[cached_scraper].get(result_key, None) is not None:
+                duplicate = True
+                break
+
+        if duplicate:
+            continue
+
+        scraper_result = cached_results[scraper_key]
         try:
-            scraper_result[result_key] = [sha1(result['package']), encode(result['release_title'])]
+            scraper_result[result_key] = [sha1(result['package']), encode(result['release_title']), result['size']]
             __cache_has_new_results[query] = True
         except:
             traceback.print_exc()
@@ -234,7 +245,7 @@ def get_cache(scraper, query):
     except:
         return __cache_results[query]
 
-@delay(0.1)
+@delay(1.0)
 def set_cache(scraper, query, results, cache_result):
     try:
         if DEV_MODE:

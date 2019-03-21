@@ -18,7 +18,6 @@ hosters = os.path.join(en, 'hosters')
 providerModules = os.path.join(dir_name, 'providerModules')
 a4kScrapers2 = os.path.join(providerModules, 'a4kScrapers')
 third_party = os.path.join(a4kScrapers2, 'third_party')
-smaz = os.path.join(third_party, 'smaz')
 
 sys.path.append(dir_name)
 sys.path.append(providers)
@@ -30,10 +29,10 @@ sys.path.append(hosters)
 sys.path.append(providerModules)
 sys.path.append(a4kScrapers2)
 sys.path.append(third_party)
-sys.path.append(smaz)
 
 os.environ['A4KSCRAPERS_TEST'] = '1'
 #os.environ['A4KSCRAPERS_TEST_ALL'] = '1' # verify all urls per tracker
+#os.environ['A4KSCRAPERS_TEST_TOTAL'] = '1'
 os.environ['A4KSCRAPERS_CACHE_LOG'] = '1'
 
 from providerModules.a4kScrapers import core
@@ -48,7 +47,11 @@ hoster_scrapers = {}
 for scraper in hosters_module.__all__:
     hoster_scrapers[scraper] = importlib.import_module('providers.a4kScrapers.en.hosters.%s' % scraper)
 
+total_results = {}
+
 def assert_result(test, scraper, scraper_sources, scraper_name, torrent_list):
+    global total_results_count
+
     try:
         warnings.filterwarnings(action='ignore',
                                 message='unclosed',
@@ -57,6 +60,11 @@ def assert_result(test, scraper, scraper_sources, scraper_name, torrent_list):
         pass
 
     results_count = len(torrent_list)
+
+    if os.getenv('A4KSCRAPERS_TEST_TOTAL') == '1':
+        for torrent in torrent_list:
+            total_results[torrent['release_title']] = 1
+        return
 
     if results_count == 0 \
        and scraper_name not in core.trackers \
@@ -165,6 +173,14 @@ for scraper in torrent_module.__all__:
 for scraper in hosters_module.__all__:
     method = lambda scraper: lambda self: test_hoster(self, scraper)
     setattr(TestHosterScraping, 'test_%s' % scraper, method(scraper))
+
+if os.getenv('A4KSCRAPERS_TEST_TOTAL') == '1':
+    def log_results(self):
+        for title in total_results.keys():
+            print(title.encode('utf8'))
+        print('Total results: %s' % len(total_results.keys()))
+
+    setattr(TestTorrentScraping, 'test_zzz', log_results)
 
 if __name__ == '__main__':
     unittest.main()

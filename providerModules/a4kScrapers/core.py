@@ -12,7 +12,7 @@ from scrapers import re, NoResultsScraper, GenericTorrentScraper, GenericExtraQu
 from urls import trackers, hosters
 from cache import check_cache_result, get_cache, set_cache, get_config, set_config
 
-def get_scraper(soup_filter, title_filter, info, request=None, search_request=None, use_thread_for_info=False, custom_filter=None, caller_name=None):
+def get_scraper(soup_filter, title_filter, info, search_request, request=None, use_thread_for_info=False, custom_filter=None, caller_name=None):
     if caller_name is None:
         caller_name = get_caller_name()
 
@@ -21,17 +21,6 @@ def get_scraper(soup_filter, title_filter, info, request=None, search_request=No
 
     if request is None:
         request = Request()
-
-    def search(url, query):
-        if '=%s' in url.search:
-            query = quote_plus(query)
-        else:
-            query = query.decode('utf-8')
-
-        return request.get(url.base + url.search % query)
-
-    if search_request is None:
-        search_request = search
 
     if caller_name in trackers:
         scraper_urls = trackers[caller_name]
@@ -50,11 +39,18 @@ def get_scraper(soup_filter, title_filter, info, request=None, search_request=No
     return TorrentScraper(urls, request, search_request, soup_filter, title_filter, info, use_thread_for_info, custom_filter)
 
 class DefaultSources(object):
-    def __init__(self, module_name, request=None, single_query=False, search_request=None):
+    def __init__(self, module_name, request=None, single_query=False):
         self._caller_name = module_name.split('.')[-1:][0]
         self._request = request
         self._single_query = single_query
-        self._search_request = search_request
+
+    def _search_request(self, url, query):
+        if '=%s' in url.search:
+            query = quote_plus(query)
+        else:
+            query = query.decode('utf-8')
+
+        return self._request.get(url.base + url.search % query)
 
     def _get_scraper(self, title, genericScraper=None, use_thread_for_info=False, custom_filter=None):
         if genericScraper is None:
@@ -88,11 +84,15 @@ class DefaultSources(object):
         self.scraper = get_scraper(soup_filter,
                                    title_filter,
                                    info,
+                                   self._search_request,
                                    caller_name=self._caller_name,
                                    request=self._request,
-                                   search_request=self._search_request,
                                    use_thread_for_info=use_thread_for_info,
                                    custom_filter=custom_filter)
+
+        if self._request is None and not isinstance(self.scraper, NoResultsScraper):
+            self._request = self.scraper._request
+
         return self.scraper
 
     def movie(self, title, year):
@@ -106,11 +106,10 @@ class DefaultSources(object):
                                   single_query=self._single_query)
 
 class DefaultExtraQuerySources(DefaultSources):
-    def __init__(self, module_name, single_query=False, search_request=None, request_timeout=None):
+    def __init__(self, module_name, single_query=False, request_timeout=None):
         super(DefaultExtraQuerySources, self).__init__(module_name,
                                                        request=Request(sequental=True, timeout=request_timeout),
-                                                       single_query=single_query,
-                                                       search_request=search_request)
+                                                       single_query=single_query)
 
     def _get_scraper(self, title, custom_filter=None):
         genericScraper = GenericExtraQueryTorrentScraper(title,
@@ -171,7 +170,7 @@ class DefaultHosterSources(DefaultSources):
             hoster_results = self.search(url, query)
 
             for result in hoster_results:
-                quality = source_utils.getQuality(result.title)
+                quality = source_utils.get_quality(result.title)
 
                 for url in result.urls:
                     domain = re.findall(r"https?:\/\/(www\.)?(.*?)\/.*?", url)[0][1]
@@ -181,7 +180,7 @@ class DefaultHosterSources(DefaultSources):
                     if any(x in url for x in ['.rar', '.zip', '.iso']):
                         continue
 
-                    quality_from_url = source_utils.getQuality(url)
+                    quality_from_url = source_utils.get_quality(url)
                     if quality_from_url != 'SD':
                         quality = quality_from_url
 
@@ -221,20 +220,20 @@ class TorrentScraper(object):
         self._use_thread_for_info = use_thread_for_info
         self._custom_filter = custom_filter
 
-        filterMovieTitle = lambda t: source_utils.filterMovieTitle(t, self.title, self.year)
-        self.filterMovieTitle = Filter(fn=filterMovieTitle, type='single')
+        filter_movie_title = lambda t: source_utils.filter_movie_title(t, self.title, self.year)
+        self.filter_movie_title = Filter(fn=filter_movie_title, type='single')
 
-        filterSingleEpisode = lambda t: source_utils.filterSingleEpisode(self.simple_info, t)
-        self.filterSingleEpisode = Filter(fn=filterSingleEpisode, type='single')
+        filter_single_episode = lambda t: source_utils.filter_single_episode(self.simple_info, t)
+        self.filter_single_episode = Filter(fn=filter_single_episode, type='single')
 
-        filterSingleSpecialEpisode = lambda t: source_utils.filterSingleSpecialEpisode(self.simple_info, t)
-        self.filterSingleSpecialEpisode = Filter(fn=filterSingleSpecialEpisode, type='single')
+        filter_single_special_episode = lambda t: source_utils.filter_single_special_episode(self.simple_info, t)
+        self.filter_single_special_episode = Filter(fn=filter_single_special_episode, type='single')
 
-        filterSeasonPack = lambda t: source_utils.filterSeasonPack(self.simple_info, t)
-        self.filterSeasonPack = Filter(fn=filterSeasonPack, type='season')
+        filter_season_pack = lambda t: source_utils.filter_season_pack(self.simple_info, t)
+        self.filter_season_pack = Filter(fn=filter_season_pack, type='season')
 
-        filterShowPack = lambda t: source_utils.filterShowPack(self.simple_info, t)
-        self.filterShowPack = Filter(fn=filterShowPack, type='show')
+        filter_show_pack = lambda t: source_utils.filter_show_pack(self.simple_info, t)
+        self.filter_show_pack = Filter(fn=filter_show_pack, type='show')
 
     def _search_core(self, query):
         try:
@@ -386,19 +385,19 @@ class TorrentScraper(object):
         return self._results
 
     def _episode(self, query):
-        return self._query_thread(query, [self.filterSingleEpisode])
+        return self._query_thread(query, [self.filter_single_episode])
 
     def _episode_special(self, query):
-        return self._query_thread(query, [self.filterSingleSpecialEpisode])
+        return self._query_thread(query, [self.filter_single_special_episode])
 
     def _season(self, query):
-        return self._query_thread(query, [self.filterSeasonPack])
+        return self._query_thread(query, [self.filter_season_pack])
 
     def _pack(self, query):
-        return self._query_thread(query, [self.filterShowPack])
+        return self._query_thread(query, [self.filter_show_pack])
 
     def _season_and_pack(self, query):
-        return self._query_thread(query, [self.filterSeasonPack, self.filterShowPack])
+        return self._query_thread(query, [self.filter_season_pack, self.filter_show_pack])
 
     def movie_query(self, title, year, single_query=False, caller_name=None):
         if caller_name is None:
@@ -406,10 +405,10 @@ class TorrentScraper(object):
 
         self.caller_name = caller_name
 
-        self.title = title
+        self.title = source_utils.clean_title(title)
         self.year = year
 
-        full_query = '%s %s' % (self.title, self.year)
+        full_query = '%s %s' % (title, year)
         use_cache_only = self._get_cache(full_query)
         if use_cache_only:
             return self._get_movie_results()
@@ -422,12 +421,13 @@ class TorrentScraper(object):
                     self._set_cache(full_query)
                     return self._get_movie_results()
 
-            movie = lambda query: self._query_thread(query, [self.filterMovieTitle])
-            wait_threads([movie(title + ' ' + year)])
+            movie = lambda query: self._query_thread(query, [self.filter_movie_title])
+            wait_threads([movie(self.title + ' ' + self.year)])
 
             if len(self._temp_results) == 0 and not single_query:
+                self._set_cache(full_query)
                 skip_set_cache = True
-                wait_threads([movie(title)])
+                wait_threads([movie(self.title)])
 
             if not skip_set_cache:
                 self._set_cache(full_query)
@@ -444,22 +444,27 @@ class TorrentScraper(object):
 
         self.caller_name = caller_name
 
+        simple_info['show_aliases'] = list(set(simple_info['show_aliases']))
         if '.' in simple_info['show_title']:
             no_dot_show_title = simple_info['show_title'].replace('.', '')
-            simple_info['show_aliases'].append(source_utils.cleanTitle(no_dot_show_title))
-            simple_info['show_aliases'] = list(set(simple_info['show_aliases']))
+            simple_info['show_aliases'].append(source_utils.clean_title(no_dot_show_title))
             simple_info['show_title'] = no_dot_show_title
+
+        for alias in simple_info['show_aliases']:
+            if '.' in alias:
+                simple_info['show_aliases'].append(alias.replace('.', ' '))
+                simple_info['show_aliases'].append(alias.replace('.', ''))
 
         self.simple_info = simple_info
         self.year = simple_info['year']
         self.country = simple_info['country']
-        self.show_title = source_utils.cleanTitle(simple_info['show_title'])
+        self.show_title = source_utils.clean_title(simple_info['show_title'])
         if self.year in self.show_title:
             self.show_title_fallback = self.show_title.replace(self.year, '').strip()
         else:
             self.show_title_fallback = None
 
-        self.episode_title = source_utils.cleanTitle(simple_info['episode_title'])
+        self.episode_title = source_utils.clean_title(simple_info['episode_title'])
         self.season_x = simple_info['season_number']
         self.episode_x = simple_info['episode_number']
         self.season_xx = self.season_x.zfill(2)
@@ -495,7 +500,7 @@ class TorrentScraper(object):
 
                 if single_query or DEV_MODE:
                     #self._set_cache(full_query)
-                    return self._get_episode_results()
+                    return
 
                 queries = [
                     self._season(self.show_title + ' Season ' + self.season_x),

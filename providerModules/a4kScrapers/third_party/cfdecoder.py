@@ -61,6 +61,10 @@ class Cloudflare:
     @property
     def is_cloudflare(self):
         return self.header_data.get("wait", 0) > 0 or self.js_data.get("wait", 0) > 0
+    
+    def get_jschl_answer(self):
+        self.get_url()
+        return self.js_data["params"]["jschl_answer"]
 
     def get_url(self):
         # Metodo #1 (javascript)
