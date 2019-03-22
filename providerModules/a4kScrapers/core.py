@@ -128,7 +128,7 @@ class DefaultHosterSources(DefaultSources):
         self._request = self.scraper._request
 
         simple_info = {}
-        simple_info['title'] = title
+        simple_info['title'] = source_utils.clean_title(title)
         simple_info['year'] = year
         return simple_info
 
@@ -139,7 +139,7 @@ class DefaultHosterSources(DefaultSources):
         self._request = self.scraper._request
 
         simple_info = {}
-        simple_info['show_title'] = tvshowtitle
+        simple_info['show_title'] = re.sub(r'\s+', ' ', source_utils.clean_title(tvshowtitle).replace(year, ''))
         simple_info['year'] = year
         return simple_info
 
@@ -476,7 +476,7 @@ class TorrentScraper(object):
         self.country = simple_info['country']
         self.show_title = source_utils.clean_title(simple_info['show_title'])
         if self.year in self.show_title:
-            self.show_title_fallback = self.show_title.replace(self.year, '').strip()
+            self.show_title_fallback = re.sub(r'\s+', ' ', self.show_title.replace(self.year, ''))
         else:
             self.show_title_fallback = None
 
@@ -510,15 +510,16 @@ class TorrentScraper(object):
                     #self._set_cache(full_query)
                     return self._get_episode_results()
 
-                wait_threads([
+                queries = [
                     self._episode(self.show_title + ' S%sE%s' % (self.season_xx, self.episode_xx))
-                ])
+                ]
 
                 if single_query or DEV_MODE:
                     #self._set_cache(full_query)
+                    wait_threads(queries)
                     return
 
-                queries = [
+                queries = queries + [
                     self._season(self.show_title + ' Season ' + self.season_x),
                     self._season(self.show_title + ' S%s' % self.season_xx),
                     self._pack(self.show_title + ' Seasons'),

@@ -10,8 +10,10 @@ from requests.sessions import Session
 
 try:
     from urlparse import urlparse
+    from urlparse import urlunparse
 except ImportError:
     from urllib.parse import urlparse
+    from urllib.parse import urlunparse
 
 __version__ = "1.9.7"
 
@@ -75,8 +77,6 @@ class CloudflareScraper(Session):
         return resp
 
     def solve_cf_challenge(self, resp, **original_kwargs):
-        start_time = time.time()
-
         body = resp.text
         parsed_url = urlparse(resp.url)
         domain = parsed_url.netloc
@@ -99,12 +99,11 @@ class CloudflareScraper(Session):
             raise ValueError("Unable to parse Cloudflare anti-bots page: %s %s" % (e.message, BUG_REPORT))
 
         # Solve the Javascript challenge
-        #params["jschl_answer"] = self.solve_challenge(body, domain)
         request = {}
         request['data'] = resp.text
         request['url'] = resp.url
         request['headers'] = resp.headers
-        params["jschl_answer"] = cfdecoder.Cloudflare(request).get_jschl_answer()
+        cfdecoder.Cloudflare(request, params).get_url()
 
         # Requests transforms any request into a GET after a redirect,
         # so the redirect has to be handled manually here to allow for
@@ -112,55 +111,13 @@ class CloudflareScraper(Session):
         method = resp.request.method
         cloudflare_kwargs["allow_redirects"] = False
 
-        end_time = time.time()
-        time.sleep(self.delay - (end_time - start_time)) # Cloudflare requires a delay before solving the challenge
-
         redirect = self.request(method, submit_url, **cloudflare_kwargs)
 
         redirect_location = urlparse(redirect.headers["Location"])
         if not redirect_location.netloc:
-            redirect_url = "%s://%s%s" % (parsed_url.scheme, domain, redirect_location.path)
+            redirect_url = urlunparse((parsed_url.scheme, domain, redirect_location.path, redirect_location.params, redirect_location.query, redirect_location.fragment))
             return self.request(method, redirect_url, **original_kwargs)
         return self.request(method, redirect.headers["Location"], **original_kwargs)
-
-    def solve_challenge(self, body, domain):
-        try:
-            js = re.search(r"setTimeout\(function\(\){\s+(var "
-                        "s,t,o,p,b,r,e,a,k,i,n,g,f.+?\r?\n[\s\S]+?a\.value =.+?)\r?\n", body).group(1)
-        except Exception:
-            raise ValueError("Unable to identify Cloudflare IUAM Javascript on website. %s" % BUG_REPORT)
-
-        js = re.sub(r"a\.value = (.+ \+ t\.length(\).toFixed\(10\))?).+", r"\1", js)
-        js = re.sub(r"\s{3,}[a-z](?: = |\.).+", "", js).replace("t.length", str(len(domain)))
-
-        # Strip characters that could be used to exit the string context
-        # These characters are not currently used in Cloudflare's arithmetic snippet
-        js = re.sub(r"[\n\\']", "", js)
-
-        if "toFixed" not in js:
-            raise ValueError("Error parsing Cloudflare IUAM Javascript challenge. %s" % BUG_REPORT)
-
-        # Use vm.runInNewContext to safely evaluate code
-        # The sandboxed code cannot use the Node.js standard library
-        js = "console.log(require('vm').runInNewContext('%s', Object.create(null), {timeout: 5000}));" % js
-
-        try:
-            result = subprocess.check_output(["node", "-e", js]).strip()
-        except OSError as e:
-            if e.errno == 2:
-                raise EnvironmentError("Missing Node.js runtime. Node is required and must be in the PATH (check with `node -v`). Your Node binary may be called `nodejs` rather than `node`, in which case you may need to run `apt-get install nodejs-legacy` on some Debian-based systems. (Please read the cfscrape"
-                    " README's Dependencies section: https://github.com/Anorov/cloudflare-scrape#dependencies.")
-            raise
-        except Exception:
-            logging.error("Error executing Cloudflare IUAM Javascript. %s" % BUG_REPORT)
-            raise
-
-        try:
-            float(result)
-        except Exception:
-            raise ValueError("Cloudflare IUAM challenge returned unexpected answer. %s" % BUG_REPORT)
-
-        return result
 
     @classmethod
     def create_scraper(cls, sess=None, **kwargs):

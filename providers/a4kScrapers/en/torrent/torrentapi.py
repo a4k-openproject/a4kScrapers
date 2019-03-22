@@ -5,7 +5,7 @@ from providerModules.a4kScrapers.core import tools
 
 class sources(object):
     def __init__(self):
-        self._request = core.Request(sequental=True,wait=2)
+        self._request = core.Request(sequental=True,wait=1.4)
         self._url = core.UrlParts(base='https://torrentapi.org/pubapi_v2.php?app_id=Torapi',
                                   search='&mode=search&search_string=%s&token=%s&limit=100&format=json_extended')
         self._token = None

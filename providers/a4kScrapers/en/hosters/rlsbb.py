@@ -38,7 +38,7 @@ class source(core.DefaultHosterSources):
             return self.search(hoster_url, query, search_id=search_id)
 
         results = results['results']
-        if results is None:
+        if results is None or len(results) == 0:
             []
 
         result = results[0]
