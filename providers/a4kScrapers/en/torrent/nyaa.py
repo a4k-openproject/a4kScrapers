@@ -8,6 +8,3 @@ class sources(core.DefaultSources):
 
     def parse_seeds(self, row):
         return core.safe_list_get(core.re.findall(r'style="color: green;">\s*?(\d+)\s*?<', row), 0)
-
-    def episode(self, simple_info, all_info):
-        return []

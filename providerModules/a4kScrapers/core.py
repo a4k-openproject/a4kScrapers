@@ -516,6 +516,9 @@ class TorrentScraper(object):
                     self._season_and_pack(self.show_title + ' Complete')
                 ]
 
+                if simple_info.get('isanime', False) and simple_info.get('absolute_number', None) is not None:
+                    queries.insert(0, self._episode(self.show_title + ' %s' % simple_info['absolute_number']))
+
                 if self._use_thread_for_info:
                     wait_threads([queries[0]])
                 else:
