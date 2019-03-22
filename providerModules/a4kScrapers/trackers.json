@@ -49,12 +49,24 @@
             "search": "/usearch/%s"
         },
         {
-            "base": "https://kickass.unblocked.llc",
+            "base": "https://kickass.cm",
+            "search": "/usearch/%s"
+        },
+        {
+            "base": "https://kickass2.st",
+            "search": "/usearch/%s"
+        },
+        {
+            "base": "https://kat.sx",
             "search": "/search.php?q=%s"
         },
         {
             "base": "https://thekat.info",
             "search": "/usearch/%s"
+        },
+        {
+            "base": "https://kickass.unblocked.llc",
+            "search": "/search.php?q=%s"
         }
     ],
     "leet": [
