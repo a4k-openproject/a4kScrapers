@@ -4,8 +4,8 @@ import traceback
 import json
 
 from third_party import source_utils
-from utils import tools, beautifulSoup, encode, decode, now
-from utils import safe_list_get, get_caller_name, get_all_relative_py_files, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL, CACHE_LOG, AWS_ADMIN
+from utils import tools, beautifulSoup, encode, decode, now, safe_list_get, get_caller_name, replace_text_with_int
+from utils import get_all_relative_py_files, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL, CACHE_LOG, AWS_ADMIN
 from common_types import namedtuple, SearchResult, UrlParts, Filter, HosterResult
 from request import threading, Request, ConnectTimeoutError, ReadTimeout
 from scrapers import re, NoResultsScraper, GenericTorrentScraper, GenericExtraQueryTorrentScraper, MultiUrlScraper
@@ -429,7 +429,16 @@ class TorrentScraper(object):
                     return self._get_movie_results()
 
             movie = lambda query: self._query_thread(query, [self.filter_movie_title])
-            wait_threads([movie(self.title + ' ' + self.year)])
+            queries = [movie(self.title + ' ' + self.year)]
+
+            try:
+                alternative_title = replace_text_with_int(self.title)
+                if self.title != alternative_title:
+                    queries.append(movie(alternative_title + ' ' + self.year))
+            except:
+                pass
+
+            wait_threads(queries)
 
             if len(self._temp_results) == 0 and not single_query:
                 self._set_cache(full_query)
