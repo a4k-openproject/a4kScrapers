@@ -1,5 +1,5 @@
 {
-    "_rlsbb": [
+    "rlsbb": [
         {
             "base": "https://search.rlsbb.ru",
             "search": "/lib/search%s.php?phrase=%s&pindex=1&code=%s"
@@ -9,6 +9,12 @@
         {
             "base": "https://directdownload.tv",
             "search": "/api?key=4B0BB862F24C8A29&keyword=%s"
+        }
+    ],
+    "scenerls": [
+        {
+            "base": "http://scene-rls.net",
+            "search": "/?s=%s"
         }
     ]
 }

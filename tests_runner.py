@@ -52,12 +52,9 @@ total_results = {}
 def assert_result(test, scraper, scraper_sources, scraper_name, torrent_list):
     global total_results_count
 
-    try:
-        warnings.filterwarnings(action='ignore',
-                                message='unclosed',
-                                category=ResourceWarning)
-    except:
-        pass
+    warnings.filterwarnings(action='ignore',
+                            message='unclosed',
+                            category=ResourceWarning)
 
     results_count = len(torrent_list)
 
@@ -116,7 +113,7 @@ def get_episode_query():
     return simple_info
 
 def get_supported_hosts():
-    return ["uploaded.to", "depositfiles.com", "filefactory.com", "mediafire.com", "turbobit.net", "1fichier.com", "streamcloud.eu", "filer.net", "datafile.com", "datei.to", "openload.co", "cloudtime.to", "zippyshare.com", "brazzers.com", "flashx.tv", "rapidvideo.com", "vidto.me", "wicked.com", "kink.com", "hitfile.net", "filenext.com", "mofos.com", "realitykings.com", "uploadboy.com", "bangbros.com", "teamskeet.com", "badoinkvr.com", "julesjordan.com", "userscloud.com", "filespace.com", "nubilefilms.com", "mexashare.com", "clicknupload.org", "bitporno.com", "vidlox.me", "streamango.com", "ulozto.net", "hulkshare.com", "vidoza.net", "hqcollect.me", "pornhubpremium.com", "spicyfile.com", "xubster.com", "worldbytez.com", "rapidrar.com", "ddfnetwork.com"]
+    return ["nitroflare.com", "uploaded.to", "depositfiles.com", "filefactory.com", "mediafire.com", "turbobit.net", "1fichier.com", "streamcloud.eu", "filer.net", "datafile.com", "datei.to", "openload.co", "cloudtime.to", "zippyshare.com", "brazzers.com", "flashx.tv", "rapidvideo.com", "vidto.me", "wicked.com", "kink.com", "hitfile.net", "filenext.com", "mofos.com", "realitykings.com", "uploadboy.com", "bangbros.com", "teamskeet.com", "badoinkvr.com", "julesjordan.com", "userscloud.com", "filespace.com", "nubilefilms.com", "mexashare.com", "clicknupload.org", "bitporno.com", "vidlox.me", "streamango.com", "ulozto.net", "hulkshare.com", "vidoza.net", "hqcollect.me", "pornhubpremium.com", "spicyfile.com", "xubster.com", "worldbytez.com", "rapidrar.com", "ddfnetwork.com"]
 
 def movie(test, scraper, scraper_name):
     (movie_title, movie_year) = get_movie_query(scraper_name)
