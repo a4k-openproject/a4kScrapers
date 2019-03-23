@@ -5,13 +5,11 @@ from providerModules.a4kScrapers import core
 show_list = None
 Show = core.namedtuple('Show', 'title id')
 
-class sources(object):
+class sources(core.DefaultSources):
     def __init__(self):
-        self._request = core.Request()
-        self._url = core.UrlParts(base='https://showrss.info',
-                                  search='/browse')
+        super(sources, self).__init__(__name__)
+
         self._feed_url = '/show/%s.rss'
-        self._scraper = None
 
     def _init_show_list(self, url):
         response = self._request.get(url.base + url.search)
@@ -31,16 +29,16 @@ class sources(object):
         if show_list is None:
             show_list = self._init_show_list(url)
 
-        show_title = self._scraper.show_title.lower()
+        show_title = self.scraper.show_title.lower()
         show_id = None
         for show in show_list:
             if show.title.startswith(show_title):
                 show_id = show.id
                 break
 
-        if show_id is None and self._scraper.show_title_fallback is not None:
-            self._scraper.simple_info['show_title'] = self._scraper.show_title_fallback
-            show_title = self._scraper.show_title_fallback.lower()
+        if show_id is None and self.scraper.show_title_fallback is not None:
+            self.scraper.simple_info['show_title'] = self.scraper.show_title_fallback
+            show_title = self.scraper.show_title_fallback.lower()
             for show in show_list:
                 if show.title.startswith(show_title):
                     show_id = show.id
@@ -62,12 +60,8 @@ class sources(object):
 
         return torrent
 
-    def _get_scraper(self):
-        return core.TorrentScraper(None, self._request, self._search_request, self._soup_filter, self._title_filter, self._info, url=self._url)
-
     def movie(self, title, year):
         return []
 
     def episode(self, simple_info, all_info):
-        self._scraper = self._get_scraper()
-        return self._scraper.episode_query(simple_info, auto_query=False)
+        return super(sources, self).episode(simple_info, all_info, auto_query=False)

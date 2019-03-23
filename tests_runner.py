@@ -87,6 +87,7 @@ def assert_hosters_result(test, scraper, scraper_sources, scraper_name, hoster_r
     test.assertGreater(len(hoster_results), 0, '%s failed to find link' % scraper_name)
 
 def get_movie_query(scraper_name):
+    movie_imdb = None
     if scraper_name == 'movcr':
         movie_title = 'Gully Boy'
         movie_year = '2019'
@@ -96,8 +97,9 @@ def get_movie_query(scraper_name):
     else:
         movie_title = 'Fantastic Beasts and Where to Find Them'
         movie_year = '2016'
+        movie_imdb = 'tt3183660'
 
-    return (movie_title, movie_year)
+    return (movie_title, movie_year, movie_imdb)
 
 def get_episode_query():
     simple_info = {}
@@ -110,32 +112,37 @@ def get_episode_query():
     simple_info['country'] = 'US'
     simple_info['no_seasons'] = '7'
 
-    return simple_info
+    all_info = {}
+    all_info['showInfo'] = {}
+    all_info['showInfo']['ids'] = {}
+    all_info['showInfo']['ids']['imdb'] = 'tt0944947'
+
+    return (simple_info, all_info)
 
 def get_supported_hosts():
     return ["nitroflare.com", "uploaded.to", "depositfiles.com", "filefactory.com", "mediafire.com", "turbobit.net", "1fichier.com", "streamcloud.eu", "filer.net", "datafile.com", "datei.to", "openload.co", "cloudtime.to", "zippyshare.com", "brazzers.com", "flashx.tv", "rapidvideo.com", "vidto.me", "wicked.com", "kink.com", "hitfile.net", "filenext.com", "mofos.com", "realitykings.com", "uploadboy.com", "bangbros.com", "teamskeet.com", "badoinkvr.com", "julesjordan.com", "userscloud.com", "filespace.com", "nubilefilms.com", "mexashare.com", "clicknupload.org", "bitporno.com", "vidlox.me", "streamango.com", "ulozto.net", "hulkshare.com", "vidoza.net", "hqcollect.me", "pornhubpremium.com", "spicyfile.com", "xubster.com", "worldbytez.com", "rapidrar.com", "ddfnetwork.com"]
 
 def movie(test, scraper, scraper_name):
-    (movie_title, movie_year) = get_movie_query(scraper_name)
+    (movie_title, movie_year, movie_imdb) = get_movie_query(scraper_name)
     scraper_sources = scraper.sources()
-    results = scraper_sources.movie(movie_title, movie_year)
+    results = scraper_sources.movie(movie_title, movie_year, movie_imdb)
     assert_result(test, scraper, scraper_sources, scraper_name, results)
 
 def movie_from_hoster(test, scraper, scraper_name):
-    (movie_title, movie_year) = get_movie_query(scraper_name)
+    (movie_title, movie_year, movie_imdb) = get_movie_query(scraper_name)
     scraper_sources = scraper.source()
     simple_info = scraper_sources.movie(None, movie_title, None, None, movie_year)
     results = scraper_sources.sources(simple_info, get_supported_hosts(), [])
     assert_hosters_result(test, scraper, scraper_sources, scraper_name, results)
 
 def episode(test, scraper, scraper_name):
-    simple_info = get_episode_query()
+    (simple_info, all_info) = get_episode_query()
     scraper_sources = scraper.sources()
-    torrent_list = scraper_sources.episode(simple_info, {})
+    torrent_list = scraper_sources.episode(simple_info, all_info)
     assert_result(test, scraper, scraper_sources, scraper_name, torrent_list)
 
 def episode_from_hoster(test, scraper, scraper_name):
-    simple_info = get_episode_query()
+    (simple_info, all_info) = get_episode_query()
     scraper_sources = scraper.source()
     temp_simple_info = scraper_sources.tvshow(None, None, simple_info['show_title'], None, None, simple_info['year'])
     temp_simple_info = scraper_sources.episode(simple_info, None, None, simple_info['episode_title'], None, simple_info['season_number'], simple_info['episode_number'])
@@ -153,6 +160,8 @@ def test_torrent(self, scraper):
 
     if scraper not in ['showrss', 'eztv']:
         movie(self, scraper_module, scraper)
+        if scraper in ['torrentapi']:
+            episode(self, scraper_module, scraper)
     else:
         episode(self, scraper_module, scraper)
 

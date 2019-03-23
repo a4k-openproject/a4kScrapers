@@ -5,6 +5,7 @@ from providerModules.a4kScrapers import core
 class sources(core.DefaultSources):
     def __init__(self):
         super(sources, self).__init__(__name__)
+
         self._urls = core.trackers['piratebay']
         self._url_index = 0
         self._all_search_patterns = [

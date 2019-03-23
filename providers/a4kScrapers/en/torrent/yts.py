@@ -6,7 +6,7 @@ class sources(core.DefaultSources):
     def __init__(self):
         super(sources, self).__init__(__name__)
 
-    def soup_filter(self, response):
+    def _soup_filter(self, response):
         try:
             response = core.json.loads(response.text)
         except:

@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from providerModules.a4kScrapers import core
-from providerModules.a4kScrapers.core import tools
 
-class sources(object):
+class sources(core.DefaultSources):
     def __init__(self):
-        self._request = core.Request(sequental=True,wait=1.4)
-        self._url = core.UrlParts(base='https://torrentapi.org/pubapi_v2.php?app_id=Torapi',
-                                  search='&mode=search&search_string=%s&token=%s&limit=100&format=json_extended')
+        super(sources, self).__init__(__name__,
+                                     request=core.Request(sequental=True,wait=1.4))
+
         self._token = None
         self._imdb = None
 
@@ -25,7 +24,14 @@ class sources(object):
         search = url.search
         if self._imdb is not None:
             search = search.replace('search_string=', 'search_imdb=')
+            original_query = query
             query = self._imdb
+            if getattr(self.scraper, 'simple_info', None) is not None:
+                if self.scraper.show_title_fallback is not None and self.scraper.show_title_fallback in query:
+                    original_query = original_query[len(self.scraper.show_title_fallback):]
+                else:
+                    original_query = original_query[len(self.scraper.show_title):]
+                search += '&search_string=%s' % core.quote_plus(original_query.strip())
 
         search_url = url.base + search % (core.quote_plus(query), self._get_token(url))
         response = self._request.get(search_url)
@@ -41,6 +47,9 @@ class sources(object):
         else:
             return response['torrent_results']
 
+    def _soup_filter(self, response):
+        return response
+
     def _title_filter(self, el):
         return el['title']
 
@@ -54,12 +63,10 @@ class sources(object):
 
         return torrent
 
-    def _get_scraper(self):
-        return core.TorrentScraper(None, self._request, self._search_request, None, self._title_filter, self._info, url=self._url)
-
     def movie(self, title, year, imdb=None):
         self._imdb = imdb
-        return self._get_scraper().movie_query(title, year, single_query=True)
+        return super(sources, self).movie(title, year, imdb)
 
     def episode(self, simple_info, all_info):
-        return self._get_scraper().episode_query(simple_info)
+        self._imdb = all_info.get('showInfo', {}).get('ids', {}).get('imdb', None)
+        return super(sources, self).episode(simple_info, all_info)

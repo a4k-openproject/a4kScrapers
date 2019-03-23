@@ -69,7 +69,7 @@ class CloudflareScraper(Session):
 
         # Check if Cloudflare anti-bot is on
         if self.is_cloudflare_challenge(resp):
-            if self._solve_count == 2:
+            if self._solve_count == 3:
                 raise Exception('Cloudflare challenge failed!')
             self._solve_count += 1
             resp = self.solve_cf_challenge(resp, **kwargs)

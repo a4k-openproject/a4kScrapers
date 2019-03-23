@@ -6,7 +6,7 @@ from third_party import source_utils
 from utils import normalize, safe_list_get, get_caller_name, beautifulSoup
 
 class NoResultsScraper(object):
-    def movie_query(self, title, year, caller_name=None):
+    def movie_query(self, title, year, caller_name=None, single_query=False):
         return []
     def episode_query(self, simple_info, auto_query=True, single_query=False, caller_name=None):
         return []
@@ -122,34 +122,34 @@ class GenericExtraQueryTorrentScraper(GenericTorrentScraper):
         super(GenericExtraQueryTorrentScraper, self).__init__(title)
         self._request = request
 
-        find_title = getattr(context, 'find_title', None)
+        find_title = getattr(context, '_find_title', None)
         if find_title is not None:
             self._find_title = find_title
 
-        find_url = getattr(context, 'find_url', None)
+        find_url = getattr(context, '_find_url', None)
         if find_url is not None:
             self._find_url = find_url
 
-        find_seeds = getattr(context, 'find_seeds', None)
+        find_seeds = getattr(context, '_find_seeds', None)
         if find_seeds is not None:
             self._find_seeds = find_seeds
 
-        title_index = getattr(context, 'title_index', None)
+        title_index = getattr(context, '_title_index', None)
         if title_index is None:
             title_index = 1
         self._title_index = title_index
 
-        url_index = getattr(context, 'url_index', None)
+        url_index = getattr(context, '_url_index', None)
         if url_index is None:
             url_index = 1
         self._url_index = url_index
 
-        seeds_index = getattr(context, 'seeds_index', None)
+        seeds_index = getattr(context, '_seeds_index', None)
         if seeds_index is None:
             seeds_index = 2
         self._seeds_index = seeds_index
 
-        self._custom_parse_seeds = getattr(context, 'parse_seeds', None)
+        self._custom_parse_seeds = getattr(context, '_parse_seeds', None)
 
     def _find_title(self, el):
         return el.text.split('\n')[self._title_index]
@@ -196,7 +196,7 @@ class MultiUrlScraper(object):
     def __init__(self, torrent_scrapers):
         self._torrent_scrapers = torrent_scrapers
 
-    def movie_query(self, title, year, caller_name=None):
+    def movie_query(self, title, year, caller_name=None, single_query=False):
         if caller_name is None:
             caller_name = get_caller_name()
 
