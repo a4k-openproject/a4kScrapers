@@ -102,11 +102,12 @@ class DefaultSources(object):
                                 caller_name=self._caller_name,
                                 single_query=self._single_query)
 
-    def episode(self, simple_info, all_info):
+    def episode(self, simple_info, all_info, auto_query=True):
         return self._get_scraper(simple_info['show_title']) \
                    .episode_query(simple_info,
                                   caller_name=self._caller_name,
-                                  single_query=self._single_query)
+                                  single_query=self._single_query,
+                                  auto_query=auto_query)
 
 class DefaultExtraQuerySources(DefaultSources):
     def __init__(self, module_name, single_query=False, request_timeout=None):

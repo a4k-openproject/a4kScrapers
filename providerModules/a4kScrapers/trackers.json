@@ -201,6 +201,12 @@
             "search": "/search/%s/0/99/200"
         }
     ],
+    "showrss": [
+        {
+            "base": "https://showrss.info",
+            "search": "/browse"
+        }
+    ],
     "torrentapi": [
         {
             "base": "https://torrentapi.org/pubapi_v2.php?app_id=Torapi",
