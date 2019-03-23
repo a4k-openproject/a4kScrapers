@@ -201,6 +201,12 @@
             "search": "/search/%s/0/99/200"
         }
     ],
+    "torrentapi": [
+        {
+            "base": "https://torrentapi.org/pubapi_v2.php?app_id=Torapi",
+            "search": "&mode=search&search_string=%s&token=%s&limit=100&format=json_extended"
+        }
+    ],
     "torrentdownloads": [
         {
             "base": "https://www.torrentdownloads.me",

@@ -56,27 +56,27 @@ class DefaultSources(object):
         if genericScraper is None:
             genericScraper = GenericTorrentScraper(title)
 
-        soup_filter = getattr(self, 'soup_filter', None)
+        soup_filter = getattr(self, '_soup_filter', None)
         if soup_filter is None:
             soup_filter = genericScraper.soup_filter
 
-        title_filter = getattr(self, 'title_filter', None)
+        title_filter = getattr(self, '_title_filter', None)
         if title_filter is None:
             title_filter = genericScraper.title_filter
 
-        info = getattr(self, 'info', None)
+        info = getattr(self, '_info', None)
         if info is None:
             info = genericScraper.info
 
-        parse_magnet = getattr(self, 'parse_magnet', None)
+        parse_magnet = getattr(self, '_parse_magnet', None)
         if parse_magnet is not None:
             genericScraper.parse_magnet = parse_magnet
 
-        parse_size = getattr(self, 'parse_size', None)
+        parse_size = getattr(self, '_parse_size', None)
         if parse_size is not None:
             genericScraper.parse_size = parse_size
 
-        parse_seeds = getattr(self, 'parse_seeds', None)
+        parse_seeds = getattr(self, '_parse_seeds', None)
         if parse_seeds is not None:
             genericScraper.parse_seeds = parse_seeds
 
@@ -95,9 +95,12 @@ class DefaultSources(object):
 
         return self.scraper
 
-    def movie(self, title, year):
+    def movie(self, title, year, imdb=None):
         return self._get_scraper(title) \
-                   .movie_query(title, year, caller_name=self._caller_name)
+                   .movie_query(title,
+                                year,
+                                caller_name=self._caller_name,
+                                single_query=self._single_query)
 
     def episode(self, simple_info, all_info):
         return self._get_scraper(simple_info['show_title']) \
@@ -340,6 +343,15 @@ class TorrentScraper(object):
         if AWS_ADMIN:
             set_cache(self.caller_name, query, self._temp_results, self._cache_result)
 
+    def _find_url(self):
+        if self._url is not None:
+            return self._url
+        
+        if self.caller_name == 'torrentapi':
+            return self._urls[0]
+
+        return self._request.find_url(self._urls)
+
     def _sanitize_and_get_status(self):
         self._results = self._temp_results + self._results_from_cache
 
@@ -422,11 +434,10 @@ class TorrentScraper(object):
         skip_set_cache = False
 
         try:
+            self._url = self._find_url()
             if self._url is None:
-                self._url = self._request.find_url(self._urls)
-                if self._url is None:
-                    self._set_cache(full_query)
-                    return self._get_movie_results()
+                self._set_cache(full_query)
+                return self._get_movie_results()
 
             movie = lambda query: self._query_thread(query, [self.filter_movie_title])
             queries = [movie(self.title + ' ' + self.year)]
@@ -492,11 +503,10 @@ class TorrentScraper(object):
         #     return self._get_episode_results()
 
         try:
+            self._url = self._find_url()
             if self._url is None:
-                self._url = self._request.find_url(self._urls)
-                if self._url is None:
-                    #self._set_cache(full_query)
-                    return self._get_episode_results()
+                #self._set_cache(full_query)
+                return self._get_episode_results()
 
             if auto_query is False:
                 wait_threads([self._episode('')])

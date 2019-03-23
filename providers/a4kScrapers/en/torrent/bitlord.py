@@ -6,7 +6,7 @@ class sources(core.DefaultSources):
     def __init__(self):
         super(sources, self).__init__(__name__)
 
-    def info(self, el, url, torrent):
+    def _info(self, el, url, torrent):
         try:
             size = int(el.size.replace('MB', ''))
             if size == 0:
