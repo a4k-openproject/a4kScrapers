@@ -156,6 +156,8 @@ class DefaultHosterSources(DefaultSources):
         simple_info['season_number'] = season
         simple_info['episode_number_xx'] = episode.zfill(2)
         simple_info['season_number_xx'] = season.zfill(2)
+        simple_info['show_aliases'] = []
+
         return simple_info
 
     def resolve(self, url):
@@ -183,6 +185,12 @@ class DefaultHosterSources(DefaultSources):
             for result in hoster_results:
                 quality = source_utils.get_quality(result.title)
 
+                if query_type == 'movie' and not source_utils.filter_movie_title(result.title, simple_info['title'], simple_info['year']):
+                    continue
+
+                if query_type == 'episode' and not source_utils.filter_single_episode(simple_info, result.title):
+                    continue
+
                 for url in result.urls:
                     domain = re.findall(r"https?:\/\/(www\.)?(.*?)\/.*?", url)[0][1]
 
@@ -196,6 +204,7 @@ class DefaultHosterSources(DefaultSources):
                         quality = quality_from_url
 
                     sources.append({
+                        'release_title': result.title,
                         'source': domain,
                         'quality': quality,
                         'language': 'en',
@@ -211,6 +220,7 @@ class DefaultHosterSources(DefaultSources):
 
             return sources
         except:
+            traceback.print_exc()
             return sources
 
     def search(self, hoster_url, query):
@@ -475,12 +485,10 @@ class TorrentScraper(object):
         simple_info['show_aliases'] = list(set(simple_info['show_aliases']))
         if '.' in simple_info['show_title']:
             no_dot_show_title = simple_info['show_title'].replace('.', '')
-            simple_info['show_aliases'].append(source_utils.clean_title(no_dot_show_title))
-            simple_info['show_title'] = no_dot_show_title
+            simple_info['show_aliases'].append(no_dot_show_title)
 
         for alias in simple_info['show_aliases']:
             if '.' in alias:
-                simple_info['show_aliases'].append(alias.replace('.', ' '))
                 simple_info['show_aliases'].append(alias.replace('.', ''))
 
         self.simple_info = simple_info
