@@ -39,7 +39,7 @@ class source(core.DefaultHosterSources):
 
         results = results['results']
         if results is None or len(results) == 0:
-            []
+            return []
 
         result = results[0]
         title = result['post_title']
