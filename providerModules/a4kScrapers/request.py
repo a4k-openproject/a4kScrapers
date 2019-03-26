@@ -65,6 +65,9 @@ class Request(object):
         return response
 
     def find_url(self, urls):
+        if len(urls) == 1:
+            return UrlParts(base=urls[0].base, search=urls[0].search)
+
         for url in urls:
             response = self._head(url.base)
             if response.status_code != 200:
