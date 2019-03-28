@@ -17,12 +17,16 @@ class source(core.DefaultHosterSources):
         results = core.json.loads(results)['results']
 
         if results is None or len(results) == 0:
-            []
+            return []
 
         hoster_results = []
         for result in results:
             title = result['release']
             urls = []
+
+            if result.get('links', None) is None or len(result['links']) == 0:
+                continue
+
             for link_key in result['links'].keys():
                 for url in result['links'][link_key]:
                     urls.append(url)
