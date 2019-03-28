@@ -4,7 +4,7 @@ import traceback
 import json
 
 from third_party import source_utils
-from utils import tools, beautifulSoup, encode, decode, now, safe_list_get, get_caller_name, replace_text_with_int
+from utils import tools, beautifulSoup, encode, decode, now, safe_list_get, get_caller_name, replace_text_with_int, strip_non_ascii_and_unprintable
 from utils import get_all_relative_py_files, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL, CACHE_LOG, AWS_ADMIN
 from common_types import namedtuple, SearchResult, UrlParts, Filter, HosterResult
 from request import threading, Request, ConnectTimeoutError, ReadTimeout
@@ -204,7 +204,7 @@ class DefaultHosterSources(DefaultSources):
                         quality = quality_from_url
 
                     sources.append({
-                        'release_title': result.title,
+                        'release_title': strip_non_ascii_and_unprintable(result.title),
                         'source': domain,
                         'quality': quality,
                         'language': 'en',
@@ -309,7 +309,7 @@ class TorrentScraper(object):
                     torrent['scraper'] = self.caller_name
                     torrent['hash'] = ''
                     torrent['package'] = packageType
-                    torrent['release_title'] = title
+                    torrent['release_title'] = strip_non_ascii_and_unprintable(title)
                     torrent['size'] = None
                     torrent['seeds'] = None
 

@@ -19,6 +19,18 @@ class GenericTorrentScraper(object):
         title = title[:title.find(' ')]
         self._title_start = title.lower()
 
+    def _clean_tags(self, title):
+        if title[0] == '[':
+            title = title[title.find(']')+1:].strip()
+            return self._clean_tags(title)
+        if title[0] == '(':
+            title = title[title.find(')')+1:].strip()
+            return self._clean_tags(title)
+        if title[0] == '{':
+            title = title[title.find('}')+1:].strip()
+            return self._clean_tags(title)
+        return title
+
     def _parse_rows(self, response, row_tag):
         results = []
         rows = response.split(row_tag)
@@ -100,7 +112,10 @@ class GenericTorrentScraper(object):
         return results
 
     def title_filter(self, result):
-        title = result.title[result.title.lower().find(self._title_start):]
+        title = self._clean_tags(result.title.strip())
+        if '/' in title and title[title.find('/')+1:].strip().lower().startswith(self.title_start):
+            title = title[title.find('/')+1:].strip()
+
         title = normalize(title).replace('+', ' ')
         return title
 
