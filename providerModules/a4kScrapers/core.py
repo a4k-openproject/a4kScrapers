@@ -309,7 +309,7 @@ class TorrentScraper(object):
                     torrent['scraper'] = self.caller_name
                     torrent['hash'] = ''
                     torrent['package'] = packageType
-                    torrent['release_title'] = strip_non_ascii_and_unprintable(title)
+                    torrent['release_title'] = title
                     torrent['size'] = None
                     torrent['seeds'] = None
 
@@ -371,6 +371,7 @@ class TorrentScraper(object):
         missing_seeds = 0
 
         for torrent in self._results:
+            torrent['release_title'] = strip_non_ascii_and_unprintable(torrent['release_title'])
             if torrent['size'] is None:
                 missing_size += 1
                 if not DEV_MODE:
