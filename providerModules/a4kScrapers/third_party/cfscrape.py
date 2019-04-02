@@ -179,12 +179,10 @@ class CloudflareScraper(Session):
                 decryptVal = '%.16f%s%.16f' % (float(decryptVal), sections[0][-1], float(line_val))
                 decryptVal = eval_expr(decryptVal)
 
-        answer = float('%.10f' % decryptVal)
-
         if '+ t.length' in body:
-            answer += len(self.domain)
+            decryptVal += len(self.domain)
 
-        return answer
+        return float('%.10f' % decryptVal)
 
     def parseJSString(self, s):
         offset = 1 if s[0] == '+' else 0
