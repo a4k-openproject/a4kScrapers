@@ -271,7 +271,7 @@ class TorrentScraper(object):
 
             url_index = None
             for idx, url in enumerate(self._urls):
-                if url.base == url.base:
+                if self._url.base == url.base:
                     url_index = idx
                     break
 
