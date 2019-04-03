@@ -18,7 +18,7 @@ def is_cloudflare_on(response):
 class Request(object):
     def __init__(self, sequental=False, timeout=None, wait=1):
         self._request = source_utils.serenRequests()
-        self._cfscrape = cfscrape.create_scraper()
+        self._cfscrape = cfscrape.CloudflareScraper()
         self._sequental = sequental
         self._wait = wait
         self._lock = threading.Lock()

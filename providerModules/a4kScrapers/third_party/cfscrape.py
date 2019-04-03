@@ -3,7 +3,6 @@ import random
 import re
 import ast
 import operator as op
-
 import requests
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -71,11 +70,12 @@ class CloudflareScraper(Session):
             raise Exception('Cloudflare returned error!')
 
         # Check if Cloudflare anti-bot is on
-        if (resp.headers.get("Server", "").startswith("cloudflare")
+        if (resp.status_code == 503
+            and resp.headers.get("Server", "").startswith("cloudflare")
             and b"jschl_vc" in resp.content
             and b"jschl_answer" in resp.content):
             if self.tries >= 3:
-                raise Exception('Failed to solve Cloudflare challenge!')
+                raise Exception('Failed to solve Cloudflare challenge!\n' + resp.text)
             return self.solve_cf_challenge(resp, **kwargs)
 
         # Otherwise, no Cloudflare anti-bot detected
@@ -179,12 +179,10 @@ class CloudflareScraper(Session):
                 decryptVal = '%.16f%s%.16f' % (float(decryptVal), sections[0][-1], float(line_val))
                 decryptVal = eval_expr(decryptVal)
 
-        answer = float('%.10f' % decryptVal)
-
         if '+ t.length' in body:
-            answer += len(self.domain)
+            decryptVal += len(self.domain)
 
-        return answer
+        return float('%.10f' % decryptVal)
 
     def parseJSString(self, s):
         offset = 1 if s[0] == '+' else 0
@@ -193,19 +191,3 @@ class CloudflareScraper(Session):
         val = re.findall(r'\((?:\d|\+|\-)*\)', val)
         val = ''.join([str(eval_expr(i)) for i in val])
         return int(val)
-
-
-def create_scraper(sess=None, **kwargs):
-    """
-    Convenience function for creating a ready-to-go requests.Session (subclass) object.
-    """
-    scraper = CloudflareScraper()
-
-    if sess:
-        attrs = ["auth", "cert", "cookies", "headers", "hooks", "params", "proxies", "data"]
-        for attr in attrs:
-            val = getattr(sess, attr, None)
-            if val:
-                setattr(scraper, attr, val)
-
-    return scraper
