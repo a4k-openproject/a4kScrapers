@@ -2,6 +2,7 @@
 
 import traceback
 import json
+import requests
 
 from third_party import source_utils
 from utils import tools, beautifulSoup, encode, decode, now, safe_list_get, get_caller_name, replace_text_with_int, strip_non_ascii_and_unprintable
@@ -259,12 +260,27 @@ class TorrentScraper(object):
     def _search_core(self, query):
         try:
             response = self._search_request(self._url, query)
+
             if self._soup_filter is None:
                 search_results = response
             else:
                 search_results = self._soup_filter(response)
-        except AttributeError:
-            return []
+        except requests.exceptions.RequestException:
+            if self._urls is None:
+                return []
+
+            url_index = None
+            for idx, url in enumerate(self._urls):
+                if url.base == url.base:
+                    url_index = idx
+                    break
+
+            if url_index is None or len(self._urls) <= url_index + 1:
+                return []
+
+            self._url = self._urls[url_index + 1]
+
+            return self._search_core(query)
         except:
             traceback.print_exc()
             return []
@@ -357,8 +373,11 @@ class TorrentScraper(object):
     def _find_url(self):
         if self._url is not None:
             return self._url
-        
-        if self.caller_name == 'torrentapi':
+
+        if len(self._urls) == 1:
+            return self._urls[0]
+
+        if self.caller_name == 'torrentz2_':
             return self._urls[0]
 
         return self._request.find_url(self._urls)
