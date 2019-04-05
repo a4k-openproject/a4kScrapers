@@ -61,6 +61,13 @@ class CloudflareScraper(Session):
             # Spoof Firefox on Linux if no custom User-Agent has been set
             self.headers["User-Agent"] = DEFAULT_USER_AGENT
 
+    def is_cloudflare_on(self, response, allow_empty_body=False):
+        is_cloudflare_response = (response.headers.get("Server", "").startswith("cloudflare")
+                         and response.status_code in [429, 503])
+
+        return (is_cloudflare_response and (allow_empty_body or 
+                (b"jschl_vc" in response.content and b"jschl_answer" in response.content)))
+
     def request(self, method, url, *args, **kwargs):
         self.headers = (
             OrderedDict(
@@ -81,11 +88,7 @@ class CloudflareScraper(Session):
             raise Exception('Cloudflare returned captcha!')
 
         # Check if Cloudflare anti-bot is on
-        if (resp.headers.get("Server", "").startswith("cloudflare")
-            and resp.status_code in [429, 503]
-            and b"jschl_vc" in resp.content
-            and b"jschl_answer" in resp.content):
-
+        if self.is_cloudflare_on(resp):
             if self.tries >= 3:
                 raise Exception('Failed to solve Cloudflare challenge!\n' + resp.text)
 

@@ -194,7 +194,7 @@ class DefaultHosterSources(DefaultSources):
                         return []
                     return search(url)
 
-            hoster_results = search(url)
+            hoster_results = search(url) if url is not None else []
 
             for result in hoster_results:
                 quality = source_utils.get_quality(result.title)
@@ -272,9 +272,12 @@ class TorrentScraper(object):
         filter_show_pack = lambda t: source_utils.filter_show_pack(self.simple_info, t)
         self.filter_show_pack = Filter(fn=filter_show_pack, type='show')
 
-    def _search_core(self, query):
+    def _search_core(self, query, url=None):
+        if url is None:
+            url = self._url
+
         try:
-            response = self._search_request(self._url, query)
+            response = self._search_request(url, query)
 
             try:
                 status_code = response.status_code
@@ -289,13 +292,13 @@ class TorrentScraper(object):
             else:
                 search_results = self._soup_filter(response)
         except requests.exceptions.RequestException:
-            self._url = self._find_next_url(self._url)
-            if self._url is None:
-                return []
-            return self._search_core(query)
+            url = self._find_next_url(url)
+            if url is None:
+                return ([], url)
+            return self._search_core(query, url)
         except:
             traceback.print_exc()
-            return []
+            return ([], url)
 
         results = []
         for el in search_results:
@@ -305,11 +308,14 @@ class TorrentScraper(object):
             except:
                 continue
 
-        return results
+        return (results, url)
 
-    def _info_core(self, el, torrent):
+    def _info_core(self, el, torrent, url=None):
+        if url is None:
+            url = self._url
+
         try:
-            result = self._info(el, self._url, torrent)
+            result = self._info(el, url, torrent)
             if result is not None and result['magnet'].startswith('magnet:?'):
                 if result['hash'] == '':
                     result['hash'] = re.findall(r'btih:(.*?)\&', result['magnet'])[0]
@@ -318,7 +324,7 @@ class TorrentScraper(object):
             pass
 
     def _get(self, query, filters):
-        results = self._search_core(query.encode('utf-8'))
+        (results, url) = self._search_core(query.encode('utf-8'))
 
         threads = []
         for result in results:
@@ -345,12 +351,12 @@ class TorrentScraper(object):
                         if len(threads) >= 5:
                             break
 
-                        threads.append(threading.Thread(target=self._info_core, args=(el, torrent)))
+                        threads.append(threading.Thread(target=self._info_core, args=(el, torrent, url)))
                         if DEV_MODE:
                             wait_threads(threads)
                             threads = []
                     else:
-                        self._info_core(el, torrent)
+                        self._info_core(el, torrent, url)
 
                     if DEV_MODE and len(self._temp_results) > 0:
                         return
