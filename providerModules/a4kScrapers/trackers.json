@@ -131,6 +131,10 @@
         {
             "base": "https://movcr.tv",
             "search": "/search/search.php?q=%s"
+        },
+        {
+            "base": "https://movcr.cc",
+            "search": "/search/search.php?q=%s"
         }
     ],
     "nyaa": [

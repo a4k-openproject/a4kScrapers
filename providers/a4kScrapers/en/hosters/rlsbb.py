@@ -27,7 +27,12 @@ class source(core.DefaultHosterSources):
 
         search_path = hoster_url.search % (search_id, core.quote_plus(query), code)
         search_url = '%s%s' % (hoster_url.base, search_path)
-        results = self._request.get(search_url).text
+
+        response = self._request.get(search_url)
+        if response.status_code != 200:
+            return None
+
+        results = response.text
 
         try:
             results = core.json.loads(results)

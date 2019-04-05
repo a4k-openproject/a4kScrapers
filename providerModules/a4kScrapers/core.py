@@ -184,7 +184,10 @@ class DefaultHosterSources(DefaultSources):
 
             def search(url):
                 try:
-                    return self.search(url, query)
+                    result = self.search(url, query)
+                    if result is None:
+                        raise requests.exceptions.RequestException()
+                    return result
                 except requests.exceptions.RequestException:
                     url = self.scraper._find_next_url(url)
                     if url is None:
@@ -272,6 +275,14 @@ class TorrentScraper(object):
     def _search_core(self, query):
         try:
             response = self._search_request(self._url, query)
+
+            try:
+                status_code = response.status_code
+            except:
+                status_code = 200
+
+            if status_code != 200:
+                raise requests.exceptions.RequestException()
 
             if self._soup_filter is None:
                 search_results = response
