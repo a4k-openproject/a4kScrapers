@@ -6,7 +6,7 @@ import requests
 
 from third_party import source_utils
 from utils import tools, beautifulSoup, encode, decode, now, safe_list_get, get_caller_name, replace_text_with_int, strip_non_ascii_and_unprintable
-from utils import get_all_relative_py_files, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL, CACHE_LOG, AWS_ADMIN
+from utils import strip_accents, get_all_relative_py_files, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL, CACHE_LOG, AWS_ADMIN
 from common_types import namedtuple, SearchResult, UrlParts, Filter, HosterResult
 from request import threading, Request, ConnectTimeoutError, ReadTimeout
 from scrapers import re, NoResultsScraper, GenericTorrentScraper, GenericExtraQueryTorrentScraper, MultiUrlScraper
@@ -175,10 +175,10 @@ class DefaultHosterSources(DefaultSources):
             query_type = None
             if simple_info.get('title', None) is not None:
                 query_type = 'movie'
-                query = '%s %s' % (simple_info['title'], simple_info['year'])
+                query = '%s %s' % (strip_accents(simple_info['title']), simple_info['year'])
             else:
                 query_type = 'episode'
-                query = '%s S%sE%s' % (simple_info['show_title'], simple_info['season_number_xx'], simple_info['episode_number_xx'])
+                query = '%s S%sE%s' % (strip_accents(simple_info['show_title']), simple_info['season_number_xx'], simple_info['episode_number_xx'])
 
             url = self.scraper._find_url()
 
@@ -477,6 +477,8 @@ class TorrentScraper(object):
         return self._query_thread(query, [self.filter_season_pack, self.filter_show_pack])
 
     def movie_query(self, title, year, single_query=False, caller_name=None):
+        title = strip_accents(title)
+
         if self.caller_name is None:
             if caller_name is None:
                 caller_name = get_caller_name()
@@ -524,6 +526,8 @@ class TorrentScraper(object):
             return self._get_movie_results()
 
     def episode_query(self, simple_info, auto_query=True, single_query=False, caller_name=None):
+        simple_info['show_title'] = strip_accents(simple_info['show_title'])
+
         if self.caller_name is None:
             if caller_name is None:
                 caller_name = get_caller_name()

@@ -206,3 +206,6 @@ def replace_text_with_int(textnum):
 def strip_non_ascii_and_unprintable(text):
     result = ''.join(char for char in text if char in string.printable)
     return result.encode('ascii', errors='ignore')
+
+def strip_accents(s):
+   return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
