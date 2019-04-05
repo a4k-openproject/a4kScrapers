@@ -22,11 +22,16 @@ class source(core.DefaultHosterSources):
         if search_id is None:
             return []
 
-        home_page = self._request.get(hoster_url.base).text
+        response = self._request.get(hoster_url.base)
+        if response.status_code != 200:
+            return None
+
+        home_page = response.text
         code = core.re.findall(r'data-code-rlsbb="(.*?)"', home_page)[0]
 
         search_path = hoster_url.search % (search_id, core.quote_plus(query), code)
         search_url = '%s%s' % (hoster_url.base, search_path)
+
         results = self._request.get(search_url).text
 
         try:

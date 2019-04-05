@@ -11,10 +11,6 @@ from third_party import source_utils, cfscrape
 from common_types import UrlParts
 from utils import tools
 
-def is_cloudflare_on(response):
-    return (response.status_code == 503
-            and response.headers.get("Server").startswith("cloudflare"))
-
 class Request(object):
     def __init__(self, sequental=False, timeout=None, wait=1):
         self._request = source_utils.serenRequests()
@@ -51,7 +47,7 @@ class Request(object):
         tools.log('HEAD: %s' % url, 'info')
         request = lambda: self._request.head(url, timeout=self._timeout)
         response = self._request_core(request)
-        if is_cloudflare_on(response):
+        if self._cfscrape.is_cloudflare_on(response, allow_empty_body=True):
             response = lambda: None
             response.url = url
             response.status_code = 200

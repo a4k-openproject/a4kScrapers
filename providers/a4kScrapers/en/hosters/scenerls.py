@@ -9,8 +9,13 @@ class source(core.DefaultHosterSources):
     def search(self, hoster_url, query, search_id=None):
         search_path = hoster_url.search % core.quote_plus(query)
         search_url = '%s%s' % (hoster_url.base, search_path)
-        result_content = self._request.get(search_url).text
+
         
+        response = self._request.get(search_url)
+        if response.status_code != 200:
+            return None
+
+        result_content = response.text
         posts = result_content.split('<div class="post">')[1:]
         results = []
 

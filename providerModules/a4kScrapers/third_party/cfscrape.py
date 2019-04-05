@@ -9,6 +9,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from requests.sessions import Session
 from copy import deepcopy
 from time import sleep
+from collections import OrderedDict
 
 try:
     from urlparse import urlparse
@@ -60,22 +61,37 @@ class CloudflareScraper(Session):
             # Spoof Firefox on Linux if no custom User-Agent has been set
             self.headers["User-Agent"] = DEFAULT_USER_AGENT
 
+    def is_cloudflare_on(self, response, allow_empty_body=False):
+        is_cloudflare_response = (response.headers.get("Server", "").startswith("cloudflare")
+                         and response.status_code in [429, 503])
+
+        return (is_cloudflare_response and (allow_empty_body or 
+                (b"jschl_vc" in response.content and b"jschl_answer" in response.content)))
+
     def request(self, method, url, *args, **kwargs):
+        self.headers = (
+            OrderedDict(
+                [
+                    ('User-Agent', self.headers['User-Agent']),
+                    ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'),
+                    ('Accept-Language', 'en-US,en;q=0.5'),
+                    ('Accept-Encoding', 'gzip, deflate'),
+                    ('Connection',  'close'),
+                    ('Upgrade-Insecure-Requests', '1')
+                ]
+            )
+        )
+
         resp = super(CloudflareScraper, self).request(method, url, *args, **kwargs)
 
-        if 'why_captcha' in resp.text:
+        if b'why_captcha' in resp.content or b'/cdn-cgi/l/chk_captcha' in resp.content:
             raise Exception('Cloudflare returned captcha!')
 
-        if 'cf-error-code' in resp.text:
-            raise Exception('Cloudflare returned error!')
-
         # Check if Cloudflare anti-bot is on
-        if (resp.status_code == 503
-            and resp.headers.get("Server", "").startswith("cloudflare")
-            and b"jschl_vc" in resp.content
-            and b"jschl_answer" in resp.content):
+        if self.is_cloudflare_on(resp):
             if self.tries >= 3:
                 raise Exception('Failed to solve Cloudflare challenge!\n' + resp.text)
+
             return self.solve_cf_challenge(resp, **kwargs)
 
         # Otherwise, no Cloudflare anti-bot detected
@@ -90,36 +106,30 @@ class CloudflareScraper(Session):
         body = resp.text
         parsed_url = urlparse(resp.url)
         domain = parsed_url.netloc
-        submit_url = "%s://%s/cdn-cgi/l/chk_jschl" % (parsed_url.scheme, domain)
-
-        self.domain = domain
+        submit_url = '{}://{}/cdn-cgi/l/chk_jschl'.format(parsed_url.scheme, domain)
 
         cloudflare_kwargs = deepcopy(original_kwargs)
-        params = cloudflare_kwargs.setdefault("params", {})
-        headers = cloudflare_kwargs.setdefault("headers", {})
-        headers["Referer"] = resp.url
+        headers = cloudflare_kwargs.setdefault('headers', { 'Referer': resp.url })
 
         try:
-            params["jschl_vc"] = re.search(r'name="jschl_vc" value="(\w+)"', body).group(1)
-            params["pass"] = re.search(r'name="pass" value="(.+?)"', body).group(1)
-            if 'name="s"' in body:
-                params["s"] = re.search(r'name="s"\svalue="(?P<s_value>[^"]+)', body).group('s_value')
-            answer = self.get_answer(body)
+            params = cloudflare_kwargs.setdefault(
+                'params', OrderedDict(
+                    [
+                        ('s', re.search(r'name="s"\svalue="(?P<s_value>[^"]+)', body).group('s_value')),
+                        ('jschl_vc', re.search(r'name="jschl_vc" value="(\w+)"', body).group(1)),
+                        ('pass', re.search(r'name="pass" value="(.+?)"', body).group(1)),
+                    ]
+                )
+            )
+
+            answer = self.get_answer(body, domain)
 
         except Exception as e:
-            # Something is wrong with the page.
-            # This may indicate Cloudflare has changed their anti-bot
-            # technique. If you see this and are running the latest version,
-            # please open a GitHub issue so I can update the code accordingly.
-            logging.error("[!] %s Unable to parse Cloudflare anti-bots page. "
-                          "Try upgrading cloudflare-scrape, or submit a bug report "
-                          "if you are running the latest version. Please read "
-                          "https://github.com/Anorov/cloudflare-scrape#updates "
-                          "before submitting a bug report." % e)
+            logging.error("Unable to parse Cloudflare anti-bots page. %s" % e)
             raise
 
         try:
-            params["jschl_answer"] = str(answer)  # str(int(jsunfuck.cfunfuck(js)) + len(domain))
+            params["jschl_answer"] = str(answer)
         except:
             pass
 
@@ -127,19 +137,27 @@ class CloudflareScraper(Session):
         # so the redirect has to be handled manually here to allow for
         # performing other types of requests even as the first request.
         method = resp.request.method
-        cloudflare_kwargs["allow_redirects"] = False
 
+        cloudflare_kwargs['allow_redirects'] = False
+        
         redirect = self.request(method, submit_url, **cloudflare_kwargs)
-        if redirect.status_code == 403:
-            raise Exception('Unable to pass the Cloudflare challenge!')
-        redirect_location = urlparse(redirect.headers["Location"])
-
+        redirect_location = urlparse(redirect.headers['Location'])
         if not redirect_location.netloc:
-            redirect_url = urlunparse((parsed_url.scheme, domain, redirect_location.path, redirect_location.params, redirect_location.query, redirect_location.fragment))
+            redirect_url = urlunparse(
+                (
+                    parsed_url.scheme,
+                    domain,
+                    redirect_location.path,
+                    redirect_location.params,
+                    redirect_location.query,
+                    redirect_location.fragment
+                )
+            )
             return self.request(method, redirect_url, **original_kwargs)
-        return self.request(method, redirect.headers["Location"], **original_kwargs)
 
-    def get_answer(self, body):
+        return self.request(method, redirect.headers['Location'], **original_kwargs)
+
+    def get_answer(self, body, domain):
         init = re.findall('setTimeout\(function\(\){\s*var.*?.*:(.*?)}', body)[-1]
         builder = re.findall(r"challenge-form\'\);\s*(.*)a.v", body)[0]
         if '/' in init:
@@ -159,7 +177,7 @@ class CloudflareScraper(Session):
                     if char_code_at_sep in subsecs[1]:
                         subsubsecs = re.findall(r"^(.*?)(.)\(function", subsecs[1])[0]
                         operand_1 = self.parseJSString(subsubsecs[0] + ')')
-                        operand_2 = ord(self.domain[self.parseJSString(subsecs[1][subsecs[1].find(char_code_at_sep) + len(char_code_at_sep):-2])])
+                        operand_2 = ord(domain[self.parseJSString(subsecs[1][subsecs[1].find(char_code_at_sep) + len(char_code_at_sep):-2])])
                         val_2 = '%.16f%s%.16f' % (float(operand_1), subsubsecs[1], float(operand_2))
                         val_2 = eval_expr(val_2)
                     else:
@@ -180,7 +198,7 @@ class CloudflareScraper(Session):
                 decryptVal = eval_expr(decryptVal)
 
         if '+ t.length' in body:
-            decryptVal += len(self.domain)
+            decryptVal += len(domain)
 
         return float('%.10f' % decryptVal)
 
