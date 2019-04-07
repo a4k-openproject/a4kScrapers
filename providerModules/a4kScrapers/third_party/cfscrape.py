@@ -62,8 +62,8 @@ class CloudflareScraper(Session):
             self.headers["User-Agent"] = DEFAULT_USER_AGENT
 
     def is_cloudflare_on(self, response, allow_empty_body=False):
-        is_cloudflare_response = (response.headers.get("Server", "").startswith("cloudflare")
-                         and response.status_code in [429, 503])
+        is_cloudflare_response = (response.status_code in [429, 503]
+                                  and response.headers.get("Server", "").startswith("cloudflare"))
 
         return (is_cloudflare_response and (allow_empty_body or 
                 (b"jschl_vc" in response.content and b"jschl_answer" in response.content)))

@@ -4,11 +4,12 @@ import traceback
 import json
 import requests
 
+from string import capwords
+from request import threading, Request, ConnectTimeoutError, ReadTimeout
 from third_party import source_utils
 from utils import tools, beautifulSoup, encode, decode, now, safe_list_get, get_caller_name, replace_text_with_int, strip_non_ascii_and_unprintable
 from utils import strip_accents, get_all_relative_py_files, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL, CACHE_LOG, AWS_ADMIN
 from common_types import namedtuple, SearchResult, UrlParts, Filter, HosterResult
-from request import threading, Request, ConnectTimeoutError, ReadTimeout
 from scrapers import re, NoResultsScraper, GenericTorrentScraper, GenericExtraQueryTorrentScraper, MultiUrlScraper
 from urls import trackers, hosters
 from cache import check_cache_result, get_cache, set_cache, get_config, set_config

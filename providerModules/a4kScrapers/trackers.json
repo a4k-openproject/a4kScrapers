@@ -289,6 +289,10 @@
         {
             "base": "https://zooqle.unblocked.llc",
             "search": "/search?q=%s"
+        },
+        {
+            "base": "https://zooqle.unblocked.krd",
+            "search": "/search?q=%s"
         }
     ]
 }
