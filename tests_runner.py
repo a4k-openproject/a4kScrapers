@@ -145,7 +145,7 @@ def episode_from_hoster(test, scraper, scraper_name):
     (simple_info, all_info) = get_episode_query()
     scraper_sources = scraper.source()
     temp_simple_info = scraper_sources.tvshow(None, None, simple_info['show_title'], None, None, simple_info['year'])
-    temp_simple_info = scraper_sources.episode(simple_info, None, None, simple_info['episode_title'], None, simple_info['season_number'], simple_info['episode_number'])
+    temp_simple_info = scraper_sources.episode(temp_simple_info, None, None, simple_info['episode_title'], None, simple_info['season_number'], simple_info['episode_number'])
     results = scraper_sources.sources(temp_simple_info, get_supported_hosts(), [])
     assert_hosters_result(test, scraper, scraper_sources, scraper_name, results)
 

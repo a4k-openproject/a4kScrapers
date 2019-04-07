@@ -2,6 +2,7 @@
 
 import re
 
+from string import capwords
 from third_party import source_utils
 from utils import normalize, safe_list_get, get_caller_name, beautifulSoup
 
@@ -117,7 +118,7 @@ class GenericTorrentScraper(object):
             title = title[title.find('/')+1:].strip()
 
         title = normalize(title).replace('+', ' ')
-        return title
+        return capwords(title)
 
     def info(self, el, url, torrent):
         torrent['magnet'] = el.magnet

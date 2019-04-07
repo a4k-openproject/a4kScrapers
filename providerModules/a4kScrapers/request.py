@@ -78,9 +78,9 @@ class Request(object):
 
         return None
 
-    def get(self, url, headers={}):
+    def get(self, url, headers={}, allow_redirects=True):
         tools.log('GET: %s' % url, 'info')
-        request = lambda: self._cfscrape.get(url, headers=headers, timeout=self._timeout)
+        request = lambda: self._cfscrape.get(url, headers=headers, timeout=self._timeout, allow_redirects=allow_redirects)
         return self._request_core(request)
 
     def post(self, url, data, headers={}):
