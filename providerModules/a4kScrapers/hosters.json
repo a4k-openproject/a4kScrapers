@@ -23,6 +23,10 @@
         {
             "base": "http://scene-rls.net",
             "search": "/?s=%s"
+        },
+        {
+            "base": "http://scene-rls.com",
+            "search": "/?s=%s"
         }
     ]
 }
