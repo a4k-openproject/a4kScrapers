@@ -279,6 +279,8 @@ class TorrentScraper(object):
 
         try:
             response = self._search_request(url, query)
+            if response is None:
+                raise requests.exceptions.RequestException()
 
             try:
                 status_code = response.status_code
@@ -581,17 +583,24 @@ class TorrentScraper(object):
                 return self._get_episode_results()
 
             def query_results():
+                if DEV_MODE:
+                    if self.caller_name != 'eztv':
+                        wait_threads([ self._season(self.show_title + ' S%s' % self.season_xx) ])
+                    else:
+                        wait_threads([ self._episode(self.show_title + ' S%sE%s' % (self.season_xx, self.episode_xx)) ])
+                    return
+
                 # specials
                 if self.season_x == '0':
                     wait_threads([self._episode_special(self.show_title + ' %s' % self.episode_title)])
                     #self._set_cache(full_query)
-                    return self._get_episode_results()
+                    return
 
                 queries = [
                     self._episode(self.show_title + ' S%sE%s' % (self.season_xx, self.episode_xx))
                 ]
 
-                if single_query or DEV_MODE:
+                if single_query:
                     #self._set_cache(full_query)
                     wait_threads(queries)
                     return
