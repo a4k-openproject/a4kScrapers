@@ -287,11 +287,23 @@
             "search": "/search?q=%s"
         },
         {
+            "base": "https://zooqle.unblocked.win",
+            "search": "/search?q=%s"
+        },
+        {
+            "base": "https://zooqle.nocensor.xyz",
+            "search": "/search?q=%s"
+        },
+        {
             "base": "https://zooqle.unblocked.llc",
             "search": "/search?q=%s"
         },
         {
             "base": "https://zooqle.unblocked.krd",
+            "search": "/search?q=%s"
+        },
+        {
+            "base": "https://zooqle.p4y.info",
             "search": "/search?q=%s"
         }
     ]
