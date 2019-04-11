@@ -6,11 +6,11 @@
         },
         {
             "base": "https://search.rlsbb.ru",
-            "search": "/lib/search%s.php?phrase=%s&pindex=1&code=%s"
+            "search": "/lib/search%s?phrase=%s&pindex=1&code=%s"
         },
         {
             "base": "https://rlsbb.unblocked.krd/searchp",
-            "search": "/lib/search%s.php?phrase=%s&pindex=1&code=%s"
+            "search": "/lib/search%s?phrase=%s&pindex=1&code=%s"
         }
     ],
     "directdl": [
