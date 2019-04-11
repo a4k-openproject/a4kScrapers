@@ -25,18 +25,21 @@ operators = {ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
              ast.Div: op.truediv, ast.Pow: op.pow, ast.BitXor: op.xor,
              ast.USub: op.neg}
 
+
 def eval_expr(expr):
     return eval_(ast.parse(expr, mode='eval').body)
 
+
 def eval_(node):
-    if isinstance(node, ast.Num): # <number>
+    if isinstance(node, ast.Num):  # <number>
         return node.n
-    elif isinstance(node, ast.BinOp): # <left> <operator> <right>
+    elif isinstance(node, ast.BinOp):  # <left> <operator> <right>
         return operators[type(node.op)](eval_(node.left), eval_(node.right))
-    elif isinstance(node, ast.UnaryOp): # <operator> <operand> e.g., -1
+    elif isinstance(node, ast.UnaryOp):  # <operator> <operand> e.g., -1
         return operators[type(node.op)](eval_(node.operand))
     else:
         raise TypeError(node)
+
 
 DEFAULT_USER_AGENTS = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36",
@@ -50,7 +53,9 @@ DEFAULT_USER_AGENTS = [
 
 DEFAULT_USER_AGENT = random.choice(DEFAULT_USER_AGENTS)
 
-BUG_REPORT = ("Cloudflare may have changed their technique, or there may be a bug in the script.\n\nPlease read https://github.com/Anorov/cloudflare-scrape#updates, then file a bug report at https://github.com/Anorov/cloudflare-scrape/issues.")
+BUG_REPORT = (
+"Cloudflare may have changed their technique, or there may be a bug in the script.\n\nPlease read https://github.com/Anorov/cloudflare-scrape#updates, then file a bug report at https://github.com/Anorov/cloudflare-scrape/issues.")
+
 
 class CloudflareScraper(Session):
     def __init__(self, *args, **kwargs):
@@ -65,8 +70,8 @@ class CloudflareScraper(Session):
         is_cloudflare_response = (response.status_code in [429, 503]
                                   and response.headers.get("Server", "").startswith("cloudflare"))
 
-        return (is_cloudflare_response and (allow_empty_body or 
-                (b"jschl_vc" in response.content and b"jschl_answer" in response.content)))
+        return (is_cloudflare_response and (allow_empty_body or
+                                            (b"jschl_vc" in response.content and b"jschl_answer" in response.content)))
 
     def request(self, method, url, *args, **kwargs):
         self.headers = (
@@ -76,7 +81,7 @@ class CloudflareScraper(Session):
                     ('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'),
                     ('Accept-Language', 'en-US,en;q=0.5'),
                     ('Accept-Encoding', 'gzip, deflate'),
-                    ('Connection',  'close'),
+                    ('Connection', 'close'),
                     ('Upgrade-Insecure-Requests', '1')
                 ]
             )
@@ -109,7 +114,7 @@ class CloudflareScraper(Session):
         submit_url = '{}://{}/cdn-cgi/l/chk_jschl'.format(parsed_url.scheme, domain)
 
         cloudflare_kwargs = deepcopy(original_kwargs)
-        headers = cloudflare_kwargs.setdefault('headers', { 'Referer': resp.url })
+        headers = cloudflare_kwargs.setdefault('headers', {'Referer': resp.url})
 
         try:
             params = cloudflare_kwargs.setdefault(
@@ -139,7 +144,7 @@ class CloudflareScraper(Session):
         method = resp.request.method
 
         cloudflare_kwargs['allow_redirects'] = False
-        
+
         redirect = self.request(method, submit_url, **cloudflare_kwargs)
         redirect_location = urlparse(redirect.headers['Location'])
         if not redirect_location.netloc:
@@ -160,40 +165,65 @@ class CloudflareScraper(Session):
     def get_answer(self, body, domain):
         init = re.findall('setTimeout\(function\(\){\s*var.*?.*:(.*?)}', body)[-1]
         builder = re.findall(r"challenge-form\'\);\s*(.*)a.v", body)[0]
+        try:
+            challenge_element = re.findall(r'id="cf.*?>(.*?)</', body)[0]
+        except:
+            challenge_element = None
+
         if '/' in init:
             init = init.split('/')
             decryptVal = self.parseJSString(init[0]) / float(self.parseJSString(init[1]))
         else:
             decryptVal = self.parseJSString(init)
         lines = builder.split(';')
-
         char_code_at_sep = '"("+p+")")}'
+
         for line in lines:
             if len(line) > 0 and '=' in line:
                 sections = line.split('=')
-                if '/' in sections[1]:
-                    subsecs = sections[1].split('/')
+                if len(sections) < 3:
+                    if '/' in sections[1]:
+                        subsecs = sections[1].split('/')
+                        val_1 = self.parseJSString(subsecs[0])
+                        if char_code_at_sep in subsecs[1]:
+                            subsubsecs = re.findall(r"^(.*?)(.)\(function", subsecs[1])[0]
+                            operand_1 = self.parseJSString(subsubsecs[0] + ')')
+                            operand_2 = ord(domain[self.parseJSString(
+                                subsecs[1][subsecs[1].find(char_code_at_sep) + len(char_code_at_sep):-2])])
+                            val_2 = '%.16f%s%.16f' % (float(operand_1), subsubsecs[1], float(operand_2))
+                            val_2 = eval_expr(val_2)
+                        else:
+                            val_2 = self.parseJSString(subsecs[1])
+                        line_val = val_1 / float(val_2)
+                    elif len(sections) > 2 and 'atob' in sections[2]:
+                        expr = re.findall((r"id=\"%s.*?>(.*?)</" % re.findall(r"k = '(.*?)'", body)[0]), body)[0]
+                        if '/' in expr:
+                            expr_parts = expr.split('/')
+                            val_1 = self.parseJSString(expr_parts[0])
+                            val_2 = self.parseJSString(expr_parts[1])
+                            line_val = val_1 / float(val_2)
+                        else:
+                            line_val = self.parseJSString(expr)
+                    else:
+                        if 'function' in sections[1]:
+                            continue
+                        line_val = self.parseJSString(sections[1])
+
+                elif 'Element' in sections[2]:
+                    subsecs = challenge_element.split('/')
                     val_1 = self.parseJSString(subsecs[0])
                     if char_code_at_sep in subsecs[1]:
                         subsubsecs = re.findall(r"^(.*?)(.)\(function", subsecs[1])[0]
                         operand_1 = self.parseJSString(subsubsecs[0] + ')')
-                        operand_2 = ord(domain[self.parseJSString(subsecs[1][subsecs[1].find(char_code_at_sep) + len(char_code_at_sep):-2])])
+                        operand_2 = ord(domain[self.parseJSString(
+                            subsecs[1][subsecs[1].find(char_code_at_sep) + len(char_code_at_sep):-2])])
                         val_2 = '%.16f%s%.16f' % (float(operand_1), subsubsecs[1], float(operand_2))
                         val_2 = eval_expr(val_2)
                     else:
                         val_2 = self.parseJSString(subsecs[1])
                     line_val = val_1 / float(val_2)
-                elif len(sections) > 2 and 'atob' in sections[2]:
-                    expr = re.findall((r"id=\"%s.*?>(.*?)</" % re.findall(r"k = '(.*?)'", body)[0]), body)[0]
-                    if '/' in expr:
-                        expr_parts = expr.split('/')
-                        val_1 = self.parseJSString(expr_parts[0])
-                        val_2 = self.parseJSString(expr_parts[1])
-                        line_val = val_1 / float(val_2)
-                    else:
-                        line_val = self.parseJSString(expr)
-                else:
-                    line_val = self.parseJSString(sections[1])
+
+
                 decryptVal = '%.16f%s%.16f' % (float(decryptVal), sections[0][-1], float(line_val))
                 decryptVal = eval_expr(decryptVal)
 
@@ -205,7 +235,12 @@ class CloudflareScraper(Session):
     def parseJSString(self, s):
         offset = 1 if s[0] == '+' else 0
         val = s.replace('!+[]', '1').replace('!![]', '1').replace('[]', '0')[offset:]
+
         val = val.replace('(+0', '(0').replace('(+1', '(1')
+
         val = re.findall(r'\((?:\d|\+|\-)*\)', val)
+
         val = ''.join([str(eval_expr(i)) for i in val])
         return int(val)
+
+create_scraper = CloudflareScraper
