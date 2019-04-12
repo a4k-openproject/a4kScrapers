@@ -413,7 +413,7 @@ class TorrentScraper(object):
         if len(self._urls) == 1:
             return self._urls[0]
 
-        if self.caller_name == 'torrentz2_':
+        if self.caller_name in ['torrentz2_', 'scenerls']:
             return self._urls[0]
 
         return self._request.find_url(self._urls)
