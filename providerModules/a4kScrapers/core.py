@@ -181,21 +181,24 @@ class DefaultHosterSources(DefaultSources):
                 query_type = 'episode'
                 query = '%s S%sE%s' % (strip_accents(simple_info['show_title']), simple_info['season_number_xx'], simple_info['episode_number_xx'])
 
-            url = self.scraper._find_url()
+            if len(supported_hosts) > 0:
+                url = self.scraper._find_url()
 
-            def search(url):
-                try:
-                    result = self.search(url, query)
-                    if result is None:
-                        raise requests.exceptions.RequestException()
-                    return result
-                except requests.exceptions.RequestException:
-                    url = self.scraper._find_next_url(url)
-                    if url is None:
-                        return []
-                    return search(url)
+                def search(url):
+                    try:
+                        result = self.search(url, query)
+                        if result is None:
+                            raise requests.exceptions.RequestException()
+                        return result
+                    except requests.exceptions.RequestException:
+                        url = self.scraper._find_next_url(url)
+                        if url is None:
+                            return []
+                        return search(url)
 
-            hoster_results = search(url) if url is not None else []
+                hoster_results = search(url) if url is not None else []
+            else:
+                hoster_results = []
 
             for result in hoster_results:
                 quality = source_utils.get_quality(result.title)
@@ -231,7 +234,8 @@ class DefaultHosterSources(DefaultSources):
 
             sources.reverse()
 
-            tools.log('a4kScrapers.%s.%s: %s' % (query_type, self._caller_name, len(sources)), 'notice')
+            result_count = len(sources) if len(supported_hosts) > 0 else 'disabled'
+            tools.log('a4kScrapers.%s.%s: %s' % (query_type, self._caller_name, result_count), 'notice')
 
             return sources
         except:
