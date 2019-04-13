@@ -211,6 +211,18 @@
             "search": "/browse"
         }
     ],
+    "skytorrents": [
+        {
+            "base": "https://www.skytorrents.lol",
+            "search": "/?query=%s"
+        }
+    ],
+    "solidtorrents": [
+        {
+            "base": "https://solidtorrents.net",
+            "search": "/api/v1/search?q=%s&category=video&sort=seeders"
+        }
+    ],
     "torrentapi": [
         {
             "base": "https://torrentapi.org/pubapi_v2.php?app_id=Torapi",

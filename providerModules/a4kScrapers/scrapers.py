@@ -15,10 +15,7 @@ class NoResultsScraper(object):
 class GenericTorrentScraper(object):
     def __init__(self, title):
         self.magnet_template = 'magnet:?xt=urn:btih:%s&dn=%s'
-
-        title = title.strip()
-        title = title[:title.find(' ')]
-        self._title_start = title.lower()
+        self._title = title.strip().lower()
 
     def _clean_tags(self, title):
         if title[0] == '[':
@@ -114,14 +111,22 @@ class GenericTorrentScraper(object):
 
     def title_filter(self, result):
         title = self._clean_tags(result.title.strip())
-        if '/' in title and title[title.find('/')+1:].strip().lower().startswith(self.title_start):
-            title = title[title.find('/')+1:].strip()
 
+        def check_for_sep(title, sep):
+            if sep in title and title[title.find(sep)+1:].strip().lower().startswith(self._title):
+                return title[title.find(sep)+1:].strip()
+            return title
+
+        title = check_for_sep(title, '/')
+        title = check_for_sep(title, '-')
         title = normalize(title).replace('+', ' ')
         return capwords(title)
 
     def info(self, el, url, torrent):
-        torrent['magnet'] = el.magnet
+        try:
+            torrent['hash'] = el.hash
+        except:
+            torrent['magnet'] = el.magnet
 
         try:
             torrent['size'] = source_utils.de_string_size(el.size)

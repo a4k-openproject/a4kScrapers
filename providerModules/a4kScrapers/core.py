@@ -323,7 +323,7 @@ class TorrentScraper(object):
 
         try:
             result = self._info(el, url, torrent)
-            if result is not None and result['magnet'].startswith('magnet:?'):
+            if result is not None and (result['hash'] is not '' or result.get('magnet', '').startswith('magnet:?')):
                 if result['hash'] == '':
                     result['hash'] = re.findall(r'btih:(.*?)\&', result['magnet'])[0]
                 self._temp_results.append(result)

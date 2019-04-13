@@ -40,12 +40,18 @@ class serenRequests(Session):
 
 def de_string_size(size):
     try:
-        if 'GB' in size:
+        if isinstance(size, int):
+            return size
+        if 'GB' in size or 'GiB' in size:
             size = float(size.replace('GB', ''))
             size = int(size * 1024)
             return size
-        if 'MB' in size:
+        if 'MB' in size or 'MiB' in size:
             size = int(size.replace('MB', '').replace(' ', '').split('.')[0])
+            return size
+        if 'B' in size:
+            size = int(size.replace('B', ''))
+            size = int(size / 1024 / 1024)
             return size
     except:
         return 0
