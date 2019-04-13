@@ -11,6 +11,7 @@ class sources(core.DefaultSources):
             response = core.json.loads(response.text)
         except:
             core.tools.log('a4kScrapers.yts.movie: fail to parse json \n' + response.text)
+            return []
 
         if response.get('status', '') != 'ok' or response.get('data', None) is None:
             return []
@@ -19,9 +20,10 @@ class sources(core.DefaultSources):
 
         results = []
         for movie in movies:
-            for torrent in movie.get('torrents', []):
+            torrents = movie.get('torrents', [])
+            for torrent in torrents:
                 result = lambda: None
-                result.magnet = self.genericScraper.magnet_template % (torrent.get('hash', ''), '')
+                result.hash = torrent.get('hash', '')
                 result.title = '%s %s' % (movie.get('title_long', ''), torrent.get('quality', ''))
                 result.size = torrent.get('size', None)
                 result.seeds = torrent.get('seeds', None)
