@@ -95,7 +95,10 @@ class CloudflareScraper(Session):
         # Check if Cloudflare anti-bot is on
         if self.is_cloudflare_on(resp):
             if self.tries >= 3:
-                raise Exception('Failed to solve Cloudflare challenge!\n' + resp.text)
+                exception_message = 'Failed to solve Cloudflare challenge!'
+                if os.getenv('CI') == 'true':
+                    exception_message += '\n' + resp.text
+                raise Exception(exception_message)
 
             return self.solve_cf_challenge(resp, **kwargs)
 
