@@ -63,13 +63,16 @@ def assert_result(test, scraper, scraper_sources, scraper_name, torrent_list):
             total_results[torrent['release_title']] = 1
         return
 
-    if scraper_name not in core.trackers and scraper_name not in ['showrss', 'torrentapi']:
+    if scraper_name not in core.trackers and scraper_name not in ['showrss']:
         core.tools.log('tracker %s is disabled' % scraper_name, '')
         return
 
     expected_count = 1
-    if os.getenv('A4KSCRAPERS_TEST_ALL') == '1' and scraper_name not in ['showrss', 'torrentapi']:
+    if os.getenv('A4KSCRAPERS_TEST_ALL') == '1' and scraper_name not in ['showrss']:
         expected_count = len(core.trackers[scraper_name])
+
+    if scraper_sources._request.has_timeout_exc:
+        expected_count = 0
 
     test.assertEqual(results_count, expected_count, '%s failed to find torrent' % scraper_name)
 
