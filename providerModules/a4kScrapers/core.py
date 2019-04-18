@@ -5,7 +5,7 @@ import json
 import requests
 
 from string import capwords
-from request import threading, Request, ConnectTimeoutError, ReadTimeout
+from request import threading, Request
 from third_party import source_utils
 from utils import tools, beautifulSoup, encode, decode, now, safe_list_get, get_caller_name, replace_text_with_int, strip_non_ascii_and_unprintable
 from utils import strip_accents, get_all_relative_py_files, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL, CACHE_LOG, AWS_ADMIN
@@ -524,7 +524,7 @@ class TorrentScraper(object):
 
             wait_threads(queries)
 
-            if len(self._temp_results) == 0 and not single_query:
+            if len(self._temp_results) == 0 and not single_query and not self._request.self.has_timeout_exc:
                 self._set_cache(full_query)
                 skip_set_cache = True
                 wait_threads([movie(self.title)])

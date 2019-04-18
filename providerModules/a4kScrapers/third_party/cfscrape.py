@@ -4,6 +4,7 @@ import re
 import ast
 import operator as op
 import requests
+import os
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from requests.sessions import Session

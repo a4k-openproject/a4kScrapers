@@ -3,9 +3,7 @@
 import threading
 import time
 import traceback
-
-from urllib3.exceptions import ConnectTimeoutError
-from requests.exceptions import ReadTimeout
+import sys
 
 from third_party import source_utils, cfscrape
 from common_types import UrlParts
@@ -21,8 +19,10 @@ class Request(object):
         self._timeout = 10
         if timeout is not None:
             self._timeout = timeout
+        self.has_timeout_exc = False
 
-    def _request_core(self, request, retry=True):
+    def _request_core(self, request):
+        self.has_timeout_exc = False
         response_err = lambda: None
         response_err.status_code = 501
 
@@ -34,18 +34,20 @@ class Request(object):
                 response = request()
                 time.sleep(self._wait)
                 return response
-        except (ReadTimeout, ConnectTimeoutError):
-            if not retry:
-                return response_err
-
-            return self._request_core(request, retry=False)
         except:
-            traceback.print_exc()
+            exc = traceback.format_exc(limit=1)
+            if 'ConnectTimeout' in exc or 'ReadTimeout' in exc:
+                self.has_timeout_exc = True
+                tools.log('%s timed out.' % request.url, 'notice')
+            else:
+                traceback.print_exc()
+
             return response_err
 
     def _head(self, url):
         tools.log('HEAD: %s' % url, 'info')
         request = lambda: self._request.head(url, timeout=self._timeout)
+        request.url = url
         response = self._request_core(request)
         if self._cfscrape.is_cloudflare_on(response, allow_empty_body=True):
             response = lambda: None
@@ -81,9 +83,11 @@ class Request(object):
     def get(self, url, headers={}, allow_redirects=True):
         tools.log('GET: %s' % url, 'info')
         request = lambda: self._cfscrape.get(url, headers=headers, timeout=self._timeout, allow_redirects=allow_redirects)
+        request.url = url
         return self._request_core(request)
 
     def post(self, url, data, headers={}):
         tools.log('POST: %s' % url, 'info')
         request = lambda: self._cfscrape.post(url, data, headers=headers, timeout=self._timeout)
+        request.url = url
         return self._request_core(request)
