@@ -125,28 +125,40 @@ def get_episode_query():
 def get_supported_hosts():
     return ["nitroflare.com", "uploaded.to", "depositfiles.com", "filefactory.com", "mediafire.com", "turbobit.net", "1fichier.com", "streamcloud.eu", "filer.net", "datafile.com", "datei.to", "openload.co", "cloudtime.to", "zippyshare.com", "brazzers.com", "flashx.tv", "rapidvideo.com", "vidto.me", "wicked.com", "kink.com", "hitfile.net", "filenext.com", "mofos.com", "realitykings.com", "uploadboy.com", "bangbros.com", "teamskeet.com", "badoinkvr.com", "julesjordan.com", "userscloud.com", "filespace.com", "nubilefilms.com", "mexashare.com", "clicknupload.org", "bitporno.com", "vidlox.me", "streamango.com", "ulozto.net", "hulkshare.com", "vidoza.net", "hqcollect.me", "pornhubpremium.com", "spicyfile.com", "xubster.com", "worldbytez.com", "rapidrar.com", "ddfnetwork.com"]
 
+scraper_sources_dict = {}
+
+def get_scraper_sources(scraper, scraper_name):
+    if scraper_sources_dict.get(scraper_name, None) is None:
+        scraper_sources_dict[scraper_name] = scraper.sources()
+    return scraper_sources_dict[scraper_name]
+
+def get_scraper_source(scraper, scraper_name):
+    if scraper_sources_dict.get(scraper_name, None) is None:
+        scraper_sources_dict[scraper_name] = scraper.source()
+    return scraper_sources_dict[scraper_name]
+
 def movie(test, scraper, scraper_name):
     (movie_title, movie_year, movie_imdb) = get_movie_query(scraper_name)
-    scraper_sources = scraper.sources()
+    scraper_sources = get_scraper_sources(scraper, scraper_name)
     results = scraper_sources.movie(movie_title, movie_year, movie_imdb)
     assert_result(test, scraper, scraper_sources, scraper_name, results)
 
 def movie_from_hoster(test, scraper, scraper_name):
     (movie_title, movie_year, movie_imdb) = get_movie_query(scraper_name)
-    scraper_sources = scraper.source()
+    scraper_sources = get_scraper_source(scraper, scraper_name)
     simple_info = scraper_sources.movie(None, movie_title, None, None, movie_year)
     results = scraper_sources.sources(simple_info, get_supported_hosts(), [])
     assert_hosters_result(test, scraper, scraper_sources, scraper_name, results)
 
 def episode(test, scraper, scraper_name):
     (simple_info, all_info) = get_episode_query()
-    scraper_sources = scraper.sources()
+    scraper_sources = get_scraper_sources(scraper, scraper_name)
     torrent_list = scraper_sources.episode(simple_info, all_info)
     assert_result(test, scraper, scraper_sources, scraper_name, torrent_list)
 
 def episode_from_hoster(test, scraper, scraper_name):
     (simple_info, all_info) = get_episode_query()
-    scraper_sources = scraper.source()
+    scraper_sources = get_scraper_source(scraper, scraper_name)
     temp_simple_info = scraper_sources.tvshow(None, None, simple_info['show_title'], None, None, simple_info['year'])
     temp_simple_info = scraper_sources.episode(temp_simple_info, None, None, simple_info['episode_title'], None, simple_info['season_number'], simple_info['episode_number'])
     results = scraper_sources.sources(temp_simple_info, get_supported_hosts(), [])

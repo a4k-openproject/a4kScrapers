@@ -226,7 +226,7 @@
     "torrentapi": [
         {
             "base": "https://torrentapi.org/pubapi_v2.php?app_id=Torapi",
-            "search": "&mode=search&search_string=%s&token=%s&limit=100&format=json_extended"
+            "search": "&mode=search&search_string=%s&token=%s&sort=seeders&ranked=0&limit=100&format=json_extended"
         }
     ],
     "torrentdownloads": [

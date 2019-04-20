@@ -15,6 +15,7 @@ class Request(object):
         self._cfscrape = cfscrape.CloudflareScraper()
         self._sequental = sequental
         self._wait = wait
+        self._should_wait = False
         self._lock = threading.Lock()
         self._timeout = 10
         if timeout is not None:
@@ -31,9 +32,10 @@ class Request(object):
                 return request()
 
             with self._lock:
-                response = request()
-                time.sleep(self._wait)
-                return response
+                if self._should_wait:
+                    time.sleep(self._wait)
+                self._should_wait = True
+                return request()
         except:
             exc = traceback.format_exc(limit=1)
             if 'ConnectTimeout' in exc or 'ReadTimeout' in exc:

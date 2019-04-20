@@ -2,25 +2,28 @@
 
 from providerModules.a4kScrapers import core
 
+token = None
+
 class sources(core.DefaultSources):
     def __init__(self):
         super(sources, self).__init__(__name__,
-                                     request=core.Request(sequental=True,wait=1.4))
-
-        self._token = None
+                                     request=core.Request(sequental=True,wait=2))
         self._imdb = None
 
-    def _get_token(self, url):
-        if self._token:
-            return self._token
+    def _update_token(self, url):
+        global token
+
+        if token:
+            return token
 
         token_url = url.base + '&get_token=get_token'
         response = self._request.get(token_url)
-        self._token = core.json.loads(response.text)['token']
-
-        return self._token
+        token = core.json.loads(response.text)['token']
 
     def _search_request(self, url, query):
+        global token
+        self._update_token(url)
+
         search = url.search
         if self._imdb is not None:
             search = search.replace('search_string=', 'search_imdb=')
@@ -28,21 +31,26 @@ class sources(core.DefaultSources):
             query = self._imdb
             if getattr(self.scraper, 'simple_info', None) is not None:
                 if self.scraper.show_title_fallback is not None and self.scraper.show_title_fallback in query:
-                    original_query = original_query[len(self.scraper.show_title_fallback):]
+                    search_string = original_query[len(self.scraper.show_title_fallback):]
                 else:
-                    original_query = original_query[len(self.scraper.show_title):]
-                search += '&search_string=%s' % core.quote_plus(original_query.strip())
+                    search_string = original_query[len(self.scraper.show_title):]
+                search += '&search_string=%s' % core.quote_plus(search_string.strip())
 
-        search_url = url.base + search % (core.quote_plus(query), self._get_token(url))
+        search_url = url.base + search % (core.quote_plus(query), token)
         response = self._request.get(search_url)
 
         if response.status_code != 200:
-            tools.log('No response from %s' %url, 'error')
+            core.tools.log('No response from %s' % search_url, 'notice')
             return []
 
         response = core.json.loads(response.text)
 
         if 'error_code' in response:
+            error_code = response['error_code']
+            if error_code == 1 or error_code == 2:
+                token = None
+                self._update_token(url)
+                return self._search_request(url, original_query)
             return []
         else:
             return response['torrent_results']
@@ -69,4 +77,4 @@ class sources(core.DefaultSources):
 
     def episode(self, simple_info, all_info):
         self._imdb = all_info.get('showInfo', {}).get('ids', {}).get('imdb', None)
-        return super(sources, self).episode(simple_info, all_info)
+        return super(sources, self).episode(simple_info, all_info, exact_pack=True)
