@@ -612,7 +612,7 @@ class TorrentScraper(object):
 
                 if exact_pack:
                     queries = queries + [
-                        self._season_and_pack(self.show_title + '.%s.' + self.season_xx)
+                        self._season_and_pack(self.show_title + '.S%s.' % self.season_xx)
                     ]
                 else:
                     queries = queries + [
