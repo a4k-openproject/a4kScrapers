@@ -104,12 +104,13 @@ class DefaultSources(object):
                                 caller_name=self._caller_name,
                                 single_query=self._single_query)
 
-    def episode(self, simple_info, all_info, auto_query=True):
+    def episode(self, simple_info, all_info, auto_query=True, exact_pack=False):
         return self._get_scraper(simple_info['show_title']) \
                    .episode_query(simple_info,
                                   caller_name=self._caller_name,
                                   single_query=self._single_query,
-                                  auto_query=auto_query)
+                                  auto_query=auto_query,
+                                  exact_pack=exact_pack)
 
 class DefaultExtraQuerySources(DefaultSources):
     def __init__(self, module_name, single_query=False, request_timeout=None):
@@ -538,7 +539,7 @@ class TorrentScraper(object):
                 self._set_cache(full_query)
             return self._get_movie_results()
 
-    def episode_query(self, simple_info, auto_query=True, single_query=False, caller_name=None):
+    def episode_query(self, simple_info, auto_query=True, single_query=False, caller_name=None, exact_pack=False):
         simple_info['show_title'] = strip_accents(simple_info['show_title'])
 
         if self.caller_name is None:
@@ -609,12 +610,17 @@ class TorrentScraper(object):
                     wait_threads(queries)
                     return
 
-                queries = queries + [
-                    self._season(self.show_title + ' Season ' + self.season_x),
-                    self._season(self.show_title + ' S%s' % self.season_xx),
-                    self._pack(self.show_title + ' Seasons'),
-                    self._season_and_pack(self.show_title + ' Complete')
-                ]
+                if exact_pack:
+                    queries = queries + [
+                        self._season_and_pack(self.show_title + '.%s.' + self.season_xx)
+                    ]
+                else:
+                    queries = queries + [
+                        self._season(self.show_title + ' Season ' + self.season_x),
+                        self._season(self.show_title + ' S%s' % self.season_xx),
+                        self._pack(self.show_title + ' Seasons'),
+                        self._season_and_pack(self.show_title + ' Complete')
+                    ]
 
                 if simple_info.get('isanime', False) and simple_info.get('absolute_number', None) is not None:
                     queries.insert(0, self._episode(self.show_title + ' %s' % simple_info['absolute_number']))
