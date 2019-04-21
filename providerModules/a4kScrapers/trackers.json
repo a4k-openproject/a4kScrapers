@@ -5,6 +5,12 @@
             "search": "/search?q=%s"
         }
     ],
+    "btdb": [
+        {
+            "base": "https://btdb.eu",
+            "search": "/?search=%s&sort=popular"
+        }
+    ],
     "eztv": [
         {
             "base": "https://eztv.io",

@@ -84,12 +84,12 @@ class Request(object):
 
     def get(self, url, headers={}, allow_redirects=True):
         tools.log('GET: %s' % url, 'info')
-        request = lambda: self._cfscrape.get(url, headers=headers, timeout=self._timeout, allow_redirects=allow_redirects)
+        request = lambda: cfscrape.CloudflareScraper().get(url, headers=headers, timeout=self._timeout, allow_redirects=allow_redirects)
         request.url = url
         return self._request_core(request)
 
     def post(self, url, data, headers={}):
         tools.log('POST: %s' % url, 'info')
-        request = lambda: self._cfscrape.post(url, data, headers=headers, timeout=self._timeout)
+        request = lambda: cfscrape.CloudflareScraper().post(url, data, headers=headers, timeout=self._timeout)
         request.url = url
         return self._request_core(request)
