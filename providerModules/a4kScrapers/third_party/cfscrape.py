@@ -62,6 +62,7 @@ class CloudflareScraper(Session):
     def __init__(self, *args, **kwargs):
         super(CloudflareScraper, self).__init__(*args, **kwargs)
         self.tries = 0
+        self.prev_resp = None
 
         if "requests" in self.headers["User-Agent"]:
             # Spoof Firefox on Linux if no custom User-Agent has been set
@@ -91,13 +92,18 @@ class CloudflareScraper(Session):
         resp = super(CloudflareScraper, self).request(method, url, *args, **kwargs)
 
         if b'why_captcha' in resp.content or b'/cdn-cgi/l/chk_captcha' in resp.content:
-            raise Exception('Cloudflare returned captcha!')
+            exception_message = 'Cloudflare returned captcha!'
+            if os.getenv('CI') == 'true':
+                exception_message += '\n' + self.prev_resp.text
+            raise Exception(exception_message)
+
+        self.prev_resp = resp
 
         # Check if Cloudflare anti-bot is on
         if self.is_cloudflare_on(resp):
             if self.tries >= 3:
                 exception_message = 'Failed to solve Cloudflare challenge!'
-                if os.getenv('CI') == 'true':
+                if self.prev_resp is not None and os.getenv('CI') == 'true':
                     exception_message += '\n' + resp.text
                 raise Exception(exception_message)
 
