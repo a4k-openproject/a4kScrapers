@@ -106,7 +106,7 @@ def remove_from_title(title, target):
     title = clean_title(title) + ' '
     return title
 
-def check_title_match(title_parts, release_title, simple_info):
+def check_title_match(title_parts, release_title, simple_info, is_special=False):
     title = clean_title(' '.join(title_parts)) + ' '
     release_title = clean_title(release_title) + ' '
 
@@ -131,7 +131,8 @@ def check_title_match(title_parts, release_title, simple_info):
         show_title = clean_title(title_parts[0]) + ' '
         show_title = remove_from_title(show_title, year)
         episode_title = clean_title(simple_info['episode_title'])
-        if release_title.startswith(show_title) and episode_title in release_title:
+        should_filter_by_title_only = len(episode_title.split(' ')) >= 3 or is_special
+        if should_filter_by_title_only and release_title.startswith(show_title) and episode_title in release_title:
             return True
 
     return False
@@ -196,7 +197,7 @@ def filter_single_episode(simple_info, release_title):
     return False
 
 def filter_single_special_episode(simple_info, release_title):
-    if check_title_match([simple_info['episode_title']], release_title, simple_info):
+    if check_title_match([simple_info['episode_title']], release_title, simple_info, is_special=True):
         return True
     #tools.log('%s - %s' % (inspect.stack()[0][3], release_title), 'notice')
     return False
