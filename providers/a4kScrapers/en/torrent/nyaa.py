@@ -7,4 +7,4 @@ class sources(core.DefaultSources):
         super(sources, self).__init__(__name__)
 
     def _parse_seeds(self, row):
-        return core.safe_list_get(core.re.findall(r'style="color: green;">\s*?(\d+)\s*?<', row), 0)
+        return self.genericScraper._parse_number(row, -3)

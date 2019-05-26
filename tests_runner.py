@@ -184,8 +184,8 @@ def test_torrent(self, scraper):
         episode(self, scraper_module, scraper)
 
 def test_hoster(self, scraper):
-    if os.getenv('TRAVIS') == 'true' and scraper in ['scenerls']:
-        core.tools.log('skipping scenerls in Travis build')
+    if os.getenv('TRAVIS') == 'true' and scraper in ['rlsbb','scenerls']:
+        core.tools.log('skipping %s in Travis build' % scraper)
         return
 
     scraper_module = hoster_scrapers[scraper]
