@@ -127,6 +127,12 @@
             "search": "/search/all/%s"
         }
     ],
+    "magnetdl": [
+        {
+            "base": "https://www.magnetdl.com",
+            "search": "/%s/%s/"
+        }
+    ],
     "movcr": [
         {
             "base": "https://movcr.tv",
