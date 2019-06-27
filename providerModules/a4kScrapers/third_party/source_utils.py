@@ -93,9 +93,10 @@ def clean_title(title, broken=None):
     title = title.replace("&#039;s", apostrophe_replacement)
     title = title.replace(" 039 s", apostrophe_replacement)
 
-    title = re.sub(r'\:|\\|\/|\,|\!|\?|\(|\)|\'|\"|\\|\[|\]|\-|\_|\.', ' ', title)
+    title = re.sub(r'\:|\\|\/|\,|\!|\?|\(|\)|\'|\’|\"|\+|\[|\]|\-|\_|\.|\{|\}', ' ', title)
     title = re.sub(r'\s+', ' ', title)
     title = re.sub(r'\&', 'and', title)
+
     return title.strip()
 
 def remove_from_title(title, target):
@@ -279,8 +280,11 @@ def filter_show_pack(simple_info, release_title):
     season_count = int(season)
 
     while int(season_count) <= int(no_seasons):
+        s00 = '%s s01 s%s' % (show_title, str(season_count).zfill(2))
         season = '%s seasons 1 %s' % (show_title, str(season_count))
         seasons = '%s season 1 %s' % (show_title, str(season_count))
+        if release_title == s00:
+            return True
         if release_title == season:
             return True
         if release_title == seasons:
@@ -288,6 +292,7 @@ def filter_show_pack(simple_info, release_title):
         season_count = season_count + 1
 
     while int(season_count) <= int(no_seasons):
+        string_list.append('%s s01 s%s' % (show_title, str(season_count).zfill(2)))
         string_list.append('%s seasons 1 %s ' % (show_title, str(season_count)))
         string_list.append('%s season 1 %s ' % (show_title, str(season_count)))
         season_count = season_count + 1

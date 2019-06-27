@@ -15,7 +15,7 @@ class NoResultsScraper(object):
 class GenericTorrentScraper(object):
     def __init__(self, title):
         self.magnet_template = 'magnet:?xt=urn:btih:%s&dn=%s'
-        self._title = title.strip().lower()
+        self._title = re.sub(r'\’', '', title).strip().lower()
 
     def _clean_tags(self, title):
         if title[0] == '[':

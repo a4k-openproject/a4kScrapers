@@ -498,8 +498,9 @@ class TorrentScraper(object):
                 caller_name = get_caller_name()
             self.caller_name = caller_name
 
-        self.title = source_utils.clean_title(title)
+        self.title = title
         self.year = year
+        clean_title = source_utils.clean_title(title)
 
         full_query = '%s %s' % (title, year)
         use_cache_only = self._get_cache(full_query)
@@ -514,11 +515,11 @@ class TorrentScraper(object):
                 return self._get_movie_results()
 
             movie = lambda query: self._query_thread(query, [self.filter_movie_title])
-            queries = [movie(self.title + ' ' + self.year)]
+            queries = [movie(clean_title + ' ' + self.year)]
 
             try:
-                alternative_title = replace_text_with_int(self.title)
-                if self.title != alternative_title:
+                alternative_title = replace_text_with_int(clean_title)
+                if clean_title != alternative_title:
                     queries.append(movie(alternative_title + ' ' + self.year))
             except:
                 pass
@@ -528,7 +529,7 @@ class TorrentScraper(object):
             if len(self._temp_results) == 0 and not single_query and not self._request.self.has_timeout_exc:
                 self._set_cache(full_query)
                 skip_set_cache = True
-                wait_threads([movie(self.title)])
+                wait_threads([movie(clean_title)])
 
             if not skip_set_cache:
                 self._set_cache(full_query)
