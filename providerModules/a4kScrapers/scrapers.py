@@ -17,18 +17,6 @@ class GenericTorrentScraper(object):
         self.magnet_template = 'magnet:?xt=urn:btih:%s&dn=%s'
         self._title = re.sub(r'\’', '', title).strip().lower()
 
-    def _clean_tags(self, title):
-        if title[0] == '[':
-            title = title[title.find(']')+1:].strip()
-            return self._clean_tags(title)
-        if title[0] == '(':
-            title = title[title.find(')')+1:].strip()
-            return self._clean_tags(title)
-        if title[0] == '{':
-            title = title[title.find('}')+1:].strip()
-            return self._clean_tags(title)
-        return title
-
     def _parse_rows(self, response, row_tag):
         results = []
         rows = response.split(row_tag)
@@ -63,15 +51,14 @@ class GenericTorrentScraper(object):
                 return [self.magnet_template % (matches[0], matches[1])]
             return []
 
-        if row_tag == '<tr':
+        if row_tag == '<dl': # torrentz2
+            matches = safe_list_get(re.findall(r'href=\/([0-9a-zA-Z]*)>(.*?)<', row), 0, [])
+            magnet_links = build_magnet(matches)
+        else:
             magnet_links = re.findall(r'(magnet:\?.*?&dn=.*?)[&"]', row)
             if len(magnet_links) == 0: # lime
                 matches = safe_list_get(re.findall(r'\/([0-9a-zA-Z]*).torrent\?title=(.*?)"', row), 0, [])
                 magnet_links = build_magnet(matches)
-
-        elif row_tag == '<dl': # torrentz2
-            matches = safe_list_get(re.findall(r'href=\/([0-9a-zA-Z]*)>(.*?)<', row), 0, [])
-            magnet_links = build_magnet(matches)
 
         if len(magnet_links) > 0:
             return safe_list_get(magnet_links, 0)
@@ -103,22 +90,16 @@ class GenericTorrentScraper(object):
 
     def soup_filter(self, response):
         response = normalize(response.text)
-        results = self._parse_rows(response, row_tag='<tr')
-        if len(results) == 0:
-            results = self._parse_rows(response, row_tag='<dl')
 
-        return results
+        results1 = self._parse_rows(response, row_tag='<tr')
+        results2 = self._parse_rows(response, row_tag='<dl')
+        results3 = self._parse_rows(response, row_tag='<ul')
+
+        return results1 + results2 + results3
 
     def title_filter(self, result):
-        title = self._clean_tags(result.title.strip())
-
-        def check_for_sep(title, sep):
-            if sep in title and title[title.find(sep)+1:].strip().lower().startswith(self._title):
-                return title[title.find(sep)+1:].strip()
-            return title
-
-        title = check_for_sep(title, '/')
-        title = check_for_sep(title, '-')
+        title = source_utils.clean_tags(result.title.strip())
+        title = source_utils.remove_sep(title, self._title)
         title = normalize(title).replace('+', ' ')
         return capwords(title)
 

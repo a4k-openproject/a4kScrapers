@@ -41,6 +41,9 @@ class Request(object):
             if 'ConnectTimeout' in exc or 'ReadTimeout' in exc:
                 self.has_timeout_exc = True
                 tools.log('%s timed out.' % request.url, 'notice')
+            elif 'Cloudflare' in exc:
+                self.has_timeout_exc = True
+                tools.log('%s failed Cloudflare protection.' % request.url, 'notice')
             else:
                 traceback.print_exc()
 
