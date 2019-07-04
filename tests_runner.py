@@ -71,7 +71,7 @@ def assert_result(test, scraper, scraper_sources, scraper_name, torrent_list):
     if os.getenv('A4KSCRAPERS_TEST_ALL') == '1' and scraper_name not in ['showrss']:
         expected_count = len(core.trackers[scraper_name])
 
-    if scraper_sources._request.has_timeout_exc:
+    if scraper_sources._request.has_exc:
         expected_count = 0
 
     test.assertEqual(results_count, expected_count, '%s failed to find torrent' % scraper_name)
@@ -87,6 +87,10 @@ def assert_hosters_result(test, scraper, scraper_sources, scraper_name, hoster_r
     if scraper_name not in core.hosters:
         core.tools.log('hoster %s is disabled' % scraper_name, '')
         return
+
+    if scraper_sources._request.has_exc:
+        expected_count = 0
+
     test.assertGreater(len(hoster_results), 0, '%s failed to find link' % scraper_name)
 
 def get_movie_query(scraper_name):

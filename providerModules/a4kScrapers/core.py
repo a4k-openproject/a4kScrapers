@@ -432,6 +432,9 @@ class TorrentScraper(object):
 
         for torrent in self._results:
             torrent['release_title'] = strip_non_ascii_and_unprintable(torrent['release_title'])
+
+            tools.log(torrent['release_title'], 'info')
+
             if torrent['size'] is None:
                 missing_size += 1
                 if not DEV_MODE:
