@@ -1,6 +1,6 @@
 {
   "author": "Unknown",
-  "version":"1.5.2",
+  "version":"1.5.3",
   "name":"a4kScrapers",
   "update_directory": "https://github.com/a4k-openproject/a4kScrapers/archive/",
   "remote_meta": "https://raw.githubusercontent.com/newt-sc/a4kScrapers/master/meta.json",

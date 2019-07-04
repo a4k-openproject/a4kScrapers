@@ -21,31 +21,40 @@ class Request(object):
         if timeout is not None:
             self._timeout = timeout
         self.has_timeout_exc = False
+        self.has_exc = False
 
     def _request_core(self, request):
         self.has_timeout_exc = False
+        self.has_exc = False
+
         response_err = lambda: None
         response_err.status_code = 501
 
         try:
+            response = None
             if self._sequental is False:
-                return request()
+                response = request()
 
             with self._lock:
                 if self._should_wait:
                     time.sleep(self._wait)
                 self._should_wait = True
-                return request()
+                response = request()
+
+            if response.status_code >= 500:
+                self.has_exc = True
+
+            return response
         except:
             exc = traceback.format_exc(limit=1)
+            self.has_exc = True
             if 'ConnectTimeout' in exc or 'ReadTimeout' in exc:
                 self.has_timeout_exc = True
                 tools.log('%s timed out.' % request.url, 'notice')
             elif 'Cloudflare' in exc:
-                self.has_timeout_exc = True
                 tools.log('%s failed Cloudflare protection.' % request.url, 'notice')
             else:
-                traceback.print_exc()
+                tools.log('%s failed. - %s' % (request.url, exc), 'notice')
 
             return response_err
 
