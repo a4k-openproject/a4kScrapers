@@ -63,7 +63,7 @@ class Request(object):
         request = lambda: self._request.head(url, timeout=self._timeout)
         request.url = url
         response = self._request_core(request)
-        if self._cfscrape.is_cloudflare_on(response, allow_empty_body=True):
+        if self._cfscrape.is_cloudflare_iuam_challenge(response, allow_empty_body=True):
             response = lambda: None
             response.url = url
             response.status_code = 200

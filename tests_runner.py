@@ -50,12 +50,6 @@ for scraper in hosters_module.__all__:
 total_results = {}
 
 def assert_result(test, scraper, scraper_sources, scraper_name, torrent_list):
-    global total_results_count
-
-    warnings.filterwarnings(action='ignore',
-                            message='unclosed',
-                            category=ResourceWarning)
-
     results_count = len(torrent_list)
 
     if os.getenv('A4KSCRAPERS_TEST_TOTAL') == '1':
@@ -178,6 +172,7 @@ class TestHosterScraping(unittest.TestCase):
     pass
 
 def test_torrent(self, scraper):
+    warnings.filterwarnings(action='ignore', category=ResourceWarning)
     scraper_module = torrent_scrapers[scraper]
 
     if scraper not in ['showrss', 'eztv']:
@@ -188,6 +183,7 @@ def test_torrent(self, scraper):
         episode(self, scraper_module, scraper)
 
 def test_hoster(self, scraper):
+    warnings.filterwarnings(action='ignore', category=ResourceWarning)
     if os.getenv('TRAVIS') == 'true' and scraper in ['rlsbb','scenerls']:
         core.tools.log('skipping %s in Travis build' % scraper)
         return
