@@ -8,6 +8,9 @@ import sys
 from third_party import source_utils, cfscrape
 from common_types import UrlParts
 from utils import tools
+from requests.compat import urlparse, urlunparse
+
+_head_checks = {}
 
 class Request(object):
     def __init__(self, sequental=False, timeout=None, wait=1):
@@ -58,21 +61,44 @@ class Request(object):
 
             return response_err
 
+    def _check_redirect(self, response):
+        if response.status_code in [301, 302]:
+            redirect_url = response.headers['Location']
+            if not redirect_url.endswith('127.0.0.1') and not redirect_url.endswith('localhost'):
+                return redirect_url
+        return False
+
+    def _get_domain(self, url): 
+        parsed_url = urlparse(url)
+        return "%s://%s" % (parsed_url.scheme, parsed_url.netloc)
+
+    def _get_fake_response(self, url, status_code=200):
+        response = lambda: None
+        response.url = url
+        response.status_code = status_code
+        return response
+
     def _head(self, url):
+        global _head_checks
+
+        head_check = _head_checks.get(self._get_domain(url), None)
+        if head_check:
+            return self._get_fake_response(url)
+        elif head_check is False:
+            return self._get_fake_response(url, status_code=500)
+
         tools.log('HEAD: %s' % url, 'info')
         request = lambda: self._request.head(url, timeout=self._timeout)
         request.url = url
         response = self._request_core(request)
         if self._cfscrape.is_cloudflare_iuam_challenge(response, allow_empty_body=True):
-            response = lambda: None
-            response.url = url
-            response.status_code = 200
-            return response
+            response = self._get_fake_response(url)
 
-        if response.status_code == 302 or response.status_code == 301:
-            redirect_url = response.headers['Location']
-            if not redirect_url.endswith('127.0.0.1') and not redirect_url.endswith('localhost'):
-                return self._head(redirect_url)
+        redirect_url = self._check_redirect(response)
+        if redirect_url:
+            return self._head(redirect_url)
+
+        _head_checks[self._get_domain(response.url)] = response.status_code is 200
 
         return response
 
@@ -95,9 +121,27 @@ class Request(object):
         return None
 
     def get(self, url, headers={}, allow_redirects=True):
+        parsed_url = urlparse(url)
+        response = self._head(self._get_domain(url))
+        if response is None:
+            return None
+
+        resolved_url = urlparse(response.url)
+        url = urlunparse(
+            (
+                resolved_url.scheme,
+                resolved_url.netloc,
+                parsed_url.path,
+                parsed_url.params,
+                parsed_url.query,
+                parsed_url.fragment,
+            )
+        )
+
         tools.log('GET: %s' % url, 'info')
         request = lambda: cfscrape.CloudflareScraper().get(url, headers=headers, timeout=self._timeout, allow_redirects=allow_redirects)
         request.url = url
+
         return self._request_core(request)
 
     def post(self, url, data, headers={}):

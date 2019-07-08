@@ -197,6 +197,7 @@ class GenericExtraQueryTorrentScraper(GenericTorrentScraper):
 class MultiUrlScraper(object):
     def __init__(self, torrent_scrapers):
         self._torrent_scrapers = torrent_scrapers
+        self._request = self._torrent_scrapers[0]._request
 
     def movie_query(self, title, year, caller_name=None, single_query=False):
         if caller_name is None:

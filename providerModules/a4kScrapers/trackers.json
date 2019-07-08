@@ -171,31 +171,11 @@
             "search": "/search/%s/0/99/200"
         },
         {
-            "base": "https://theproxybay.net",
-            "search": "/search.php?q=%s&video=on&category=0&page=0&orderby=99"
-        },
-        {
-            "base": "https://thepiratebay.myunblock.com",
-            "search": "/s/?q=%s&video=on&category=0&page=0&orderby=99"
-        },
-        {
-            "base": "https://ikwilthepiratebay.org",
-            "search": "/s/?q=%s&video=on&category=0&page=0&orderby=99"
-        },
-        {
-            "base": "https://piratebayblocked.com",
-            "search": "/search/%s/0/99/200"
-        },
-        {
             "base": "https://thepiratebay.unblockthe.net",
             "search": "/search/%s/0/99/200"
         },
         {
-            "base": "http://tpb.filepit.to",
-            "search": "/search/%s/0/99/200"
-        },
-        {
-            "base": "https://tpbproxy.online",
+            "base": "https://piratebayblocked.com",
             "search": "/search/%s/0/99/200"
         },
         {
