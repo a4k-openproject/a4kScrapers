@@ -33,7 +33,7 @@ def get_scraper(soup_filter, title_filter, info, search_request, request=None, u
     if DEV_MODE_ALL:
         scrapers = []
         for url in urls:
-            scraper = TorrentScraper(None, request, search_request, soup_filter, title_filter, info, use_thread_for_info, custom_filter, url=url)
+            scraper = TorrentScraper(None, request, search_request, soup_filter, title_filter, info, use_thread_for_info, custom_filter, caller_name=caller_name, url=url)
             scrapers.append(scraper)
 
         return MultiUrlScraper(scrapers)
