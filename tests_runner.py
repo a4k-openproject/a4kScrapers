@@ -98,6 +98,9 @@ def get_movie_query(scraper_name):
     elif scraper_name == 'rlsbb':
         movie_title = 'Avengers Endgame'
         movie_year = '2019'
+    elif scraper_name == 'scenerls':
+        movie_title = 'Alita Battle Angel'
+        movie_year = '2019'
     else:
         movie_title = 'Fantastic Beasts and Where to Find Them'
         movie_year = '2016'
