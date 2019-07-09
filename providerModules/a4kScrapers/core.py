@@ -222,8 +222,10 @@ class DefaultHosterSources(DefaultSources):
                     if quality_from_url != 'SD':
                         quality = quality_from_url
 
+                    release_title = strip_non_ascii_and_unprintable(result.title)
+                    tools.log(release_title, 'info')
                     sources.append({
-                        'release_title': strip_non_ascii_and_unprintable(result.title),
+                        'release_title': release_title,
                         'source': domain,
                         'quality': quality,
                         'language': 'en',
