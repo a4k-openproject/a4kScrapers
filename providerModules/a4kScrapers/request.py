@@ -12,6 +12,19 @@ from requests.compat import urlparse, urlunparse
 
 _head_checks = {}
 
+def _get_domain(url): 
+    parsed_url = urlparse(url)
+    return "%s://%s" % (parsed_url.scheme, parsed_url.netloc)
+
+def _get_head_check(url):
+    result = _head_checks.get(url, None)
+    if isinstance(result, bool):
+        return (url, result)
+    elif result is not None:
+        return _get_head_check(result)
+
+    return (url, None)
+
 class Request(object):
     def __init__(self, sequental=False, timeout=None, wait=1):
         self._request = source_utils.serenRequests()
@@ -68,10 +81,6 @@ class Request(object):
                 return redirect_url
         return False
 
-    def _get_domain(self, url): 
-        parsed_url = urlparse(url)
-        return "%s://%s" % (parsed_url.scheme, parsed_url.netloc)
-
     def _get_fake_response(self, url, status_code=200):
         response = lambda: None
         response.url = url
@@ -81,7 +90,7 @@ class Request(object):
     def _head(self, url):
         global _head_checks
 
-        head_check = _head_checks.get(self._get_domain(url), None)
+        (url, head_check) = _get_head_check(url)
         if head_check:
             return self._get_fake_response(url)
         elif head_check is False:
@@ -94,11 +103,13 @@ class Request(object):
         if self._cfscrape.is_cloudflare_iuam_challenge(response, allow_empty_body=True):
             response = self._get_fake_response(url)
 
+        head_check_key = _get_domain(response.url)
         redirect_url = self._check_redirect(response)
         if redirect_url:
+            _head_checks[head_check_key] = redirect_url
             return self._head(redirect_url)
 
-        _head_checks[self._get_domain(response.url)] = response.status_code is 200
+        _head_checks[head_check_key] = response.status_code is 200
 
         return response
 
@@ -122,7 +133,7 @@ class Request(object):
 
     def get(self, url, headers={}, allow_redirects=True):
         parsed_url = urlparse(url)
-        response = self._head(self._get_domain(url))
+        response = self._head(_get_domain(url))
         if response is None:
             return None
 

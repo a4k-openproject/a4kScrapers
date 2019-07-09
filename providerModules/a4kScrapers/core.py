@@ -222,8 +222,11 @@ class DefaultHosterSources(DefaultSources):
                     if quality_from_url != 'SD':
                         quality = quality_from_url
 
+                    release_title = strip_non_ascii_and_unprintable(result.title)
+                    if DEV_MODE and len(sources) == 0:
+                        tools.log(release_title, 'info')
                     sources.append({
-                        'release_title': strip_non_ascii_and_unprintable(result.title),
+                        'release_title': release_title,
                         'source': domain,
                         'quality': quality,
                         'language': 'en',
@@ -375,22 +378,24 @@ class TorrentScraper(object):
         return threading.Thread(target=self._get, args=(query, filters))
 
     def _get_cache(self, query):
-        cache_result = get_cache(self.caller_name, query)
+        if self.caller_name != 'cached':
+            return False
+
+        cache_result = get_cache(query)
         self._cache_result = cache_result
         if cache_result is None:
             return False
 
-        if not check_cache_result(cache_result, self.caller_name):
+        if not check_cache_result(cache_result):
             return False
 
         parsed_result = cache_result['parsed_result']
-        self._results_from_cache = parsed_result['cached_results'][self.caller_name]
+        self._results_from_cache = parsed_result['cached_results']
 
-        use_cache_only = parsed_result.get('use_cache_only', False)
-        if use_cache_only and CACHE_LOG:
-            tools.log('cache_direct_result', 'notice')
+        if DEV_MODE and len(self._results_from_cache) > 1:
+            self._results_from_cache = [self._results_from_cache[0]]
 
-        return use_cache_only
+        return True
 
     def _set_cache(self, query):
         if AWS_ADMIN:
@@ -433,7 +438,8 @@ class TorrentScraper(object):
         for torrent in self._results:
             torrent['release_title'] = strip_non_ascii_and_unprintable(torrent['release_title'])
 
-            tools.log(torrent['release_title'], 'info')
+            if DEV_MODE:
+                tools.log(torrent['release_title'], 'info')
 
             if torrent['size'] is None:
                 missing_size += 1
