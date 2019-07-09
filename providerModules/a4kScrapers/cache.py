@@ -31,7 +31,6 @@ except NameError:
 
 __get_lock = threading.Lock()
 __set_lock = threading.Lock()
-__cache_request_scrapers = {}
 __cache_has_new_results = {}
 __cache_results = {}
 
@@ -122,15 +121,15 @@ def __get_cache_core(query):
     result['d'] = json.loads(result['d'].replace("'", '"'))
 
     parsed_result = {}
-    cached_results = {}
+    cached_results = []
     for scraper_key in result['d'].keys():
         key = scraper_keys[scraper_key]
-        cached_results[key] = []
         for result_key in result['d'][scraper_key].keys():
             scraper_result = result['d'][scraper_key][result_key]
             if len(scraper_result) < 2:
                 continue
-            cached_results[key].append({
+            cached_results.append({
+                'provider_name_override': key,
                 'hash': result_key,
                 'package': package_keys[scraper_result[0]],
                 'release_title': decode(scraper_result[1]),
@@ -139,7 +138,6 @@ def __get_cache_core(query):
             })
 
     parsed_result['cached_results'] = cached_results
-    parsed_result['use_cache_only'] = (now() - int(result['t'])) < (3600 * 1000)
     __cache_results[query]['result'] = result
     __cache_results[query]['parsed_result'] = parsed_result
 
@@ -180,12 +178,6 @@ def __set_cache_core(scraper, query, results, cached_results):
             continue
 
     try:
-        __cache_request_scrapers[query].pop(scraper, None)
-        if len(__cache_request_scrapers[query].keys()) > 0:
-            if CACHE_LOG:
-                tools.log('set_cache_skip ' + str(__cache_request_scrapers[query].keys()), 'notice')
-            return
-
         if not __cache_has_new_results[query]:
             if CACHE_LOG:
                 tools.log('set_cache_skip_no_new_results', 'notice')
@@ -205,7 +197,7 @@ def __set_cache_core(scraper, query, results, cached_results):
     except:
         traceback.print_exc()
 
-def check_cache_result(cache_result, scraper):
+def check_cache_result(cache_result):
     parsed_result = cache_result.get('parsed_result', None)
     if parsed_result is None:
         return False
@@ -214,29 +206,13 @@ def check_cache_result(cache_result, scraper):
     if cached_results is None:
         return False
 
-    scraper_results = cached_results.get(scraper, None)
-    if scraper_results is None:
-        return False
-
     return True
 
-def get_cache(scraper, query):
+def get_cache(query):
     try:
-        if DEV_MODE:
-            return
-
         with __get_lock:
             try:
-                __cache_request_scrapers.setdefault(query, {})[scraper] = True
-                cache_result = __get_cache_core(query)
-                if not check_cache_result(cache_result, scraper):
-                    return cache_result
-
-                use_cache_only = cache_result.get('parsed_result', {}).get('use_cache_only', False)
-                if use_cache_only:
-                    __cache_request_scrapers[query].pop(scraper, None)
-
-                return cache_result
+                return __get_cache_core(query)
             except:
                 traceback.print_exc()
                 raise
