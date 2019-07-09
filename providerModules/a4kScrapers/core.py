@@ -223,7 +223,7 @@ class DefaultHosterSources(DefaultSources):
                         quality = quality_from_url
 
                     release_title = strip_non_ascii_and_unprintable(result.title)
-                    if DEV_MODE:
+                    if DEV_MODE and len(sources) == 0:
                         tools.log(release_title, 'info')
                     sources.append({
                         'release_title': release_title,
