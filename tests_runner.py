@@ -65,7 +65,7 @@ def assert_result(test, scraper, scraper_sources, scraper_name, torrent_list):
     if os.getenv('A4KSCRAPERS_TEST_ALL') == '1' and scraper_name not in ['showrss']:
         expected_count = len(core.trackers[scraper_name])
 
-    if scraper_sources._request.has_exc:
+    if scraper_sources._request is not None and scraper_sources._request.has_exc:
         expected_count = 0
 
     test.assertEqual(results_count, expected_count, '%s failed to find torrent' % scraper_name)
