@@ -223,7 +223,8 @@ class DefaultHosterSources(DefaultSources):
                         quality = quality_from_url
 
                     release_title = strip_non_ascii_and_unprintable(result.title)
-                    tools.log(release_title, 'info')
+                    if DEV_MODE:
+                        tools.log(release_title, 'info')
                     sources.append({
                         'release_title': release_title,
                         'source': domain,
@@ -437,7 +438,8 @@ class TorrentScraper(object):
         for torrent in self._results:
             torrent['release_title'] = strip_non_ascii_and_unprintable(torrent['release_title'])
 
-            tools.log(torrent['release_title'], 'info')
+            if DEV_MODE:
+                tools.log(torrent['release_title'], 'info')
 
             if torrent['size'] is None:
                 missing_size += 1
