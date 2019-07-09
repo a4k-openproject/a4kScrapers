@@ -65,6 +65,8 @@ class source(core.DefaultHosterSources):
             title = redirect_url[8:]
             title = core.capwords(title[title.find('/') + 1:].replace('-', ' ').rstrip('/'))
             result_content = self._request.get(redirect_url).text
+        elif response.status_code == 404:
+            return []
         elif hoster_url.search != '':
             try:
                 (title, result_url) = self.search_with_id(hoster_url, query)
