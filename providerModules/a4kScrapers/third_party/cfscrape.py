@@ -13,7 +13,10 @@ from requests.adapters import HTTPAdapter
 from requests.compat import urlparse, urlunparse
 from requests.exceptions import RequestException
 
-from urllib3.util.ssl_ import create_urllib3_context, DEFAULT_CIPHERS
+try:
+    from urllib3.util.ssl_ import create_urllib3_context, DEFAULT_CIPHERS
+except:
+    from requests.packages.urllib3.util.ssl_ import create_urllib3_context, DEFAULT_CIPHERS
 
 from .user_agents import USER_AGENTS
 from .cfscrape_solver import solve_challenge
@@ -187,8 +190,11 @@ class CloudflareScraper(Session):
         cloudflare_kwargs["allow_redirects"] = False
 
         # Cloudflare requires a delay before solving the challenge
-        time.sleep(max(delay - (time.time() - start_time), 0))
-
+        if not self.delay:
+            time.sleep(max(delay - (time.time() - start_time), 0))
+        else:
+            time.sleep(self.delay)
+			
         # Send the challenge response and handle the redirect manually
         redirect = self.request(method, submit_url, **cloudflare_kwargs)
         redirect_location = urlparse(redirect.headers["Location"])
