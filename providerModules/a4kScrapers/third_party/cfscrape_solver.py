@@ -25,6 +25,9 @@ def parseJSString(s):
 
     val = val.replace('(+0', '(0').replace('(+1', '(1')
 
+    if s[0] != '(':
+        val = '({})'.format(val)
+
     val = re.findall(r'\((?:\d|\+|\-)*\)', val)
 
     val = ''.join([str(eval_expr(i)) for i in val])
@@ -100,4 +103,7 @@ def solve_challenge(body, domain):
     if '+ t.length' in body:
         decryptVal += len(domain)
 
-    return float('%.10f' % decryptVal), delay
+    if decryptVal % 1 == 0:
+        return int(decryptVal), delay
+    else:
+        return float('%.10f' % decryptVal), delay
