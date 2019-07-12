@@ -420,11 +420,8 @@ class TorrentScraper(object):
         if self._url is not None:
             return self._url
 
-        if len(self._urls) == 1:
-            return self._urls[0]
-
-        if self.caller_name in ['torrentz2_', 'scenerls']:
-            return self._urls[0]
+        if self.caller_name in ['showrss', 'torrentapi', 'torrentz2_', 'scenerls']:
+            self._request.skip_head = True
 
         return self._request.find_url(self._urls)
 

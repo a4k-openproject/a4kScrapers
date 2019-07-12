@@ -38,18 +38,25 @@ class Request(object):
             self._timeout = timeout
         self.has_timeout_exc = False
         self.has_exc = False
+        self.skip_head = False
 
-    def _request_core(self, request):
+    def _request_core(self, request, sequental = None):
         self.has_timeout_exc = False
         self.has_exc = False
+
+        if sequental is None:
+            sequental = self._sequental
 
         response_err = lambda: None
         response_err.status_code = 501
 
         try:
             response = None
-            if self._sequental is False:
+            if sequental is False:
                 response = request()
+                if response.status_code >= 500:
+                    self.has_exc = True
+                return response
 
             with self._lock:
                 if self._should_wait:
@@ -90,6 +97,9 @@ class Request(object):
     def _head(self, url):
         global _head_checks
 
+        if self.skip_head:
+            return self._get_fake_response(url)
+
         (url, head_check) = _get_head_check(url)
         if head_check:
             return self._get_fake_response(url)
@@ -99,7 +109,7 @@ class Request(object):
         tools.log('HEAD: %s' % url, 'info')
         request = lambda: self._request.head(url, timeout=self._timeout)
         request.url = url
-        response = self._request_core(request)
+        response = self._request_core(request, sequental=False)
         if self._cfscrape.is_cloudflare_iuam_challenge(response, allow_empty_body=True):
             response = self._get_fake_response(url)
 
@@ -114,9 +124,6 @@ class Request(object):
         return response
 
     def find_url(self, urls):
-        if len(urls) == 1:
-            return UrlParts(base=urls[0].base, search=urls[0].search)
-
         for url in urls:
             response = self._head(url.base)
             if response.status_code != 200:
