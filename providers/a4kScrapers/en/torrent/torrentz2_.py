@@ -9,7 +9,7 @@ class sources(core.DefaultSources):
         self._filter = core.Filter(fn=self._filter_fn, type='single')
 
     def _filter_fn(self, title):
-        if getattr(self.scraper, 'simple_info', None) is None:
+        if self.is_movie_query():
             return False
 
         title = title.lower()

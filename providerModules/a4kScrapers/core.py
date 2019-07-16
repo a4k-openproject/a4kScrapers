@@ -9,12 +9,22 @@ from request import threading, Request
 from third_party import source_utils
 from utils import tools, beautifulSoup, encode, decode, now, safe_list_get, get_caller_name, replace_text_with_int, strip_non_ascii_and_unprintable
 from utils import strip_accents, get_all_relative_py_files, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL, CACHE_LOG, AWS_ADMIN
-from common_types import namedtuple, SearchResult, UrlParts, Filter, HosterResult
+from common_types import namedtuple, SearchResult, UrlParts, Filter, HosterResult, CancellationToken
 from scrapers import re, NoResultsScraper, GenericTorrentScraper, GenericExtraQueryTorrentScraper, MultiUrlScraper
 from urls import trackers, hosters
 from cache import check_cache_result, get_cache, set_cache, get_config, set_config
 
-def get_scraper(soup_filter, title_filter, info, search_request, request=None, use_thread_for_info=False, custom_filter=None, caller_name=None):
+def get_scraper(
+    soup_filter,
+    title_filter,
+    info_request,
+    search_request,
+    cancellation_token,
+    request,
+    use_thread_for_info,
+    custom_filter,
+    caller_name
+):
     if caller_name is None:
         caller_name = get_caller_name()
 
@@ -30,21 +40,38 @@ def get_scraper(soup_filter, title_filter, info, search_request, request=None, u
         scraper_urls = hosters[caller_name]
 
     urls = list(map(lambda t: UrlParts(base=t['base'], search=t['search']), scraper_urls))
+    create_core_scraper = lambda urls, url: CoreScraper(
+        urls=urls, 
+        single_url=url,
+        request=request,
+        search_request=search_request,
+        soup_filter=soup_filter,
+        title_filter=title_filter,
+        info_request=info_request,
+        cancellation_token=cancellation_token,
+        use_thread_for_info=use_thread_for_info,
+        custom_filter=custom_filter,
+        caller_name=caller_name
+    )
+
     if DEV_MODE_ALL:
         scrapers = []
         for url in urls:
-            scraper = TorrentScraper(None, request, search_request, soup_filter, title_filter, info, use_thread_for_info, custom_filter, caller_name=caller_name, url=url)
+            scraper = create_core_scraper(urls=None, url=url)
             scrapers.append(scraper)
 
         return MultiUrlScraper(scrapers)
 
-    return TorrentScraper(urls, request, search_request, soup_filter, title_filter, info, use_thread_for_info, custom_filter, caller_name=caller_name)
+    return create_core_scraper(urls=urls, url=None)
 
 class DefaultSources(object):
     def __init__(self, module_name, request=None, single_query=False):
         self._caller_name = module_name.split('.')[-1:][0]
         self._request = request
         self._single_query = single_query
+        self._cancellation_token = CancellationToken(is_cancellation_requested=False)
+
+        self.query_type = None
 
     def _search_request(self, url, query):
         if '=%s' in url.search:
@@ -83,10 +110,11 @@ class DefaultSources(object):
             genericScraper.parse_seeds = parse_seeds
 
         self.genericScraper = genericScraper
-        self.scraper = get_scraper(soup_filter,
-                                   title_filter,
-                                   info,
-                                   self._search_request,
+        self.scraper = get_scraper(soup_filter=soup_filter,
+                                   title_filter=title_filter,
+                                   info_request=info,
+                                   cancellation_token=self._cancellation_token,
+                                   search_request=self._search_request,
                                    caller_name=self._caller_name,
                                    request=self._request,
                                    use_thread_for_info=use_thread_for_info,
@@ -97,7 +125,17 @@ class DefaultSources(object):
 
         return self.scraper
 
+    def cancel(self):
+        if self.query_type is None:
+            self.query_type = 'unknown'
+        tools.log('a4kScrapers.%s.%s cancellation requested' % (self.query_type, self._caller_name), 'notice')
+        self._cancellation_token.is_cancellation_requested = True
+
+    def is_movie_query(self):
+        return self.query_type == 'movie'
+
     def movie(self, title, year, imdb=None):
+        self.query_type = 'movie'
         return self._get_scraper(title) \
                    .movie_query(title,
                                 year,
@@ -105,6 +143,7 @@ class DefaultSources(object):
                                 single_query=self._single_query)
 
     def episode(self, simple_info, all_info, auto_query=True, exact_pack=False):
+        self.query_type = 'episode'
         return self._get_scraper(simple_info['show_title']) \
                    .episode_query(simple_info,
                                   caller_name=self._caller_name,
@@ -129,6 +168,8 @@ class DefaultExtraQuerySources(DefaultSources):
 
 class DefaultHosterSources(DefaultSources):
     def movie(self, imdb, title, localtitle, aliases, year):
+        self.query_type = 'movie'
+
         if isinstance(self._get_scraper(title), NoResultsScraper):
             return None
 
@@ -140,6 +181,8 @@ class DefaultHosterSources(DefaultSources):
         return simple_info
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
+        self.query_type = 'episode'
+
         if isinstance(self._get_scraper(tvshowtitle), NoResultsScraper):
             return None
 
@@ -174,18 +217,18 @@ class DefaultHosterSources(DefaultSources):
         sources = []
 
         try:
-            query_type = None
-            if simple_info.get('title', None) is not None:
-                query_type = 'movie'
+            if self.is_movie_query():
                 query = '%s %s' % (strip_accents(simple_info['title']), simple_info['year'])
             else:
-                query_type = 'episode'
                 query = '%s S%sE%s' % (strip_accents(simple_info['show_title']), simple_info['season_number_xx'], simple_info['episode_number_xx'])
 
             if len(supported_hosts) > 0:
                 url = self.scraper._find_url()
 
                 def search(url):
+                    if self._cancellation_token.is_cancellation_requested:
+                        return []
+
                     try:
                         result = self.search(url, query)
                         if result is None:
@@ -204,10 +247,10 @@ class DefaultHosterSources(DefaultSources):
             for result in hoster_results:
                 quality = source_utils.get_quality(result.title)
 
-                if query_type == 'movie' and not source_utils.filter_movie_title(result.title, simple_info['title'], simple_info['year']):
+                if self.query_type == 'movie' and not source_utils.filter_movie_title(result.title, simple_info['title'], simple_info['year']):
                     continue
 
-                if query_type == 'episode' and not source_utils.filter_single_episode(simple_info, result.title):
+                if self.query_type == 'episode' and not source_utils.filter_single_episode(simple_info, result.title):
                     continue
 
                 for url in result.urls:
@@ -239,7 +282,7 @@ class DefaultHosterSources(DefaultSources):
             sources.reverse()
 
             result_count = len(sources) if len(supported_hosts) > 0 else 'disabled'
-            tools.log('a4kScrapers.%s.%s: %s' % (query_type, self._caller_name, result_count), 'notice')
+            tools.log('a4kScrapers.%s.%s: %s' % (self.query_type, self._caller_name, result_count), 'notice')
 
             return sources
         except:
@@ -249,20 +292,34 @@ class DefaultHosterSources(DefaultSources):
     def search(self, hoster_url, query):
         return []
 
-class TorrentScraper(object):
-    def __init__(self, urls, request, search_request, soup_filter, title_filter, info, use_thread_for_info=False, custom_filter=None, url=None, caller_name=None):
+class CoreScraper(object):
+    def __init__(self,
+        urls,
+        single_url,
+        request,
+        search_request,
+        soup_filter,
+        title_filter,
+        info_request,
+        cancellation_token,
+        use_thread_for_info,
+        custom_filter,
+        caller_name
+    ):
         self._results = []
         self._temp_results = []
         self._results_from_cache = []
-        self._url = url
+
+        self._url = single_url
         self._urls = urls
         self._request = request
         self._search_request = search_request
         self._soup_filter = soup_filter
         self._title_filter = title_filter
-        self._info = info
+        self._info = info_request
         self._use_thread_for_info = use_thread_for_info
         self._custom_filter = custom_filter
+        self._cancellation_token = cancellation_token
 
         self.caller_name = caller_name
 
@@ -285,6 +342,11 @@ class TorrentScraper(object):
         if url is None:
             url = self._url
 
+        empty_result = ([], url)
+
+        if self._cancellation_token.is_cancellation_requested:
+            return empty_result
+
         try:
             response = self._search_request(url, query)
             if response is None:
@@ -305,11 +367,11 @@ class TorrentScraper(object):
         except requests.exceptions.RequestException:
             url = self._find_next_url(url)
             if url is None:
-                return ([], url)
+                return empty_result
             return self._search_core(query, url)
         except:
             traceback.print_exc()
-            return ([], url)
+            return empty_result
 
         results = []
         for el in search_results:
@@ -335,12 +397,19 @@ class TorrentScraper(object):
             pass
 
     def _get(self, query, filters):
+        if self._cancellation_token.is_cancellation_requested:
+            return
+
         (results, url) = self._search_core(query.encode('utf-8'))
 
         threads = []
         for result in results:
             el = result.el
             title = result.title
+
+            if self._cancellation_token.is_cancellation_requested:
+                return
+
             for filter in filters:
                 custom_filter = False
                 packageType = filter.type
@@ -359,18 +428,22 @@ class TorrentScraper(object):
                     torrent['seeds'] = None
 
                     if self._use_thread_for_info:
-                        if len(threads) >= 5:
-                            break
-
                         threads.append(threading.Thread(target=self._info_core, args=(el, torrent, url)))
+
                         if DEV_MODE:
                             wait_threads(threads)
                             threads = []
+
+                        if len(threads) >= 5:
+                            wait_threads(threads)
+                            return
                     else:
                         self._info_core(el, torrent, url)
 
                     if DEV_MODE and len(self._temp_results) > 0:
                         return
+
+                    break
 
         wait_threads(threads)
 
