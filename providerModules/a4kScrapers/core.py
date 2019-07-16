@@ -435,7 +435,7 @@ class TorrentScraper(object):
         for torrent in self._results:
             torrent['release_title'] = strip_non_ascii_and_unprintable(torrent['release_title'])
             if torrent.get('magnet', None) is None:
-                torrent['magnet'] = 'magnet:?xt=urn:btih:%s' % torrent['hash']
+                torrent['magnet'] = 'magnet:?xt=urn:btih:%s&' % torrent['hash']
 
             if DEV_MODE:
                 tools.log(torrent['release_title'], 'info')
