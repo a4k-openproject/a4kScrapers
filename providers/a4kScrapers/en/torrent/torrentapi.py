@@ -29,7 +29,8 @@ class sources(core.DefaultSources):
             search = search.replace('search_string=', 'search_imdb=')
             original_query = query
             query = self._imdb
-            if getattr(self.scraper, 'simple_info', None) is not None:
+
+            if not self.is_movie_query():
                 if self.scraper.show_title_fallback is not None and self.scraper.show_title_fallback in query:
                     search_string = original_query[len(self.scraper.show_title_fallback):]
                 else:
@@ -47,11 +48,13 @@ class sources(core.DefaultSources):
 
         if 'error_code' in response:
             error_code = response['error_code']
+
             if error_code == 1 or error_code == 2:
                 token = None
                 self._update_token(url)
                 return self._search_request(url, original_query)
             return []
+
         else:
             return response['torrent_results']
 
@@ -70,6 +73,11 @@ class sources(core.DefaultSources):
         torrent['seeds'] = el['seeders']
 
         return torrent
+
+    def _get_scraper(self, title):
+        filter_fn = lambda t: self._imdb is not None and self.is_movie_query()
+        custom_filter = core.Filter(fn=filter_fn, type='single')
+        return super(sources, self)._get_scraper(title, custom_filter=custom_filter)
 
     def movie(self, title, year, imdb=None):
         self._imdb = imdb
