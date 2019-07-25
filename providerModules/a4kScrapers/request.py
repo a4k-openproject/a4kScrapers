@@ -5,9 +5,10 @@ import time
 import traceback
 import sys
 
-from third_party import source_utils, cfscrape
-from common_types import UrlParts
-from utils import tools
+from .third_party import source_utils, cfscrape
+from .third_party.source_utils import tools
+from .common_types import UrlParts
+from .utils import database
 from requests.compat import urlparse, urlunparse
 
 _head_checks = {}
@@ -27,7 +28,7 @@ def _get_head_check(url):
 
 class Request(object):
     def __init__(self, sequental=False, timeout=None, wait=1):
-        self._request = source_utils.serenRequests()
+        self._request = source_utils.randomUserAgentRequests()
         self._cfscrape = cfscrape.CloudflareScraper()
         self._sequental = sequental
         self._wait = wait
@@ -88,30 +89,26 @@ class Request(object):
                 return redirect_url
         return False
 
-    def _get_fake_response(self, url, status_code=200):
-        response = lambda: None
-        response.url = url
-        response.status_code = status_code
-        return response
-
     def _head(self, url):
         global _head_checks
 
         if self.skip_head:
-            return self._get_fake_response(url)
+            return (url, 200)
 
         (url, head_check) = _get_head_check(url)
         if head_check:
-            return self._get_fake_response(url)
+            return (url, 200)
         elif head_check is False:
-            return self._get_fake_response(url, status_code=500)
+            return (url, 500)
 
         tools.log('HEAD: %s' % url, 'info')
-        request = lambda: self._request.head(url, timeout=self._timeout)
+        request = lambda: self._request.head(url, timeout=2)
         request.url = url
         response = self._request_core(request, sequental=False)
         if self._cfscrape.is_cloudflare_iuam_challenge(response, allow_empty_body=True):
-            response = self._get_fake_response(url)
+            response = lambda: None
+            response.url = url
+            response.status_code = 200
 
         head_check_key = _get_domain(response.url)
         redirect_url = self._check_redirect(response)
@@ -121,15 +118,16 @@ class Request(object):
 
         _head_checks[head_check_key] = response.status_code is 200
 
-        return response
+        return (response.url, response.status_code)
+
+    def head(self, url):
+        return database.get(self._head, 12, url)
 
     def find_url(self, urls):
         for url in urls:
-            response = self._head(url.base)
-            if response.status_code != 200:
+            (response_url, status_code) = self.head(url.base)
+            if status_code != 200:
                 continue
-
-            response_url = response.url
 
             if response_url.endswith("/"):
                 response_url = response_url[:-1]
@@ -140,11 +138,13 @@ class Request(object):
 
     def get(self, url, headers={}, allow_redirects=True):
         parsed_url = urlparse(url)
-        response = self._head(_get_domain(url))
+
+        response = self.head(_get_domain(url))
         if response is None:
             return None
 
-        resolved_url = urlparse(response.url)
+        (url, status_code) = response
+        resolved_url = urlparse(url)
         url = urlunparse(
             (
                 resolved_url.scheme,

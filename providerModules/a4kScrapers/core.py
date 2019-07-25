@@ -5,14 +5,16 @@ import json
 import requests
 
 from string import capwords
-from request import threading, Request
-from third_party import source_utils
-from utils import tools, beautifulSoup, encode, decode, now, safe_list_get, get_caller_name, replace_text_with_int, strip_non_ascii_and_unprintable
-from utils import strip_accents, get_all_relative_py_files, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL, CACHE_LOG, AWS_ADMIN
-from common_types import namedtuple, SearchResult, UrlParts, Filter, HosterResult, CancellationToken
-from scrapers import re, NoResultsScraper, GenericTorrentScraper, GenericExtraQueryTorrentScraper, MultiUrlScraper
-from urls import trackers, hosters
-from cache import check_cache_result, get_cache, set_cache, get_config, set_config
+from .request import threading, Request
+from .third_party import source_utils
+from .third_party.source_utils import tools
+from .utils import beautifulSoup, encode, decode, now, safe_list_get, get_caller_name, replace_text_with_int, strip_non_ascii_and_unprintable
+from .utils import strip_accents, get_all_relative_py_files, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL, CACHE_LOG, AWS_ADMIN
+from .common_types import namedtuple, SearchResult, UrlParts, Filter, HosterResult, CancellationToken
+from .scrapers import re, NoResultsScraper, GenericTorrentScraper, GenericExtraQueryTorrentScraper, MultiUrlScraper
+from .urls import trackers, hosters, get_urls, update_urls
+from .cache import check_cache_result, get_cache, set_cache, get_config, set_config
+from .test_utils import test_torrent, test_hoster
 
 def get_scraper(
     soup_filter,
@@ -23,23 +25,15 @@ def get_scraper(
     request,
     use_thread_for_info,
     custom_filter,
-    caller_name
+    caller_name,
+    url
 ):
     if caller_name is None:
         caller_name = get_caller_name()
 
-    if caller_name not in trackers and caller_name not in hosters:
-        return NoResultsScraper()
-
     if request is None:
         request = Request()
 
-    if caller_name in trackers:
-        scraper_urls = trackers[caller_name]
-    elif caller_name in hosters:
-        scraper_urls = hosters[caller_name]
-
-    urls = list(map(lambda t: UrlParts(base=t['base'], search=t['search']), scraper_urls))
     create_core_scraper = lambda urls, url: CoreScraper(
         urls=urls, 
         single_url=url,
@@ -54,6 +48,15 @@ def get_scraper(
         caller_name=caller_name
     )
 
+    if url:
+        return create_core_scraper(urls=None, url=url)
+
+    scraper_urls = get_urls(caller_name)
+    if scraper_urls is None:
+        return NoResultsScraper()
+
+    urls = list(map(lambda t: UrlParts(base=t['base'], search=t['search']), scraper_urls))
+
     if DEV_MODE_ALL:
         scrapers = []
         for url in urls:
@@ -65,11 +68,12 @@ def get_scraper(
     return create_core_scraper(urls=urls, url=None)
 
 class DefaultSources(object):
-    def __init__(self, module_name, request=None, single_query=False):
+    def __init__(self, module_name, request=None, single_query=False, url=None):
         self._caller_name = module_name.split('.')[-1:][0]
         self._request = request
         self._single_query = single_query
         self._cancellation_token = CancellationToken(is_cancellation_requested=False)
+        self._url = url
 
         self.query_type = None
 
@@ -118,7 +122,8 @@ class DefaultSources(object):
                                    caller_name=self._caller_name,
                                    request=self._request,
                                    use_thread_for_info=use_thread_for_info,
-                                   custom_filter=custom_filter)
+                                   custom_filter=custom_filter,
+                                   url=self._url)
 
         if self._request is None and not isinstance(self.scraper, NoResultsScraper):
             self._request = self.scraper._request
@@ -130,6 +135,34 @@ class DefaultSources(object):
             self.query_type = 'unknown'
         tools.log('a4kScrapers.%s.%s cancellation requested' % (self.query_type, self._caller_name), 'notice')
         self._cancellation_token.is_cancellation_requested = True
+
+    def optimize_requests(self):
+        scraper = self._caller_name
+        scraper_module = lambda: None
+
+        if scraper in trackers:
+            urls = trackers[scraper]
+            scraper_module.sources = self.__class__
+        else:
+            urls = hosters[scraper]
+            scraper_module.source = self.__class__
+
+        url_tests = list()
+        for raw_url in urls:
+            url = UrlParts(base=raw_url['base'], search=raw_url['search'])
+
+            if scraper in trackers:
+                (results, time_ms) = test_torrent(None, scraper_module, scraper, url)
+            else:
+                (results, time_ms) = test_hoster(None, scraper_module, scraper, url)
+
+            if len(results) > 0:
+                url_tests.append((time_ms, raw_url))
+
+        url_tests.sort(key=lambda e: e[0])
+        update_urls(scraper, list(map(lambda e: e[1], url_tests)))
+
+        return url_tests
 
     def is_movie_query(self):
         return self.query_type == 'movie'
@@ -152,10 +185,11 @@ class DefaultSources(object):
                                   exact_pack=exact_pack)
 
 class DefaultExtraQuerySources(DefaultSources):
-    def __init__(self, module_name, single_query=False, request_timeout=None):
+    def __init__(self, module_name, single_query=False, request_timeout=None, url=None):
         super(DefaultExtraQuerySources, self).__init__(module_name,
                                                        request=Request(sequental=True, timeout=request_timeout),
-                                                       single_query=single_query)
+                                                       single_query=single_query,
+                                                       url=url)
 
     def _get_scraper(self, title, custom_filter=None):
         genericScraper = GenericExtraQueryTorrentScraper(title,
@@ -592,7 +626,6 @@ class CoreScraper(object):
         try:
             self._url = self._find_url()
             if self._url is None:
-                self._set_cache(full_query)
                 return self._get_movie_results()
 
             movie = lambda query: self._query_thread(query, [self.filter_movie_title])
@@ -608,7 +641,6 @@ class CoreScraper(object):
             wait_threads(queries)
 
             if len(self._temp_results) == 0 and not single_query and not self._request.self.has_timeout_exc:
-                self._set_cache(full_query)
                 skip_set_cache = True
                 wait_threads([movie(clean_title)])
 
@@ -661,7 +693,6 @@ class CoreScraper(object):
         try:
             self._url = self._find_url()
             if self._url is None:
-                #self._set_cache(full_query)
                 return self._get_episode_results()
 
             if auto_query is False:
@@ -680,7 +711,6 @@ class CoreScraper(object):
                 # specials
                 if self.season_x == '0':
                     wait_threads([self._episode_special(self.show_title + ' %s' % self.episode_title)])
-                    #self._set_cache(full_query)
                     return
 
                 queries = [
@@ -688,7 +718,6 @@ class CoreScraper(object):
                 ]
 
                 if single_query:
-                    #self._set_cache(full_query)
                     wait_threads(queries)
                     return
 

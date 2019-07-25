@@ -3,8 +3,8 @@
 from providerModules.a4kScrapers import core
 
 class source(core.DefaultHosterSources):
-    def __init__(self):
-        super(source, self).__init__(__name__)
+    def __init__(self, *args, **kwargs):
+        super(source, self).__init__(__name__, *args, **kwargs)
 
     def movie(self, imdb, title, localtitle, aliases, year):
         return None
