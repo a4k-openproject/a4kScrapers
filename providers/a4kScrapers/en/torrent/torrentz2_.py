@@ -3,9 +3,9 @@
 from providerModules.a4kScrapers import core
 
 class sources(core.DefaultSources):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         # the tracker searches the query not only in the torrent title, but in its contents also
-        super(sources, self).__init__(__name__, single_query=True)
+        super(sources, self).__init__(__name__, *args, single_query=True, **kwargs)
         self._filter = core.Filter(fn=self._filter_fn, type='single')
 
     def _filter_fn(self, title):

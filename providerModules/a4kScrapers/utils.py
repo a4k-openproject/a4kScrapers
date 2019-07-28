@@ -11,7 +11,14 @@ import string
 from functools import wraps
 from inspect import getframeinfo, stack
 from bs4 import BeautifulSoup
-from third_party.source_utils import tools
+
+try:
+    from resources.lib.modules import database
+except:
+    database = lambda: None
+    database.get = lambda fn, duration, *args, **kwargs: fn(*args, **kwargs)
+    database.cache_get = lambda key: None
+    database.cache_insert = lambda key, value: None
 
 try:
     from urlparse import unquote
@@ -209,3 +216,8 @@ def strip_non_ascii_and_unprintable(text):
 
 def strip_accents(s):
    return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
+
+def check_timeout(datetime, timeout_in_hours):
+    now = int(time.time())
+    diff = now - datetime
+    return (timeout_in_hours * 3600) > diff

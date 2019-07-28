@@ -6,9 +6,10 @@ import threading
 import traceback
 import requests
 
-from utils import encode, decode, tools, delay, now, DEV_MODE, CACHE_LOG, AWS_ADMIN, ACCESS_KEY, SECRET_ACCESS_KEY
-from urls import trackers, hosters
-from third_party.aws_requests_auth.aws_auth import AWSRequestsAuth
+from .utils import encode, decode, delay, now, DEV_MODE, CACHE_LOG, AWS_ADMIN, ACCESS_KEY, SECRET_ACCESS_KEY
+from .urls import trackers, hosters
+from .third_party.aws_requests_auth.aws_auth import AWSRequestsAuth
+from .third_party.source_utils import tools
 
 access_key = decode('wqJ/wrTClMKtw4jCt8KkwqbCucK0wqNmwrPCmMKYwrzCucK3wrY=')
 secret_access_key = decode('wrl7wpvChcK9w6XDk8Omw5TCtMOrw5LChMKhw4rCpsK0wprDiMKuwrTDhcOJa8KvwozCjsODwrDCucKpwqvDm8KyfsOOwqrCqsK3wrM=')

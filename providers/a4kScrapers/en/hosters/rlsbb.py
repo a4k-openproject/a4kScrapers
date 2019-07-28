@@ -40,8 +40,8 @@ def parseJSString(s):
     return result
 
 class source(core.DefaultHosterSources):
-    def __init__(self):
-        super(source, self).__init__(__name__)
+    def __init__(self, *args, **kwargs):
+        super(source, self).__init__(__name__, *args, **kwargs)
         self.parse_tried = False
 
     def _get_search_id(self, hoster_url):

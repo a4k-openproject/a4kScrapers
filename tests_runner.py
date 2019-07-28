@@ -3,7 +3,6 @@
 import os
 import sys
 import unittest
-import warnings
 import importlib
 
 from types import MethodType
@@ -47,126 +46,7 @@ hoster_scrapers = {}
 for scraper in hosters_module.__all__:
     hoster_scrapers[scraper] = importlib.import_module('providers.a4kScrapers.en.hosters.%s' % scraper)
 
-total_results = {}
-
-def assert_result(test, scraper, scraper_sources, scraper_name, torrent_list):
-    results_count = len(torrent_list)
-
-    if os.getenv('A4KSCRAPERS_TEST_TOTAL') == '1':
-        for torrent in torrent_list:
-            total_results[torrent['release_title']] = 1
-        return
-
-    if scraper_name not in core.trackers and scraper_name not in ['showrss']:
-        core.tools.log('tracker %s is disabled' % scraper_name, '')
-        return
-
-    expected_count = 1
-    if os.getenv('A4KSCRAPERS_TEST_ALL') == '1' and scraper_name not in ['showrss']:
-        expected_count = len(core.trackers[scraper_name])
-
-    if scraper_sources._request is not None and scraper_sources._request.has_exc:
-        expected_count = 0
-
-    test.assertEqual(results_count, expected_count, '%s failed to find torrent' % scraper_name)
-
-    if scraper_name == 'showrss':
-        return
-
-    for torrent in torrent_list:
-        test.assertIsNotNone(torrent['size'], '%s missing size info' % scraper_name)
-        test.assertIsNotNone(torrent['seeds'], '%s missing seeds info' % scraper_name)
-
-def assert_hosters_result(test, scraper, scraper_sources, scraper_name, hoster_results):
-    if scraper_name not in core.hosters:
-        core.tools.log('hoster %s is disabled' % scraper_name, '')
-        return
-
-    if scraper_sources._request.has_exc:
-        expected_count = 0
-
-    test.assertGreater(len(hoster_results), 0, '%s failed to find link' % scraper_name)
-
-def get_movie_query(scraper_name):
-    movie_imdb = None
-    if scraper_name == 'movcr':
-        movie_title = 'Gully Boy'
-        movie_year = '2019'
-    elif scraper_name == 'nyaa':
-        movie_title = 'Ghost in the Shell'
-        movie_year = '1995'
-    elif scraper_name == 'rlsbb':
-        movie_title = 'Avengers Endgame'
-        movie_year = '2019'
-    elif scraper_name == 'scenerls':
-        movie_title = 'Alita Battle Angel'
-        movie_year = '2019'
-    else:
-        movie_title = 'Fantastic Beasts and Where to Find Them'
-        movie_year = '2016'
-        movie_imdb = 'tt3183660'
-
-    return (movie_title, movie_year, movie_imdb)
-
-def get_episode_query():
-    simple_info = {}
-    simple_info['show_title'] = 'Game of Thrones'
-    simple_info['episode_title'] = 'The Dragon and the Wolf'
-    simple_info['year'] = '2011'
-    simple_info['season_number'] = '7'
-    simple_info['episode_number'] = '7'
-    simple_info['show_aliases'] = ''
-    simple_info['country'] = 'US'
-    simple_info['no_seasons'] = '7'
-
-    all_info = {}
-    all_info['showInfo'] = {}
-    all_info['showInfo']['ids'] = {}
-    all_info['showInfo']['ids']['imdb'] = 'tt0944947'
-
-    return (simple_info, all_info)
-
-def get_supported_hosts():
-    return ["nitroflare.com", "uploaded.to", "depositfiles.com", "filefactory.com", "mediafire.com", "turbobit.net", "1fichier.com", "streamcloud.eu", "filer.net", "datafile.com", "datei.to", "openload.co", "cloudtime.to", "zippyshare.com", "brazzers.com", "flashx.tv", "rapidvideo.com", "vidto.me", "wicked.com", "kink.com", "hitfile.net", "filenext.com", "mofos.com", "realitykings.com", "uploadboy.com", "bangbros.com", "teamskeet.com", "badoinkvr.com", "julesjordan.com", "userscloud.com", "filespace.com", "nubilefilms.com", "mexashare.com", "clicknupload.org", "bitporno.com", "vidlox.me", "streamango.com", "ulozto.net", "hulkshare.com", "vidoza.net", "hqcollect.me", "pornhubpremium.com", "spicyfile.com", "xubster.com", "worldbytez.com", "rapidrar.com", "ddfnetwork.com"]
-
-scraper_sources_dict = {}
-
-def get_scraper_sources(scraper, scraper_name):
-    if scraper_sources_dict.get(scraper_name, None) is None:
-        scraper_sources_dict[scraper_name] = scraper.sources()
-    return scraper_sources_dict[scraper_name]
-
-def get_scraper_source(scraper, scraper_name):
-    if scraper_sources_dict.get(scraper_name, None) is None:
-        scraper_sources_dict[scraper_name] = scraper.source()
-    return scraper_sources_dict[scraper_name]
-
-def movie(test, scraper, scraper_name):
-    (movie_title, movie_year, movie_imdb) = get_movie_query(scraper_name)
-    scraper_sources = get_scraper_sources(scraper, scraper_name)
-    results = scraper_sources.movie(movie_title, movie_year, movie_imdb)
-    assert_result(test, scraper, scraper_sources, scraper_name, results)
-
-def movie_from_hoster(test, scraper, scraper_name):
-    (movie_title, movie_year, movie_imdb) = get_movie_query(scraper_name)
-    scraper_sources = get_scraper_source(scraper, scraper_name)
-    simple_info = scraper_sources.movie(None, movie_title, None, None, movie_year)
-    results = scraper_sources.sources(simple_info, get_supported_hosts(), [])
-    assert_hosters_result(test, scraper, scraper_sources, scraper_name, results)
-
-def episode(test, scraper, scraper_name):
-    (simple_info, all_info) = get_episode_query()
-    scraper_sources = get_scraper_sources(scraper, scraper_name)
-    torrent_list = scraper_sources.episode(simple_info, all_info)
-    assert_result(test, scraper, scraper_sources, scraper_name, torrent_list)
-
-def episode_from_hoster(test, scraper, scraper_name):
-    (simple_info, all_info) = get_episode_query()
-    scraper_sources = get_scraper_source(scraper, scraper_name)
-    temp_simple_info = scraper_sources.tvshow(None, None, simple_info['show_title'], None, None, simple_info['year'])
-    temp_simple_info = scraper_sources.episode(temp_simple_info, None, None, simple_info['episode_title'], None, simple_info['season_number'], simple_info['episode_number'])
-    results = scraper_sources.sources(temp_simple_info, get_supported_hosts(), [])
-    assert_hosters_result(test, scraper, scraper_sources, scraper_name, results)
+from providerModules.a4kScrapers.test_utils import test_torrent, test_hoster, total_results
 
 class TestTorrentScraping(unittest.TestCase):
     pass
@@ -174,36 +54,12 @@ class TestTorrentScraping(unittest.TestCase):
 class TestHosterScraping(unittest.TestCase):
     pass
 
-def test_torrent(self, scraper):
-    warnings.filterwarnings(action='ignore', category=ResourceWarning)
-    scraper_module = torrent_scrapers[scraper]
-
-    if scraper not in ['showrss', 'eztv']:
-        movie(self, scraper_module, scraper)
-        if scraper in ['torrentapi']:
-            episode(self, scraper_module, scraper)
-    else:
-        episode(self, scraper_module, scraper)
-
-def test_hoster(self, scraper):
-    warnings.filterwarnings(action='ignore', category=ResourceWarning)
-    if os.getenv('TRAVIS') == 'true' and scraper in ['rlsbb','scenerls']:
-        core.tools.log('skipping %s in Travis build' % scraper)
-        return
-
-    scraper_module = hoster_scrapers[scraper]
-
-    if scraper not in ['directdl']:
-        movie_from_hoster(self, scraper_module, scraper)
-    else:
-        episode_from_hoster(self, scraper_module, scraper)
-
 for scraper in torrent_module.__all__:
-    method = lambda scraper: lambda self: test_torrent(self, scraper)
+    method = lambda scraper: lambda self: test_torrent(self, torrent_scrapers[scraper], scraper)
     setattr(TestTorrentScraping, 'test_%s' % scraper, method(scraper))
 
 for scraper in hosters_module.__all__:
-    method = lambda scraper: lambda self: test_hoster(self, scraper)
+    method = lambda scraper: lambda self: test_hoster(self, hoster_scrapers[scraper], scraper)
     setattr(TestHosterScraping, 'test_%s' % scraper, method(scraper))
 
 if os.getenv('A4KSCRAPERS_TEST_TOTAL') == '1':

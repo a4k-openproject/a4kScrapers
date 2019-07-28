@@ -6,8 +6,8 @@ show_list = None
 Show = core.namedtuple('Show', 'title id')
 
 class sources(core.DefaultSources):
-    def __init__(self):
-        super(sources, self).__init__(__name__)
+    def __init__(self, *args, **kwargs):
+        super(sources, self).__init__(__name__, *args, **kwargs)
 
         self._feed_url = '/show/%s.rss'
 

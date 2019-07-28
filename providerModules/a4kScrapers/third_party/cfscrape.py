@@ -118,7 +118,7 @@ class CloudflareScraper(Session):
 
         # Check if Cloudflare captcha challenge is presented
         if self.is_cloudflare_captcha_challenge(resp):
-            self.handle_captcha_challenge()
+            self.raise_captcha_error()
 
         self.prev_resp = resp
 
@@ -141,7 +141,7 @@ class CloudflareScraper(Session):
             (resp and resp.cookies.get("cf_clearance", None, domain=cookie_domain))
         )
 
-    def handle_captcha_challenge(self):
+    def raise_captcha_error(self):
         exception_message = 'Cloudflare returned captcha!'
         if self.prev_resp is not None and os.getenv('CI') == 'true':
             exception_message += '\n' + self.prev_resp.text
@@ -180,7 +180,11 @@ class CloudflareScraper(Session):
             )
 
         # Solve the Javascript challenge
-        answer, delay = solve_challenge(body, domain)
+        try:
+            answer, delay = solve_challenge(body, domain)
+        except:
+            self.raise_captcha_error()
+
         params["jschl_answer"] = answer
 
         # Requests transforms any request into a GET after a redirect,

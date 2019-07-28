@@ -3,8 +3,8 @@
 from providerModules.a4kScrapers import core
 
 class source(core.DefaultHosterSources):
-    def __init__(self):
-        super(source, self).__init__(__name__)
+    def __init__(self, *args, **kwargs):
+        super(source, self).__init__(__name__, *args, **kwargs)
 
     def search(self, hoster_url, query, search_id=None):
         search_path = hoster_url.search % core.quote_plus(query)

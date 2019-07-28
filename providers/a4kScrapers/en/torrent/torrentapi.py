@@ -5,9 +5,11 @@ from providerModules.a4kScrapers import core
 token = None
 
 class sources(core.DefaultSources):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super(sources, self).__init__(__name__,
-                                     request=core.Request(sequental=True,wait=2))
+                                     *args,
+                                     request=core.Request(sequental=True,wait=2),
+                                     **kwargs)
         self._imdb = None
 
     def _update_token(self, url):
