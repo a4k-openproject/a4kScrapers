@@ -43,7 +43,7 @@ def _assert_hosters_result(test, scraper_module, scraper_sources, scraper, hoste
         return
 
     if scraper_sources._request is not None and scraper_sources._request.has_exc:
-        expected_count = 0
+        return
 
     test.assertGreater(len(hoster_results), 0, '%s failed to find link' % scraper)
 

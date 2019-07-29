@@ -110,7 +110,12 @@ class Request(object):
             response.url = url
             response.status_code = 200
 
-        head_check_key = _get_domain(response.url)
+        try:
+            head_check_key = _get_domain(response.url)
+        except:
+            response.url = url
+            head_check_key = _get_domain(url)
+
         redirect_url = self._check_redirect(response)
         if redirect_url:
             _head_checks[head_check_key] = redirect_url
