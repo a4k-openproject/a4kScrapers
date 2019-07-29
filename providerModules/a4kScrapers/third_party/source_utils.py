@@ -281,81 +281,85 @@ def filter_season_pack(simple_info, release_title):
     return False
 
 def filter_show_pack(simple_info, release_title):
-    release_title = clean_title(release_title.lower().replace('the complete', '').replace('complete', ''))
-    season = simple_info['season_number']
-    alias_list = [clean_title(x) for x in simple_info['show_aliases']]
-    alias_list = list(alias_list)
-    if '.' in simple_info['show_title']:
-        alias_list.append(clean_title(simple_info['show_title'].replace('.', '')))
-    show_title = clean_title(simple_info['show_title'])
+    show_title, season, alias_list, no_seasons, country, year = \
+        simple_info['show_title'], \
+        simple_info['season_number'], \
+        simple_info['show_aliases'], \
+        simple_info['no_seasons'], \
+        simple_info['country'], \
+        simple_info['year']
 
-    no_seasons = simple_info['no_seasons']
+    release_title = clean_title(release_title.lower()
+                                             .replace('the complete', '')
+                                             .replace('complete', ''))
+
+    titles = list(alias_list)
+    titles.insert(0, show_title)
+    for idx, title in enumerate(titles):
+        titles[idx] = clean_title(title)
+
     all_seasons = '1'
-    country = simple_info['country']
-    year = simple_info['year']
     season_count = 1
-    append_list = []
-
     while season_count <= int(season):
         season_count += 1
         all_seasons += ' %s' % str(season_count)
 
-    string_list = ['%s season %s' % (show_title, all_seasons),
-                  '%s %s' % (show_title, all_seasons),
-                  '%s season 1 %s ' % (show_title, no_seasons),
-                  '%s seasons 1 %s ' % (show_title, no_seasons),
-                  '%s seasons 1 to %s' % (show_title, no_seasons),
-                  '%s season s01 s%s' % (show_title, no_seasons.zfill(2)),
-                  '%s seasons s01 s%s' % (show_title, no_seasons.zfill(2)),
-                  '%s seasons s01 to s%s' % (show_title, no_seasons.zfill(2)),
-                  '%s series' % show_title,
-                  '%s season s%s complete' % (show_title, season.zfill(2)),
-                  '%s seasons 1 thru %s' % (show_title, no_seasons),
-                  '%s seasons 1 thru %s' % (show_title, no_seasons.zfill(2)),
-                  '%s season %s' % (show_title, all_seasons)
-                  ]
+    season_fill = season.zfill(2)
 
-    season_count = int(season)
+    def get_pack_names(title):
+        results = [
+            '%s %s' % (title, all_seasons),
+            '%s season %s' % (title, all_seasons),
+            '%s seasons %s' % (title, all_seasons),
 
-    while int(season_count) <= int(no_seasons):
-        s00 = '%s s01 s%s' % (show_title, str(season_count).zfill(2))
-        season = '%s seasons 1 %s' % (show_title, str(season_count))
-        seasons = '%s season 1 %s' % (show_title, str(season_count))
-        if release_title == s00:
-            return True
-        if release_title == season:
-            return True
-        if release_title == seasons:
-            return True
-        season_count = season_count + 1
+            '%s s%s' % (title, season_fill),
+            '%s season s%s' % (title, season_fill),
+        ]
 
-    while int(season_count) <= int(no_seasons):
-        string_list.append('%s s01 s%s' % (show_title, str(season_count).zfill(2)))
-        string_list.append('%s seasons 1 %s ' % (show_title, str(season_count)))
-        string_list.append('%s season 1 %s ' % (show_title, str(season_count)))
-        season_count = season_count + 1
+        if 'series' in title:
+            results.append('%s ' % title)
+        else:
+            results.append('%s series' % title)
 
-    for i in string_list:
-        append_list.append(i.replace(show_title, '%s %s' % (show_title, country)))
+        return results
 
-    string_list += append_list
-    append_list = []
+    def get_pack_names_range(title, last_season):
+        last_season_fill = last_season.zfill(2)
 
-    for i in string_list:
-        append_list.append(i.replace(show_title, '%s %s' % (show_title, year)))
+        return [
+            '%s all %s seasons' % (title, last_season),
+            '%s all %s seasons' % (title, last_season_fill),
 
-    string_list += append_list
-    append_list = []
+            '%s season 1 %s ' % (title, last_season),
+            '%s seasons 1 %s ' % (title, last_season),
+            '%s seasons 1 to %s' % (title, last_season),
+            '%s seasons 1 thru %s' % (title, last_season),
 
-    for i in string_list:
-        for alias in alias_list:
-            append_list.append(i.replace(show_title, alias))
+            '%s season s01 s%s' % (title, last_season_fill),
+            '%s seasons s01 s%s' % (title, last_season_fill),
+            '%s seasons s01 to s%s' % (title, last_season_fill),
+            '%s seasons s01 thru s%s' % (title, last_season_fill),
 
-    string_list += append_list
+            '%s s01 s%s' % (title, last_season_fill),
+            '%s s01 to s%s' % (title, last_season_fill),
+            '%s s01 thru s%s' % (title, last_season_fill),
+        ]
 
-    for x in string_list:
-        if '&' in x:
-            string_list.append(x.replace('&', 'and'))
+    def build_string_list(string_list_fn):
+        results = []
+        for title in titles:
+            results += (string_list_fn(title)
+                      + string_list_fn('%s %s' % (title, country))
+                      + string_list_fn('%s %s' % (title, year)))
+
+        return results
+
+    string_list = build_string_list(lambda t: get_pack_names(t))
+
+    seasons_count = int(season)
+    while seasons_count <= int(no_seasons):
+        string_list += build_string_list(lambda t: get_pack_names_range(t, str(seasons_count)))
+        seasons_count += 1
 
     for i in string_list:
         if release_title.startswith(i):
