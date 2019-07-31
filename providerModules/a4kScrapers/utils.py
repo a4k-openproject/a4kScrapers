@@ -215,7 +215,10 @@ def strip_non_ascii_and_unprintable(text):
     return result.encode('ascii', errors='ignore')
 
 def strip_accents(s):
-   return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
+    try:
+        return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
+    except:
+        return s
 
 def check_timeout(datetime, timeout_in_hours):
     now = int(time.time())
