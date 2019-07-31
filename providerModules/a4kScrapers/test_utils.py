@@ -161,15 +161,20 @@ def _episode_from_hoster(scraper_module, scraper, url, test=None):
 
     return (results, time_ms)
 
-def test_torrent(self, scraper_module, scraper, url=None):
-    warnings.filterwarnings(action='ignore', category=ResourceWarning)
+def _disable_warnings():
+    try:
+        warnings.filterwarnings(action='ignore', category=ResourceWarning)
+    except:
+        pass
 
+def test_torrent(self, scraper_module, scraper, url=None):
+    _disable_warnings()
     if scraper in ['showrss', 'eztv']:
         return _episode(scraper_module, scraper, url, test=self)
     return _movie(scraper_module, scraper, url, test=self)
 
 def test_hoster(self, scraper_module, scraper, url=None):
-    warnings.filterwarnings(action='ignore', category=ResourceWarning)
+    _disable_warnings()
     if os.getenv('TRAVIS') == 'true' and scraper in ['rlsbb','scenerls']:
         tools.log('skipping %s in Travis build' % scraper, 'notice')
         return
