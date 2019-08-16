@@ -291,7 +291,7 @@ def filter_show_pack(simple_info, release_title):
 
     release_title = clean_title(release_title.lower()
                                              .replace('the complete', '')
-                                             .replace('complete', ''))
+                                             .replace('complete', '')) + ' '
 
     titles = list(alias_list)
     titles.insert(0, show_title)
@@ -308,18 +308,13 @@ def filter_show_pack(simple_info, release_title):
 
     def get_pack_names(title):
         results = [
-            '%s %s' % (title, all_seasons),
-            '%s season %s' % (title, all_seasons),
-            '%s seasons %s' % (title, all_seasons),
-
-            '%s s%s' % (title, season_fill),
-            '%s season s%s' % (title, season_fill),
+            (title, '%s' % all_seasons),
+            ('%s s%s' % (title, season_fill), ''),
+            (title, 'season s%s' % season_fill),
         ]
 
-        if 'series' in title:
-            results.append('%s ' % title)
-        else:
-            results.append('%s series' % title)
+        if 'series' not in title:
+            results.append((title, 'series'))
 
         return results
 
@@ -327,30 +322,28 @@ def filter_show_pack(simple_info, release_title):
         last_season_fill = last_season.zfill(2)
 
         return [
-            '%s all %s seasons' % (title, last_season),
-            '%s all %s seasons' % (title, last_season_fill),
+            (title, '%s seasons' % (last_season)),
+            (title, '%s seasons' % (last_season_fill)),
 
-            '%s season 1 %s ' % (title, last_season),
-            '%s seasons 1 %s ' % (title, last_season),
-            '%s seasons 1 to %s' % (title, last_season),
-            '%s seasons 1 thru %s' % (title, last_season),
+            (title, 'season 1 %s ' % (last_season)),
+            (title, 'seasons 1 %s ' % (last_season)),
+            (title, 'season1 %s ' % (last_season)),
+            (title, 'seasons1 %s ' % (last_season)),
+            (title, 'seasons 1 to %s' % (last_season)),
+            (title, 'seasons 1 thru %s' % (last_season)),
 
-            '%s season s01 s%s' % (title, last_season_fill),
-            '%s seasons s01 s%s' % (title, last_season_fill),
-            '%s seasons s01 to s%s' % (title, last_season_fill),
-            '%s seasons s01 thru s%s' % (title, last_season_fill),
-
-            '%s s01 s%s' % (title, last_season_fill),
-            '%s s01 to s%s' % (title, last_season_fill),
-            '%s s01 thru s%s' % (title, last_season_fill),
+            (title, 's01 s%s' % (last_season_fill)),
+            (title, 's01 to s%s' % (last_season_fill)),
+            (title, 's01 thru s%s' % (last_season_fill)),
+            (title, '1 %s s01 s%s' % (last_season, last_season_fill)),
+            (title, '1 to %s s01 to s%s' % (last_season, last_season_fill)),
+            (title, '1 thru %s s01 thru s%s' % (last_season, last_season_fill)),
         ]
 
     def build_string_list(string_list_fn):
         results = []
         for title in titles:
-            results += (string_list_fn(title)
-                      + string_list_fn('%s %s' % (title, country))
-                      + string_list_fn('%s %s' % (title, year)))
+            results += string_list_fn(title)
 
         return results
 
@@ -362,7 +355,8 @@ def filter_show_pack(simple_info, release_title):
         seasons_count += 1
 
     for i in string_list:
-        if release_title.startswith(i):
+        (title, seasons_range) = i
+        if release_title.startswith(title) and (' ' + seasons_range) in release_title:
             return True
 
     #tools.log('%s - %s' % (inspect.stack()[0][3], release_title), 'notice')
