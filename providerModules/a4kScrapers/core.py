@@ -729,7 +729,7 @@ class CoreScraper(object):
                     queries = queries + [
                         self._season(self.show_title + ' Season ' + self.season_x),
                         self._season(self.show_title + ' S%s' % self.season_xx),
-                        self._pack(self.show_title + ' Seasons'),
+                        self._pack(self.show_title + ' Season'),
                         self._season_and_pack(self.show_title + ' Complete')
                     ]
 
