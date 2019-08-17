@@ -31,13 +31,29 @@ def get_urls(scraper):
     cache_key = get_cache_urls_key(scraper)
     cache_result = database.cache_get(cache_key)
 
-    if cache_result is not None:
-        return json.loads(cache_result['value'])
-    elif scraper in trackers:
-            return trackers[scraper]
+    default_urls = None
+    if scraper in trackers:
+        default_urls = trackers[scraper]
     elif scraper in hosters:
-        return hosters[scraper]
-    return None
+        default_urls = hosters[scraper]
+
+    if cache_result is not None:
+        cached_urls = json.loads(cache_result['value'])
+    else:
+        return default_urls
+
+    for cached_url in cached_urls:
+        is_cached_url_still_valid = True
+        for default_url in default_urls:
+            if cached_url['base'] == default_url['base'] and cached_url['search'] == default_url['search']:
+                is_cached_url_still_valid = False
+                break
+
+        if is_cached_url_still_valid:
+            source_utils.tools.log('a4kScrapers.%s.urls: cached url is no longer valid %s' % (scraper, json.dumps(cached_url)), 'notice')
+            return default_urls
+
+    return cached_urls
 
 def update_urls(scraper, urls):
     cache_key = get_cache_urls_key(scraper)

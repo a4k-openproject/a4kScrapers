@@ -335,9 +335,6 @@ def filter_show_pack(simple_info, release_title):
             (title, 's01 s%s' % (last_season_fill)),
             (title, 's01 to s%s' % (last_season_fill)),
             (title, 's01 thru s%s' % (last_season_fill)),
-            (title, '1 %s s01 s%s' % (last_season, last_season_fill)),
-            (title, '1 to %s s01 to s%s' % (last_season, last_season_fill)),
-            (title, '1 thru %s s01 thru s%s' % (last_season, last_season_fill)),
         ]
 
     def build_string_list(string_list_fn):
