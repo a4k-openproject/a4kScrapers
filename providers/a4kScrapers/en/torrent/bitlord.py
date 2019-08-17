@@ -18,7 +18,7 @@ class sources(core.DefaultSources):
         return (token, cookies)
 
     def _search_request(self, url, query, force_token_refresh=False):
-        (token, cookies) = core.database.get(self._get_token_and_cookies, 1 if force_token_refresh else 0, url)
+        (token, cookies) = core.database.get(self._get_token_and_cookies, 0 if force_token_refresh else 1, url)
 
         headers = {
             'x-request-token': token,

@@ -15,7 +15,7 @@ class sources(core.DefaultSources):
         return core.json.loads(response.text)['token']
 
     def _search_request(self, url, query, force_token_refresh=False):
-        token = core.database.get(self._get_token, 1 if force_token_refresh else 0, url)
+        token = core.database.get(self._get_token, 0 if force_token_refresh else 1, url)
 
         search = url.search
         if self._imdb is not None:
