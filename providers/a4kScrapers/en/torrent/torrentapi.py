@@ -2,29 +2,20 @@
 
 from providerModules.a4kScrapers import core
 
-token = None
-
 class sources(core.DefaultSources):
     def __init__(self, *args, **kwargs):
         super(sources, self).__init__(__name__,
                                      *args,
-                                     request=core.Request(sequental=True,wait=2),
+                                     request=core.Request(sequental=True, wait=2),
                                      **kwargs)
         self._imdb = None
 
-    def _update_token(self, url):
-        global token
+    def _get_token(self, url):
+        response = self._request.get(url.base + '&get_token=get_token')
+        return core.json.loads(response.text)['token']
 
-        if token:
-            return token
-
-        token_url = url.base + '&get_token=get_token'
-        response = self._request.get(token_url)
-        token = core.json.loads(response.text)['token']
-
-    def _search_request(self, url, query):
-        global token
-        self._update_token(url)
+    def _search_request(self, url, query, force_token_refresh=False):
+        token = core.database.get(self._get_token, 1 if force_token_refresh else 0, url)
 
         search = url.search
         if self._imdb is not None:
@@ -52,9 +43,7 @@ class sources(core.DefaultSources):
             error_code = response['error_code']
 
             if error_code == 1 or error_code == 2:
-                token = None
-                self._update_token(url)
-                return self._search_request(url, original_query)
+                return self._search_request(url, original_query, force_token_refresh=True)
             return []
 
         else:

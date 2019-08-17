@@ -3,7 +3,7 @@
     "bitlord": [
         {
             "base": "https://bitlordsearch.com",
-            "search": "/search?q=%s"
+            "search": "/get_list"
         }
     ],
     "btdb": [

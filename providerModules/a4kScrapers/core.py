@@ -8,7 +8,7 @@ from string import capwords
 from .request import threading, Request
 from .third_party import source_utils
 from .third_party.source_utils import tools
-from .utils import beautifulSoup, encode, decode, now, safe_list_get, get_caller_name, replace_text_with_int, strip_non_ascii_and_unprintable
+from .utils import beautifulSoup, encode, decode, now, safe_list_get, get_caller_name, replace_text_with_int, strip_non_ascii_and_unprintable, database
 from .utils import strip_accents, get_all_relative_py_files, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL, CACHE_LOG, AWS_ADMIN
 from .common_types import namedtuple, SearchResult, UrlParts, Filter, HosterResult, CancellationToken
 from .scrapers import re, NoResultsScraper, GenericTorrentScraper, GenericExtraQueryTorrentScraper, MultiUrlScraper
