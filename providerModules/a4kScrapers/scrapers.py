@@ -91,11 +91,12 @@ class GenericTorrentScraper(object):
     def soup_filter(self, response):
         response = normalize(response.text)
 
-        results1 = self._parse_rows(response, row_tag='<tr')
-        results2 = self._parse_rows(response, row_tag='<dl')
-        results3 = self._parse_rows(response, row_tag='<ul')
-
-        return results1 + results2 + results3
+        return (
+            self._parse_rows(response, row_tag='<tr') +
+            self._parse_rows(response, row_tag='<dl') +
+            self._parse_rows(response, row_tag='<ul') +
+            self._parse_rows(response, row_tag='tgxtablerow') #torrentgalaxy
+        )
 
     def title_filter(self, result):
         title = source_utils.clean_tags(result.title.strip())

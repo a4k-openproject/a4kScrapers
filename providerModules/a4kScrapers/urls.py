@@ -4,30 +4,63 @@ import os
 import json
 
 from .third_party import source_utils
-from .utils import DEV_MODE, database, check_timeout
+from .utils import database
 
-def _get_json(json_url, filename):
-    try:
-        if DEV_MODE:
-            raise
+def _get_json(filename):
+    json_path = os.path.join(os.path.dirname(__file__), filename)
+    with open(json_path) as json_result:
+        return json.load(json_result)
 
-        response = source_utils.randomUserAgentRequests().get(json_url)
-        return json.loads(response.text)
-    except:
-        json_path = os.path.join(os.path.dirname(__file__), filename)
-        with open(json_path) as json_result:
-            return json.load(json_result)
+urls = _get_json('urls.json')
 
-trackers_json_url = 'https://raw.githubusercontent.com/newt-sc/a4kScrapers/master/providerModules/a4kScrapers/trackers.json'
-trackers = _get_json(trackers_json_url, 'trackers.json')
+def _get_urls_in_array_format(urls_as_objects):
+    urls_as_arrays = {}
 
-hosters_json_url = 'https://raw.githubusercontent.com/newt-sc/a4kScrapers/master/providerModules/a4kScrapers/hosters.json'
-hosters = _get_json(hosters_json_url, 'hosters.json')
+    for scraper in urls_as_objects.keys():
+        scraper_urls = urls_as_objects[scraper]
+        urls_as_arrays[scraper] = []
+        for domain in scraper_urls['domains']:
+            urls_as_arrays[scraper].append({
+                "base": domain['base'],
+                "search": domain.get('search', scraper_urls['search'])
+            })
+
+    return urls_as_arrays
+
+trackers_config = urls['trackers']
+hosters_config = urls['hosters']
+trackers = _get_urls_in_array_format(trackers_config)
+hosters = _get_urls_in_array_format(hosters_config)
+
+def _replace_category_in_url(scraper, scraper_urls, query_type):
+    if query_type is None:
+        return scraper_urls
+
+    if scraper in trackers_config:
+        urls_config = trackers_config
+    elif scraper in hosters_config:
+        urls_config = hosters_config
+    else:
+        return scraper_urls
+
+    category_param = urls_config[scraper].get('cat_%s' % query_type, None)
+
+    if category_param is None:
+        return scraper_urls
+
+    urls_for_query = [] 
+    for domain in scraper_urls:
+        urls_for_query.append({
+            "base": domain['base'],
+            "search": domain['search'].replace('{{category}}', category_param)
+        })
+
+    return urls_for_query
 
 def get_cache_urls_key(scraper):
     return 'a4kScrapers.%s.urls' % scraper
 
-def get_urls(scraper):
+def get_urls(scraper, query_type=None):
     cache_key = get_cache_urls_key(scraper)
     cache_result = database.cache_get(cache_key)
 
@@ -40,7 +73,7 @@ def get_urls(scraper):
     if cache_result is not None:
         cached_urls = json.loads(cache_result['value'])
     else:
-        return default_urls
+        return _replace_category_in_url(scraper, default_urls, query_type)
 
     for cached_url in cached_urls:
         is_cached_url_still_valid = True
@@ -51,9 +84,9 @@ def get_urls(scraper):
 
         if is_cached_url_still_valid:
             source_utils.tools.log('a4kScrapers.%s.urls: cached url is no longer valid %s' % (scraper, json.dumps(cached_url)), 'notice')
-            return default_urls
+            return _replace_category_in_url(scraper, default_urls, query_type)
 
-    return cached_urls
+    return _replace_category_in_url(scraper, cached_urls, query_type)
 
 def update_urls(scraper, urls):
     cache_key = get_cache_urls_key(scraper)

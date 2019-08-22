@@ -18,11 +18,12 @@ class source(core.DefaultHosterSources):
             return None
 
         results = response.text
-        results = core.json.loads(results)['results']
+        results = core.json.loads(results)
 
-        if results is None or len(results) == 0:
+        if results is None or results['error'] or len(results['results']) == 0:
             return []
 
+        results = results['results']
         hoster_results = []
         for result in results:
             title = result['release']

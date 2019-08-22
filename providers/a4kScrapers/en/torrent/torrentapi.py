@@ -72,8 +72,8 @@ class sources(core.DefaultSources):
 
     def movie(self, title, year, imdb=None):
         self._imdb = imdb
-        return super(sources, self).movie(title, year, imdb)
+        return super(sources, self).movie(title, year, imdb, auto_query=False)
 
     def episode(self, simple_info, all_info):
         self._imdb = all_info.get('showInfo', {}).get('ids', {}).get('imdb', None)
-        return super(sources, self).episode(simple_info, all_info, exact_pack=True)
+        return super(sources, self).episode(simple_info, all_info, query_show_packs=False)
