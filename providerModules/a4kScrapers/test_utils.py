@@ -17,7 +17,7 @@ def _assert_result(test, scraper_module, scraper_sources, scraper, torrent_list)
             total_results[torrent['release_title']] = 1
         return
 
-    if scraper not in trackers or scraper in ['torrentz2']:
+    if scraper not in trackers or scraper in [] and results_count == 0:
         tools.log('tracker %s is disabled' % scraper, 'notice')
         return
 
@@ -38,14 +38,16 @@ def _assert_result(test, scraper_module, scraper_sources, scraper, torrent_list)
         test.assertIsNotNone(torrent['seeds'], '%s missing seeds info' % scraper)
 
 def _assert_hosters_result(test, scraper_module, scraper_sources, scraper, hoster_results):
-    if scraper not in hosters:
+    results_count = len(hoster_results)
+
+    if scraper not in hosters or scraper in ['directdl'] and results_count == 0:
         tools.log('hoster %s is disabled' % scraper, 'notice')
         return
 
     if scraper_sources._request is not None and scraper_sources._request.has_exc:
         return
 
-    test.assertGreater(len(hoster_results), 0, '%s failed to find link' % scraper)
+    test.assertGreater(results_count, 0, '%s failed to find link' % scraper)
 
 def _get_movie_query(scraper):
     movie_imdb = None

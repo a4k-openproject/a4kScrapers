@@ -26,7 +26,8 @@ def get_scraper(
     use_thread_for_info,
     custom_filter,
     caller_name,
-    url
+    url,
+    query_type
 ):
     if caller_name is None:
         caller_name = get_caller_name()
@@ -51,7 +52,7 @@ def get_scraper(
     if url:
         return create_core_scraper(urls=None, url=url)
 
-    scraper_urls = get_urls(caller_name)
+    scraper_urls = get_urls(caller_name, query_type)
     if scraper_urls is None:
         return NoResultsScraper()
 
@@ -123,7 +124,8 @@ class DefaultSources(object):
                                    request=self._request,
                                    use_thread_for_info=use_thread_for_info,
                                    custom_filter=custom_filter,
-                                   url=self._url)
+                                   url=self._url,
+                                   query_type=self.query_type)
 
         if self._request is None and not isinstance(self.scraper, NoResultsScraper):
             self._request = self.scraper._request
@@ -167,22 +169,24 @@ class DefaultSources(object):
     def is_movie_query(self):
         return self.query_type == 'movie'
 
-    def movie(self, title, year, imdb=None):
+    def movie(self, title, year, imdb=None, auto_query=True):
         self.query_type = 'movie'
         return self._get_scraper(title) \
                    .movie_query(title,
                                 year,
                                 caller_name=self._caller_name,
+                                auto_query=auto_query,
                                 single_query=self._single_query)
 
-    def episode(self, simple_info, all_info, auto_query=True, exact_pack=False):
+    def episode(self, simple_info, all_info, auto_query=True, query_seasons=True, query_show_packs=True):
         self.query_type = 'episode'
         return self._get_scraper(simple_info['show_title']) \
                    .episode_query(simple_info,
                                   caller_name=self._caller_name,
                                   single_query=self._single_query,
                                   auto_query=auto_query,
-                                  exact_pack=exact_pack)
+                                  query_seasons=query_seasons,
+                                  query_show_packs=query_show_packs)
 
 class DefaultExtraQuerySources(DefaultSources):
     def __init__(self, module_name, single_query=False, request_timeout=None, url=None):
@@ -491,10 +495,10 @@ class CoreScraper(object):
         cache_result = get_cache(query)
         self._cache_result = cache_result
         if cache_result is None:
-            return False
+            return True
 
         if not check_cache_result(cache_result):
-            return False
+            return True
 
         parsed_result = cache_result['parsed_result']
         self._results_from_cache = parsed_result['cached_results']
@@ -527,7 +531,7 @@ class CoreScraper(object):
         if self._url is not None:
             return self._url
 
-        if self.caller_name in ['showrss', 'torrentapi', 'torrentz2_', 'scenerls']:
+        if self.caller_name in ['showrss', 'skytorrents', 'torrentapi', 'torrentz2_', 'scenerls']:
             self._request.skip_head = True
 
         return self._request.find_url(self._urls)
@@ -605,7 +609,7 @@ class CoreScraper(object):
     def _season_and_pack(self, query):
         return self._query_thread(query, [self.filter_season_pack, self.filter_show_pack])
 
-    def movie_query(self, title, year, single_query=False, caller_name=None):
+    def movie_query(self, title, year, auto_query=True, single_query=False, caller_name=None):
         title = strip_accents(title)
 
         if self.caller_name is None:
@@ -629,18 +633,24 @@ class CoreScraper(object):
                 return self._get_movie_results()
 
             movie = lambda query: self._query_thread(query, [self.filter_movie_title])
+
+            if auto_query is False:
+                wait_threads([movie('')])
+                self._set_cache(full_query)
+                return self._get_movie_results()
+
             queries = [movie(clean_title + ' ' + self.year)]
 
             try:
                 alternative_title = replace_text_with_int(clean_title)
-                if clean_title != alternative_title:
+                if not single_query and clean_title != alternative_title:
                     queries.append(movie(alternative_title + ' ' + self.year))
             except:
                 pass
 
             wait_threads(queries)
 
-            if len(self._temp_results) == 0 and not single_query and not self._request.self.has_timeout_exc:
+            if not single_query and len(self._temp_results) == 0 and not self._request.self.has_timeout_exc:
                 skip_set_cache = True
                 wait_threads([movie(clean_title)])
 
@@ -653,7 +663,7 @@ class CoreScraper(object):
                 self._set_cache(full_query)
             return self._get_movie_results()
 
-    def episode_query(self, simple_info, auto_query=True, single_query=False, caller_name=None, exact_pack=False):
+    def episode_query(self, simple_info, auto_query=True, single_query=False, caller_name=None, query_seasons=True, query_show_packs=True):
         simple_info['show_title'] = strip_accents(simple_info['show_title'])
 
         if self.caller_name is None:
@@ -685,11 +695,6 @@ class CoreScraper(object):
         self.season_xx = self.season_x.zfill(2)
         self.episode_xx = self.episode_x.zfill(2)
 
-        #full_query = '%s %s %s %s %s' % (self.show_title, self.year, self.season_xx, self.episode_xx, self.episode_title)
-        # use_cache_only = self._get_cache(full_query)
-        # if use_cache_only:
-        #     return self._get_episode_results()
-
         try:
             self._url = self._find_url()
             if self._url is None:
@@ -697,15 +702,17 @@ class CoreScraper(object):
 
             if auto_query is False:
                 wait_threads([self._episode('')])
-                #self._set_cache(full_query)
                 return self._get_episode_results()
 
             def query_results():
+                single_episode_query = self.show_title + ' S%sE%s' % (self.season_xx, self.episode_xx)
+                season_query = self.show_title + ' S%s' % self.season_xx
+
                 if DEV_MODE:
                     if self.caller_name != 'eztv':
-                        wait_threads([ self._season(self.show_title + ' S%s' % self.season_xx) ])
+                        wait_threads([ self._season(season_query) ])
                     else:
-                        wait_threads([ self._episode(self.show_title + ' S%sE%s' % (self.season_xx, self.episode_xx)) ])
+                        wait_threads([ self._episode(single_episode_query) ])
                     return
 
                 # specials
@@ -714,24 +721,24 @@ class CoreScraper(object):
                     return
 
                 queries = [
-                    self._episode(self.show_title + ' S%sE%s' % (self.season_xx, self.episode_xx))
+                    self._episode(single_episode_query)
                 ]
 
                 if single_query:
                     wait_threads(queries)
                     return
 
-                if exact_pack:
+                if query_seasons:
                     queries = queries + [
-                        self._season_and_pack(self.show_title + '.S%s.' % self.season_xx)
+                        self._season_and_pack(season_query),
                     ]
-                else:
-                    queries = queries + [
-                        self._season(self.show_title + ' Season ' + self.season_x),
-                        self._season(self.show_title + ' S%s' % self.season_xx),
-                        self._pack(self.show_title + ' Season'),
-                        self._season_and_pack(self.show_title + ' Complete')
-                    ]
+
+                    if query_show_packs:
+                        queries = queries + [
+                            self._season_and_pack(self.show_title + ' Season'),
+                            self._season_and_pack(self.show_title + ' Complete'),
+                            self._season_and_pack(self.show_title + ' Season %s' % self.season_x)
+                        ]
 
                 if simple_info.get('isanime', False) and simple_info.get('absolute_number', None) is not None:
                     queries.insert(0, self._episode(self.show_title + ' %s' % simple_info['absolute_number']))
@@ -742,14 +749,12 @@ class CoreScraper(object):
                     wait_threads(queries)
 
             query_results()
-            if len(self._temp_results) == 0 and self.show_title_fallback is not None:
+            if not single_query and len(self._temp_results) == 0 and self.show_title_fallback is not None:
                 self.show_title = self.show_title_fallback
                 self.simple_info['show_title'] = self.show_title_fallback
                 query_results()
 
-            #self._set_cache(full_query)
             return self._get_episode_results()
 
         except:
-            #self._set_cache(full_query)
             return self._get_episode_results()

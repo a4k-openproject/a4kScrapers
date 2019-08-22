@@ -149,6 +149,9 @@ class Request(object):
             return None
 
         (url, status_code) = response
+        if status_code != 200:
+            return None
+
         resolved_url = urlparse(url)
         url = urlunparse(
             (
