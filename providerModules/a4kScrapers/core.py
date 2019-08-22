@@ -730,14 +730,14 @@ class CoreScraper(object):
 
                 if query_seasons:
                     queries = queries + [
-                        self._season_and_pack(season_query),
+                        self._season(season_query),
                     ]
 
                     if query_show_packs:
                         queries = queries + [
-                            self._season_and_pack(self.show_title + ' Season'),
+                            self._season(self.show_title + ' Season %s' % self.season_x),
+                            self._pack(self.show_title + ' Season'),
                             self._season_and_pack(self.show_title + ' Complete'),
-                            self._season_and_pack(self.show_title + ' Season %s' % self.season_x)
                         ]
 
                 if simple_info.get('isanime', False) and simple_info.get('absolute_number', None) is not None:
