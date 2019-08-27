@@ -6,7 +6,6 @@ import unicodedata
 import threading
 import time
 import base64
-import string
 
 from functools import wraps
 from inspect import getframeinfo, stack
@@ -209,16 +208,6 @@ def replace_text_with_int(textnum):
         curstring += repr(result + current)
 
     return curstring.strip()
-
-def strip_non_ascii_and_unprintable(text):
-    result = ''.join(char for char in text if char in string.printable)
-    return result.encode('ascii', errors='ignore')
-
-def strip_accents(s):
-    try:
-        return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
-    except:
-        return s
 
 def check_timeout(datetime, timeout_in_hours):
     now = int(time.time())

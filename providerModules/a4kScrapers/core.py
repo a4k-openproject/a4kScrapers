@@ -8,8 +8,8 @@ from string import capwords
 from .request import threading, Request
 from .third_party import source_utils
 from .third_party.source_utils import tools
-from .utils import beautifulSoup, encode, decode, now, safe_list_get, get_caller_name, replace_text_with_int, strip_non_ascii_and_unprintable, database
-from .utils import strip_accents, get_all_relative_py_files, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL, CACHE_LOG, AWS_ADMIN
+from .utils import beautifulSoup, encode, decode, now, safe_list_get, get_caller_name, replace_text_with_int, database
+from .utils import get_all_relative_py_files, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL, CACHE_LOG, AWS_ADMIN
 from .common_types import namedtuple, SearchResult, UrlParts, Filter, HosterResult, CancellationToken
 from .scrapers import re, NoResultsScraper, GenericTorrentScraper, GenericExtraQueryTorrentScraper, MultiUrlScraper
 from .urls import trackers, hosters, get_urls, update_urls
@@ -256,9 +256,9 @@ class DefaultHosterSources(DefaultSources):
 
         try:
             if self.is_movie_query():
-                query = '%s %s' % (strip_accents(simple_info['title']), simple_info['year'])
+                query = '%s %s' % (source_utils.clean_title(simple_info['title']), simple_info['year'])
             else:
-                query = '%s S%sE%s' % (strip_accents(simple_info['show_title']), simple_info['season_number_xx'], simple_info['episode_number_xx'])
+                query = '%s S%sE%s' % (source_utils.clean_title(simple_info['show_title']), simple_info['season_number_xx'], simple_info['episode_number_xx'])
 
             if len(supported_hosts) > 0:
                 url = self.scraper._find_url()
@@ -303,7 +303,7 @@ class DefaultHosterSources(DefaultSources):
                     if quality_from_url != 'SD':
                         quality = quality_from_url
 
-                    release_title = strip_non_ascii_and_unprintable(result.title)
+                    release_title = source_utils.strip_non_ascii_and_unprintable(result.title)
                     if DEV_MODE and len(sources) == 0:
                         tools.log(release_title, 'info')
                     sources.append({
@@ -544,12 +544,12 @@ class CoreScraper(object):
         missing_seeds = 0
 
         for torrent in self._results:
-            torrent['release_title'] = strip_non_ascii_and_unprintable(torrent['release_title'])
+            torrent['release_title'] = source_utils.strip_non_ascii_and_unprintable(torrent['release_title'])
             if torrent.get('magnet', None) is None:
                 torrent['magnet'] = 'magnet:?xt=urn:btih:%s&' % torrent['hash']
 
             if DEV_MODE:
-                tools.log(torrent['release_title'], 'info')
+                tools.log(torrent['release_title'], 'notice')
 
             if torrent['size'] is None:
                 missing_size += 1
@@ -610,18 +610,15 @@ class CoreScraper(object):
         return self._query_thread(query, [self.filter_season_pack, self.filter_show_pack])
 
     def movie_query(self, title, year, auto_query=True, single_query=False, caller_name=None):
-        title = strip_accents(title)
-
         if self.caller_name is None:
             if caller_name is None:
                 caller_name = get_caller_name()
             self.caller_name = caller_name
 
-        self.title = title
+        self.title = source_utils.clean_title(title)
         self.year = year
-        clean_title = source_utils.clean_title(title)
 
-        full_query = '%s %s' % (title, year)
+        full_query = '%s %s' % (source_utils.strip_accents(title), year)
         use_cache_only = self._get_cache(full_query)
         if use_cache_only:
             return self._get_movie_results()
@@ -639,11 +636,11 @@ class CoreScraper(object):
                 self._set_cache(full_query)
                 return self._get_movie_results()
 
-            queries = [movie(clean_title + ' ' + self.year)]
+            queries = [movie(self.title + ' ' + self.year)]
 
             try:
-                alternative_title = replace_text_with_int(clean_title)
-                if not single_query and clean_title != alternative_title:
+                alternative_title = replace_text_with_int(self.title)
+                if not single_query and self.title != alternative_title:
                     queries.append(movie(alternative_title + ' ' + self.year))
             except:
                 pass
@@ -652,7 +649,7 @@ class CoreScraper(object):
 
             if not single_query and len(self._temp_results) == 0 and not self._request.self.has_timeout_exc:
                 skip_set_cache = True
-                wait_threads([movie(clean_title)])
+                wait_threads([movie(self.title)])
 
             if not skip_set_cache:
                 self._set_cache(full_query)
@@ -664,7 +661,7 @@ class CoreScraper(object):
             return self._get_movie_results()
 
     def episode_query(self, simple_info, auto_query=True, single_query=False, caller_name=None, query_seasons=True, query_show_packs=True):
-        simple_info['show_title'] = strip_accents(simple_info['show_title'])
+        simple_info['show_title'] = source_utils.clean_title(simple_info['show_title'])
 
         if self.caller_name is None:
             if caller_name is None:
@@ -672,9 +669,6 @@ class CoreScraper(object):
             self.caller_name = caller_name
 
         simple_info['show_aliases'] = list(set(simple_info['show_aliases']))
-        if '.' in simple_info['show_title']:
-            no_dot_show_title = simple_info['show_title'].replace('.', '')
-            simple_info['show_aliases'].append(no_dot_show_title)
 
         for alias in simple_info['show_aliases']:
             if '.' in alias:
@@ -683,7 +677,7 @@ class CoreScraper(object):
         self.simple_info = simple_info
         self.year = simple_info['year']
         self.country = simple_info['country']
-        self.show_title = source_utils.clean_title(simple_info['show_title'])
+        self.show_title = simple_info['show_title']
         if self.year in self.show_title:
             self.show_title_fallback = re.sub(r'\s+', ' ', self.show_title.replace(self.year, ''))
         else:
