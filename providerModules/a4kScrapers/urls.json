@@ -30,13 +30,14 @@
             "cat_movie": "movies",
             "cat_episode": "tv",
             "domains": [
+                { "base": "https://kickass.vc" },
                 { "base": "https://kickass2.biz" },
                 { "base": "https://kat.how" },
                 { "base": "https://kat.li" },
                 { "base": "https://kickass.cm" },
                 { "base": "https://kickass2.st" },
-                { "base": "https://kat.sx" },
-                { "base": "https://thekat.info" }
+                { "base": "https://thekat.info" },
+                { "base": "https://kat.sx" }
             ]
         },
         "leet": {

@@ -4,6 +4,8 @@ import random
 import re
 import inspect
 import os
+import unicodedata
+import string
 
 from requests import Session
 
@@ -68,8 +70,20 @@ def get_quality(release_title):
 
     return quality
 
+def strip_non_ascii_and_unprintable(text):
+    result = ''.join(char for char in text if char in string.printable)
+    return result.encode('ascii', errors='ignore').decode('ascii', errors='ignore')
+
+def strip_accents(s):
+    try:
+        return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
+    except:
+        return s
+
 def clean_title(title, broken=None):
     title = title.lower()
+    title = strip_accents(title)
+    title = strip_non_ascii_and_unprintable(title)
 
     if broken is None:
         apostrophe_replacement = 's'
