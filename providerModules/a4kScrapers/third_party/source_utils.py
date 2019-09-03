@@ -190,6 +190,19 @@ def check_title_match(title_parts, release_title, simple_info, is_special=False)
 
     return False
 
+def check_episode_number_match(release_title):
+    release_title = clean_title(release_title)
+
+    episode_number_match = len(re.findall(r'(s\d+ *e\d+ )', release_title)) > 0
+    if episode_number_match:
+        return True
+
+    episode_number_match = len(re.findall(r'(season \d+ episode \d+)', release_title)) > 0
+    if episode_number_match:
+        return True
+
+    return False
+
 def filter_movie_title(release_title, movie_title, year):
     release_title = release_title.lower()
 
@@ -256,6 +269,10 @@ def filter_single_special_episode(simple_info, release_title):
     return False
 
 def filter_season_pack(simple_info, release_title):
+    episode_number_match = check_episode_number_match(release_title)
+    if episode_number_match:
+        return False
+
     show_title, season, alias_list = \
         simple_info['show_title'], \
         simple_info['season_number'], \
@@ -277,16 +294,6 @@ def filter_season_pack(simple_info, release_title):
         string_list.append([title, season_full_check])
         string_list.append([title, season_full_fill_check])
 
-    episode_number_match = len(re.findall(r'(s\d+ *e\d+ )', release_title.lower())) > 0
-    if episode_number_match:
-        #tools.log('%s - %s' % (inspect.stack()[0][3], release_title), 'notice')
-        return False
-
-    episode_number_match = len(re.findall(r'(season \d+ episode \d+)', release_title.lower())) > 0
-    if episode_number_match:
-        #tools.log('%s - %s' % (inspect.stack()[0][3], release_title), 'notice')
-        return False
-
     for title_parts in string_list:
         if check_title_match(title_parts, release_title, simple_info):
             return True
@@ -295,6 +302,10 @@ def filter_season_pack(simple_info, release_title):
     return False
 
 def filter_show_pack(simple_info, release_title):
+    episode_number_match = check_episode_number_match(release_title)
+    if episode_number_match:
+        return False
+
     show_title, season, alias_list, no_seasons, country, year = \
         simple_info['show_title'], \
         simple_info['season_number'], \
