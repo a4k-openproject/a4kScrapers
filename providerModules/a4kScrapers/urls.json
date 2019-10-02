@@ -8,7 +8,7 @@
             ]
         },
         "btdb": {
-            "search": "/?search=%s&sort=popular",
+            "search": "/?s=%s&sort=popular",
             "domains": [
                 { "base": "https://btdb.eu" }
             ]
