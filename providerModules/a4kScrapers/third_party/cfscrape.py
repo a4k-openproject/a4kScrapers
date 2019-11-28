@@ -154,7 +154,10 @@ class CloudflareScraper(Session):
         body = resp.text
         parsed_url = urlparse(resp.url)
         domain = parsed_url.netloc
-        submit_url = "%s://%s/cdn-cgi/l/chk_jschl" % (parsed_url.scheme, domain)
+        
+        submit_details = re.findall(r'<form.*action="(.+?)" method="(.+?)" ', body)[0]
+        submit_url = "%s://%s%s" % (parsed_url.scheme, domain, submit_details[0])
+        submit_method = submit_details[1]
 
         cloudflare_kwargs = copy.deepcopy(original_kwargs)
 
@@ -162,8 +165,8 @@ class CloudflareScraper(Session):
         headers["Referer"] = resp.url
 
         try:
-            params = cloudflare_kwargs["params"] = OrderedDict(
-                re.findall(r'name="(s|jschl_vc|pass)"(?: [^<>]*)? value="(.+?)"', body)
+            params = cloudflare_kwargs["data"] = OrderedDict(
+                re.findall(r'name="(r|s|jschl_vc|pass)"(?: [^<>]*)? value="(.+?)"', body)
             )
 
             for k in ("jschl_vc", "pass"):
@@ -198,9 +201,13 @@ class CloudflareScraper(Session):
             time.sleep(max(delay - (time.time() - start_time), 0))
         else:
             time.sleep(self.delay)
-			
+
         # Send the challenge response and handle the redirect manually
-        redirect = self.request(method, submit_url, **cloudflare_kwargs)
+        redirect = self.request(submit_method, submit_url, **cloudflare_kwargs)
+
+        if "Location" not in redirect.headers:
+          return redirect
+
         redirect_location = urlparse(redirect.headers["Location"])
 
         if not redirect_location.netloc:

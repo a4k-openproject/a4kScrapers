@@ -21,8 +21,7 @@
                 { "base": "https://eztv.ag" },
                 { "base": "https://eztv.it" },
                 { "base": "https://eztv.ch" },
-                { "base": "https://eztv.unblocked.llc" },
-                { "base": "https://eztv.unblocker.cc" }
+                { "base": "https://eztv.unblocked.llc" }
             ]
         },
         "kickass": {
@@ -90,14 +89,10 @@
             "search": "/search/%s/0/99/200",
             "domains": [
                 { "base": "https://thepiratebay.org" },
-                { "base": "https://thepiratebay3.org",
-                  "search": "/index.php?q=%s&video=on&category=0&page=0&orderby=99" },
                 { "base": "https://pirateproxy.bet" },
                 { "base": "https://tpb.ukpass.co" },
                 { "base": "https://thepiratebay.vip" },
                 { "base": "https://thepiratebay.unblockthe.net" },
-                { "base": "https://piratebayblocked.com" },
-                { "base": "https://cruzing.xyz" },
                 { "base": "https://thepiratebay.unblocker.cc" },
                 { "base": "https://thepiratebay.unblockall.org" }
             ]
@@ -163,7 +158,6 @@
                 { "base": "https://yts.am" },
                 { "base": "https://yts.pm" },
                 { "base": "https://yts.gs" },
-                { "base": "https://www4.yify.is" },
                 { "base": "https://yts.unblocked.vet" },
                 { "base": "https://yts.unblocked.krd" },
                 { "base": "https://ytss.unblocked.is" }
@@ -175,7 +169,6 @@
             "cat_episode": "TV",
             "domains": [
                 { "base": "https://zooqle.com" },
-                { "base": "https://zooqle-com.unblocksites.fun" },
                 { "base": "https://zooqle.unblocked.win" },
                 { "base": "https://zooqle.nocensor.xyz" },
                 { "base": "https://zooqle.unblocked.llc" },

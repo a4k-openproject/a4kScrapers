@@ -59,7 +59,7 @@ class source(core.DefaultHosterSources):
         response = self._request.get(result_url, allow_redirects=False)
 
         if response.status_code == 200:
-            result_content = self._request.get(result_url).text
+            result_content = response.text
         elif response.status_code == 301:
             redirect_url = response.headers['Location']
             title = redirect_url[8:]
