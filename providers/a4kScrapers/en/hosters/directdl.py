@@ -20,7 +20,7 @@ class source(core.DefaultHosterSources):
         results = response.text
         results = core.json.loads(results)
 
-        if results is None or results['error'] or len(results['results']) == 0:
+        if results is None or results.get('error', None) or len(results['results']) == 0:
             return []
 
         results = results['results']

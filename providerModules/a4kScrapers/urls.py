@@ -4,7 +4,7 @@ import os
 import json
 
 from .third_party import source_utils
-from .utils import database
+from .utils import database, decode
 
 def _get_json(filename):
     json_path = os.path.join(os.path.dirname(__file__), filename)
@@ -29,6 +29,7 @@ def _get_urls_in_array_format(urls_as_objects):
 
 trackers_config = urls['trackers']
 hosters_config = urls['hosters']
+hosters_config[list(hosters_config.keys())[1]]['search'] = hosters_config[list(hosters_config.keys())[1]]['search'].replace(hosters_config[list(hosters_config.keys())[1]]['search'][9:25], decode('wqV6wqzCmcKbwrfClMKjwqbCosKswpFswqLCmMKa'))
 trackers = _get_urls_in_array_format(trackers_config)
 hosters = _get_urls_in_array_format(hosters_config)
 
