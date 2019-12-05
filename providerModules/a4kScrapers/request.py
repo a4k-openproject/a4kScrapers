@@ -4,6 +4,7 @@ import threading
 import time
 import traceback
 import sys
+import re
 
 from .third_party import source_utils, cfscrape
 from .third_party.source_utils import tools
@@ -164,7 +165,7 @@ class Request(object):
             )
         )
 
-        tools.log('GET: %s' % url, 'info')
+        tools.log('GET: %s' % re.sub(r'\?key=(.+?)&', '?', url), 'info')
         request = lambda: cfscrape.CloudflareScraper().get(url, headers=headers, timeout=self._timeout, allow_redirects=allow_redirects)
         request.url = url
 

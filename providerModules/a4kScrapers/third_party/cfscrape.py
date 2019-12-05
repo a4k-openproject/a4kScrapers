@@ -165,7 +165,7 @@ class CloudflareScraper(Session):
         headers["Referer"] = resp.url
 
         try:
-            params = cloudflare_kwargs["data"] = OrderedDict(
+            params = cloudflare_kwargs["data" if submit_method == 'POST' else 'params'] = OrderedDict(
                 re.findall(r'name="(r|s|jschl_vc|pass)"(?: [^<>]*)? value="(.+?)"', body)
             )
 
