@@ -6,13 +6,30 @@ import traceback
 import sys
 import re
 
-from .third_party import source_utils, cfscrape
+from .third_party import source_utils
+from .third_party.cloudscraper import cloudscraper
 from .third_party.source_utils import tools
 from .common_types import UrlParts
 from .utils import database
 from requests.compat import urlparse, urlunparse
 
 _head_checks = {}
+
+def _is_cloudflare_iuam_challenge(resp, allow_empty_body=False):
+    try:
+        return (
+            resp.headers.get('Server', '').startswith('cloudflare')
+            and resp.status_code in [429, 503]
+            and (allow_empty_body or re.search(
+                r'action="/.*?__cf_chl_jschl_tk__=\S+".*?name="jschl_vc"\svalue=.*?',
+                resp.text,
+                re.M | re.DOTALL
+            ))
+        )
+    except AttributeError:
+        pass
+
+    return False
 
 def _get_domain(url): 
     parsed_url = urlparse(url)
@@ -30,7 +47,7 @@ def _get_head_check(url):
 class Request(object):
     def __init__(self, sequental=False, timeout=None, wait=1):
         self._request = source_utils.randomUserAgentRequests()
-        self._cfscrape = cfscrape.CloudflareScraper()
+        self._cfscrape = cloudscraper.create_scraper(interpreter='native')
         self._sequental = sequental
         self._wait = wait
         self._should_wait = False
@@ -106,7 +123,7 @@ class Request(object):
         request = lambda: self._request.head(url, timeout=2)
         request.url = url
         response = self._request_core(request, sequental=False)
-        if self._cfscrape.is_cloudflare_iuam_challenge(response, allow_empty_body=True):
+        if _is_cloudflare_iuam_challenge(response, allow_empty_body=True):
             response = lambda: None
             response.url = url
             response.status_code = 200
@@ -166,13 +183,13 @@ class Request(object):
         )
 
         tools.log('GET: %s' % re.sub(r'\?key=(.+?)&', '?', url), 'info')
-        request = lambda: cfscrape.CloudflareScraper().get(url, headers=headers, timeout=self._timeout, allow_redirects=allow_redirects)
+        request = lambda: self._cfscrape.get(url, headers=headers, timeout=self._timeout, allow_redirects=allow_redirects)
         request.url = url
 
         return self._request_core(request)
 
     def post(self, url, data, headers={}):
         tools.log('POST: %s' % url, 'info')
-        request = lambda: cfscrape.CloudflareScraper().post(url, data, headers=headers, timeout=self._timeout)
+        request = lambda: self._cfscrape.post(url, data, headers=headers, timeout=self._timeout)
         request.url = url
         return self._request_core(request)
