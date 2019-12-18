@@ -17,15 +17,16 @@ def _assert_result(test, scraper_module, scraper_sources, scraper, torrent_list)
             total_results[torrent['release_title']] = 1
         return
 
-    if scraper not in trackers or scraper in ['torrentz2', 'torrentgalaxy', 'zooqle'] and results_count == 0:
-        tools.log('tracker %s is disabled' % scraper, 'notice')
+    if scraper not in trackers or scraper in ['torrentz2', 'torrentgalaxy'] and results_count == 0:
+        tools.log('%s is disabled' % scraper, 'notice')
         return
 
     expected_count = 1
     if os.getenv('A4KSCRAPERS_TEST_ALL') == '1' and scraper not in ['showrss']:
         expected_count = len(get_urls(scraper))
 
-    if scraper_sources._request is not None and scraper_sources._request.has_exc:
+    if scraper_sources._request is not None and scraper_sources._request.exc_msg:
+        tools.log('%s exception: %s' % (scraper, scraper_sources._request.exc_msg), 'notice')
         expected_count = 0
 
     test.assertEqual(results_count, expected_count, '%s failed to find torrent' % scraper)
@@ -44,7 +45,7 @@ def _assert_hosters_result(test, scraper_module, scraper_sources, scraper, hoste
         tools.log('hoster %s is disabled' % scraper, 'notice')
         return
 
-    if scraper_sources._request is not None and scraper_sources._request.has_exc:
+    if scraper_sources._request is not None and scraper_sources._request.exc_msg:
         return
 
     test.assertGreater(results_count, 0, '%s failed to find link' % scraper)

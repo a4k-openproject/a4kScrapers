@@ -96,7 +96,7 @@ def __dynamo_put(data):
     return __dynamodb('DynamoDB_20120810.PutItem', data)
 
 def __get_cache_core(query):
-    if __cache_results.get(query, '') is not '':
+    if __cache_results.get(query, '') != '':
         if CACHE_LOG:
             tools.log('get_cache_local', 'notice')
         return __cache_results[query]
