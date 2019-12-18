@@ -33,7 +33,8 @@ def _is_cloudflare_iuam_challenge(resp, allow_empty_body=False):
 
 def _get_domain(url): 
     parsed_url = urlparse(url)
-    return "%s://%s" % (parsed_url.scheme, parsed_url.netloc)
+    scheme = parsed_url.scheme if parsed_url.scheme != '' else 'https'
+    return "%s://%s" % (scheme, parsed_url.netloc)
 
 def _get_head_check(url):
     result = _head_checks.get(url, None)
@@ -56,12 +57,19 @@ class Request(object):
         if timeout is not None:
             self._timeout = timeout
         self.has_timeout_exc = False
-        self.has_exc = False
+        self.exc_msg = ''
         self.skip_head = False
+
+    def _verify_response(self, response):
+      if response.status_code >= 400:
+          self.exc_msg = 'response status code %s' % response.status_code
+          if response.status_code in [429, 503]:
+            self.exc_msg = '%s (probably Cloudflare)' % self.exc_msg
+          raise Exception()
 
     def _request_core(self, request, sequental = None):
         self.has_timeout_exc = False
-        self.has_exc = False
+        self.exc_msg = ''
 
         if sequental is None:
             sequental = self._sequental
@@ -73,8 +81,10 @@ class Request(object):
             response = None
             if sequental is False:
                 response = request()
-                if response.status_code >= 500:
-                    self.has_exc = True
+
+                response_err = response
+                self._verify_response(response)
+
                 return response
 
             with self._lock:
@@ -83,20 +93,22 @@ class Request(object):
                 self._should_wait = True
                 response = request()
 
-            if response.status_code >= 500:
-                self.has_exc = True
+            response_err = response
+            self._verify_response(response)
 
             return response
         except:
-            exc = traceback.format_exc(limit=1)
-            self.has_exc = True
-            if 'ConnectTimeout' in exc or 'ReadTimeout' in exc:
-                self.has_timeout_exc = True
-                tools.log('%s timed out.' % request.url, 'notice')
-            elif 'Cloudflare' in exc:
-                tools.log('%s failed Cloudflare protection.' % request.url, 'notice')
-            else:
-                tools.log('%s failed. - %s' % (request.url, exc), 'notice')
+            if self.exc_msg == '':
+              exc = traceback.format_exc(limit=1)
+              if 'ConnectTimeout' in exc or 'ReadTimeout' in exc:
+                  self.has_timeout_exc = True
+                  self.exc_msg = 'request timed out'
+              elif 'Cloudflare' in exc:
+                  self.exc_msg = 'failed Cloudflare protection'
+              else:
+                  self.exc_msg = 'failed - %s' % exc
+
+            tools.log('%s %s' % (request.url, self.exc_msg), 'notice')
 
             return response_err
 
@@ -119,6 +131,7 @@ class Request(object):
         elif head_check is False:
             return (url, 500)
 
+        url = _get_domain(url)
         tools.log('HEAD: %s' % url, 'info')
         request = lambda: self._request.head(url, timeout=2)
         request.url = url
