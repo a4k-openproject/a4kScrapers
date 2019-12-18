@@ -72,7 +72,7 @@ class GenericTorrentScraper(object):
 
         if size == '': # bitlord
             size = self._parse_number(row, -3)
-            if size is not '':
+            if size != '':
                 size += ' MB'
 
         return size
