@@ -13,7 +13,7 @@ from .utils import get_all_relative_py_files, wait_threads, quote_plus, quote, D
 from .common_types import namedtuple, SearchResult, UrlParts, Filter, HosterResult, CancellationToken
 from .scrapers import re, NoResultsScraper, GenericTorrentScraper, GenericExtraQueryTorrentScraper, MultiUrlScraper
 from .urls import trackers, hosters, get_urls, update_urls
-from .cache import check_cache_result, get_cache, set_cache, get_config, set_config
+from .cache import check_cache_result, get_cache, get_config, set_config
 from .test_utils import test_torrent, test_hoster
 
 def get_scraper(
@@ -345,8 +345,7 @@ class CoreScraper(object):
         caller_name
     ):
         self._results = []
-        self._temp_results = []
-        self._results_from_cache = []
+        self._cache_result = {}
 
         self._url = single_url
         self._urls = urls
@@ -430,7 +429,7 @@ class CoreScraper(object):
             if result is not None and (result['hash'] != '' or result.get('magnet', '').startswith('magnet:?')):
                 if result['hash'] == '':
                     result['hash'] = re.findall(r'btih:(.*?)\&', result['magnet'])[0]
-                self._temp_results.append(result)
+                self._results.append(result)
         except:
             pass
 
@@ -478,7 +477,7 @@ class CoreScraper(object):
                     else:
                         self._info_core(el, torrent, url)
 
-                    if DEV_MODE and len(self._temp_results) > 0:
+                    if DEV_MODE and len(self._results) > 0:
                         return
 
                     break
@@ -501,16 +500,12 @@ class CoreScraper(object):
             return True
 
         parsed_result = cache_result['parsed_result']
-        self._results_from_cache = parsed_result['cached_results']
+        self._results = parsed_result['cached_results']
 
-        if DEV_MODE and len(self._results_from_cache) > 1:
-            self._results_from_cache = [self._results_from_cache[0]]
+        if DEV_MODE and len(self._results) > 1:
+            self._results = [self._results[0]]
 
         return True
-
-    def _set_cache(self, query):
-        if AWS_ADMIN:
-            set_cache(self.caller_name, query, self._temp_results, self._cache_result)
 
     def _find_next_url(self, curr_url):
         if self._urls is None:
@@ -537,8 +532,6 @@ class CoreScraper(object):
         return self._request.find_url(self._urls)
 
     def _sanitize_and_get_status(self):
-        self._results = self._temp_results + self._results_from_cache
-
         additional_info = ''
         missing_size = 0
         missing_seeds = 0
@@ -617,24 +610,22 @@ class CoreScraper(object):
 
         self.title = source_utils.clean_title(title)
         self.year = year
-
-        full_query = '%s %s' % (source_utils.strip_accents(title), year)
-        use_cache_only = self._get_cache(full_query)
-        if use_cache_only:
-            return self._get_movie_results()
-        skip_set_cache = False
+        self.full_query = '%s %s' % (source_utils.strip_accents(title), year)
 
         try:
+            use_cache_only = self._get_cache(self.full_query)
+            if use_cache_only:
+                return
+
             self._url = self._find_url()
             if self._url is None:
-                return self._get_movie_results()
+                return
 
             movie = lambda query: self._query_thread(query, [self.filter_movie_title])
 
             if auto_query is False:
                 wait_threads([movie('')])
-                self._set_cache(full_query)
-                return self._get_movie_results()
+                return
 
             queries = [movie(self.title + ' ' + self.year)]
 
@@ -647,17 +638,11 @@ class CoreScraper(object):
 
             wait_threads(queries)
 
-            if not single_query and len(self._temp_results) == 0 and not self._request.self.has_timeout_exc:
-                skip_set_cache = True
+            if not single_query and len(self._results) == 0 and not self._request.self.has_timeout_exc:
                 wait_threads([movie(self.title)])
-
-            if not skip_set_cache:
-                self._set_cache(full_query)
-            return self._get_movie_results()
-
         except:
-            if not skip_set_cache:
-                self._set_cache(full_query)
+            pass
+        finally:
             return self._get_movie_results()
 
     def episode_query(self, simple_info, auto_query=True, single_query=False, caller_name=None, query_seasons=True, query_show_packs=True):
@@ -692,11 +677,11 @@ class CoreScraper(object):
         try:
             self._url = self._find_url()
             if self._url is None:
-                return self._get_episode_results()
+                return
 
             if auto_query is False:
                 wait_threads([self._episode('')])
-                return self._get_episode_results()
+                return
 
             def query_results():
                 single_episode_query = self.show_title + ' S%sE%s' % (self.season_xx, self.episode_xx)
@@ -743,12 +728,11 @@ class CoreScraper(object):
                     wait_threads(queries)
 
             query_results()
-            if not single_query and len(self._temp_results) == 0 and self.show_title_fallback is not None:
+            if not single_query and len(self._results) == 0 and self.show_title_fallback is not None:
                 self.show_title = self.show_title_fallback
                 self.simple_info['show_title'] = self.show_title_fallback
                 query_results()
-
-            return self._get_episode_results()
-
         except:
+            pass
+        finally:
             return self._get_episode_results()

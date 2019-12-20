@@ -6,18 +6,12 @@ import unicodedata
 import threading
 import time
 import base64
+import re
+import hashlib
 
 from functools import wraps
 from inspect import getframeinfo, stack
 from bs4 import BeautifulSoup
-
-try:
-    from resources.lib.modules import database
-except:
-    database = lambda: None
-    database.get = lambda fn, duration, *args, **kwargs: fn(*args, **kwargs)
-    database.cache_get = lambda key: None
-    database.cache_insert = lambda key, value: None
 
 try:
     from urlparse import unquote
@@ -27,6 +21,37 @@ try:
 except:
     from html import unescape
     from urllib.parse import quote_plus, quote, unquote
+
+def _generate_md5(*args):
+    md5_hash = hashlib.md5()
+    try:
+        [md5_hash.update(str(arg)) for arg in args]
+    except:
+        [md5_hash.update(str(arg).encode('utf-8')) for arg in args]
+    return str(md5_hash.hexdigest())
+
+def _get_function_name(function_instance):
+    return re.sub('.+\smethod\s|.+function\s|\sat\s.+|\sof\s.+', '', repr(function_instance))
+
+def _hash_function(function_instance, *args):
+    return _get_function_name(function_instance) + _generate_md5(args)
+
+try:
+    from resources.lib.modules import database
+except:
+    database_dict = {}
+    def get_or_add(fn, *args, **kwargs):
+      key = _hash_function(fn, *args)
+
+      if database_dict.get(key, None):
+        return database_dict[key]
+
+      return database_dict.setdefault(key, fn(*args, **kwargs))
+
+    database = lambda: None
+    database.get = lambda fn, duration, *args, **kwargs: get_or_add(fn, *args, **kwargs)
+    database.cache_get = lambda key: None
+    database.cache_insert = lambda key, value: None
 
 DEV_MODE = os.getenv('A4KSCRAPERS_TEST') == '1'
 DEV_MODE_ALL = os.getenv('A4KSCRAPERS_TEST_ALL') == '1'
@@ -119,34 +144,31 @@ def encode(string):
 def decode(string):
     return __decode(string)
 
-def delay(delay=0.):
-    def wrap(f):
-        @wraps(f)
-        def delayed(*args, **kwargs):
-            timer = threading.Timer(delay, f, args=args, kwargs=kwargs)
-            timer.start()
-        return delayed
-    return wrap
-
 __timeout_index = 0
 __timeout_ids = {}
 
-def setTimeout(fn, delay):
+def set_timeout(fn, delay_sec):
+    global __timeout_index, __timeout_ids
+
     __timeout_index += 1
     timeout_id = __timeout_index
-    __timeout_ids[timeout_id] = True
 
-    @delay(delay)
     def delayed_fn():
-        if __timeout_ids.get(timeout_id, None) is not None:
+        if clear_timeout(timeout_id):
             fn()
-        __timeout_ids.pop(timeout_id, None)
 
-    delayed_fn()
+    __timeout_ids[timeout_id] = threading.Timer(delay_sec, delayed_fn)
+    __timeout_ids[timeout_id].start()
+
     return timeout_id
 
-def clearTimeout(id):
-    __timeout_ids.pop(id, None)
+def clear_timeout(id):
+    timer = __timeout_ids.pop(id, None)
+    if timer is not None:
+      timer.cancel()
+      return True
+
+    return False
 
 def now():
     return int(time.time() * 1000)

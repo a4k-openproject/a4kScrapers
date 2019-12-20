@@ -4,13 +4,21 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        {
-            "name": "Tests",
-            "type": "python",
-            "request": "launch",
-            "module": "tests_runner",
-            "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal"
-        }
+      {
+          "name": "Tests",
+          "type": "python",
+          "request": "launch",
+          "module": "tests_runner",
+          "cwd": "${workspaceFolder}",
+          "console": "integratedTerminal"
+      },
+      {
+          "name": "Update Cached DB",
+          "type": "python",
+          "request": "launch",
+          "module": "update_cached_db",
+          "cwd": "${workspaceFolder}",
+          "console": "integratedTerminal"
+      }
     ]
 }

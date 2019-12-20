@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import os
 import hashlib
 import json
 import threading
 import traceback
 import requests
 
-from .utils import encode, decode, delay, now, DEV_MODE, CACHE_LOG, AWS_ADMIN, ACCESS_KEY, SECRET_ACCESS_KEY
+from .utils import encode, decode, now, DEV_MODE, CACHE_LOG, AWS_ADMIN, ACCESS_KEY, SECRET_ACCESS_KEY
 from .urls import trackers, hosters
 from .third_party.aws_requests_auth.aws_auth import AWSRequestsAuth
 from .third_party.source_utils import tools
@@ -31,8 +32,6 @@ except NameError:
   basestring = str
 
 __get_lock = threading.Lock()
-__set_lock = threading.Lock()
-__cache_has_new_results = {}
 __cache_results = {}
 
 def sha256(string):
@@ -98,25 +97,25 @@ def __dynamo_put(data):
 def __get_cache_core(query):
     if __cache_results.get(query, '') != '':
         if CACHE_LOG:
-            tools.log('get_cache_local', 'notice')
+            tools.log('get_cache_local: %s' % query, 'notice')
         return __cache_results[query]
     else:
         __cache_results[query] = {}
 
     if CACHE_LOG:
-        tools.log('get_cache_request', 'notice')
+        tools.log('get_cache_request: %s' % query, 'notice')
 
     response = __dynamo_get(__map_in_cache(query))
 
     if response.status_code != 200:
         if CACHE_LOG:
-            tools.log('get_cache_err_response', 'notice')
+            tools.log('get_cache_err_response: %s' % query, 'notice')
         return __cache_results[query]
 
     result = __map_out_cache(response.text)
     if result is None:
         if CACHE_LOG:
-            tools.log('get_cache_nocache', 'notice')
+            tools.log('get_cache_nocache: %s' % query, 'notice')
         return __cache_results[query]
 
     result['d'] = json.loads(result['d'].replace("'", '"'))
@@ -143,14 +142,11 @@ def __get_cache_core(query):
     __cache_results[query]['parsed_result'] = parsed_result
 
     if CACHE_LOG:
-        tools.log('get_cache_result', 'notice')
+        tools.log('get_cache_result: %s' % query, 'notice')
 
     return __cache_results[query]
 
-def __set_cache_core(scraper, query, results, cached_results):
-    if __cache_has_new_results.get(query, '') == '':
-        __cache_has_new_results[query] = False
-
+def __results_to_cached_results(scraper, results, cached_results={}):
     scraper_key = sha1(scraper)
     if cached_results.get(scraper_key, None) is None:
         cached_results[scraper_key] = {}
@@ -173,28 +169,24 @@ def __set_cache_core(scraper, query, results, cached_results):
         scraper_result = cached_results[scraper_key]
         try:
             scraper_result[result_key] = [sha1(result['package']), encode(result['release_title']), result['size']]
-            __cache_has_new_results[query] = True
         except:
             traceback.print_exc()
             continue
 
+def __set_cache_core(query, cached_results):
     try:
-        if not __cache_has_new_results[query]:
-            if CACHE_LOG:
-                tools.log('set_cache_skip_no_new_results', 'notice')
-            return
-
         item = {}
         item['q'] = sha256(query)
         item['t'] = now()
         item['d'] = json.dumps(cached_results).replace('"', "'")
 
         if CACHE_LOG:
-            tools.log('set_cache_request', 'notice')
+            tools.log('set_cache_request: %s' % query, 'notice')
 
         response = __dynamo_put(__map_in_cache(item))
-
-        __cache_has_new_results[query] = False
+        if response.status_code >= 400:
+          if CACHE_LOG:
+            tools.log('set_cache_request_err: %s, status_code=%s, text=%s' % (query, response.status_code, response.text), 'notice')
     except:
         traceback.print_exc()
 
@@ -221,23 +213,15 @@ def get_cache(query):
     except:
         return __cache_results[query]
 
-@delay(1.0)
-def set_cache(scraper, query, results, cache_result):
+def set_cache(query, scraper_results):
     try:
-        if DEV_MODE:
-            return
+        cached_results = {}
+        for scraper in scraper_results.keys():
+          __results_to_cached_results(scraper, scraper_results[scraper], cached_results)
 
-        with __set_lock:
-            if cache_result.get('result', '') == '':
-                cache_result['result'] = {}
-            if cache_result['result'].get('d', '') == '':
-                cache_result['result']['d'] = {}
-
-            cached_results = cache_result['result']['d']
-            __set_cache_core(scraper, query, results, cached_results)
+        __set_cache_core(query, cached_results)
     except:
         traceback.print_exc()
-        pass
 
 def get_config(key):
     try:

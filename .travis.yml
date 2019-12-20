@@ -12,3 +12,8 @@ script:
       curl -d '{}' -H 'Content-Type: application/json' -X POST "https://circleci.com/api/v1.1/project/github/a4k-openproject/a4kScrapers/tree/master?circle-token=$circleci"
     fi
   - python3 -m unittest tests_runner.py
+after_success:
+  - |
+    if [ "$TRAVIS_EVENT_TYPE" = "cron" ] || [ "$A4KSCRAPERS_MANUAL_UPDATE" = "1" ]; then
+      python3 update_cached_db.py
+    fi
