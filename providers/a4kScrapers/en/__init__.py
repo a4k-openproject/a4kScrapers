@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import torrent
-import hosters
+from . import torrent
+from . import hosters
 
 def get_torrent():
     return torrent.__all__
