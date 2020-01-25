@@ -103,7 +103,7 @@ class Request(object):
               if 'ConnectTimeout' in exc or 'ReadTimeout' in exc:
                   self.has_timeout_exc = True
                   self.exc_msg = 'request timed out'
-              elif 'Cloudflare' in exc:
+              elif 'Cloudflare' in exc or '!!Loop Protection!!' in exc:
                   self.exc_msg = 'failed Cloudflare protection'
               else:
                   self.exc_msg = 'failed - %s' % exc
