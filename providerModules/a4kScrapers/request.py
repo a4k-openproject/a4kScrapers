@@ -80,10 +80,19 @@ class Request(object):
         try:
             response = None
             if sequental is False:
-                response = request()
-
-                response_err = response
-                self._verify_response(response)
+#                response = request()
+#                response_err = response
+#                self._verify_response(response)
+		    try:
+			    response = request()
+			    response_err = response
+	            self._verify_response(response)
+		    except:
+			    response_err = response
+		    try:
+			    self._verify_response(response)
+		    except:
+			    pass
 
                 return response
 
