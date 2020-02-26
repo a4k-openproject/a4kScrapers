@@ -141,6 +141,11 @@ class Request(object):
             response.url = url
             response.status_code = 200
 
+        if response.status_code == 403:
+            response = lambda: None
+            response.url = url
+            response.status_code = 200
+
         try:
             head_check_key = _get_domain(response.url)
         except:
