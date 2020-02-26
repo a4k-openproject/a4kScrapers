@@ -141,7 +141,7 @@ class Request(object):
             response.url = url
             response.status_code = 200
 
-        if response.status_code == 403:
+        if response.status_code >= 400:
             response = lambda: None
             response.url = url
             response.status_code = 200
