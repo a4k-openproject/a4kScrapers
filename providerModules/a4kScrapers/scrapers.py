@@ -78,9 +78,9 @@ class GenericTorrentScraper(object):
         return size
 
     def parse_seeds(self, row):
-        seeds = safe_list_get(re.findall(r'Seeders:?\s*?(\d+)', row), 0)
+        seeds = safe_list_get(re.findall(r'Seeders:?.*?(\d+)', row), 0)
         if seeds == '':
-            seeds = safe_list_get(re.findall(r'Seed:?\s*?(\d+)', row), 0)
+            seeds = safe_list_get(re.findall(r'Seed:?.*?(\d+)', row), 0)
         if seeds == '':
             seeds = self._parse_number(row, -2)
         if seeds == 'N/A':
