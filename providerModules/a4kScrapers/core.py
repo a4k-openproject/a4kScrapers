@@ -132,7 +132,7 @@ class DefaultSources(object):
 
         return self.scraper
 
-    def cancel(self):
+    def cancel_operations(self):
         if self.query_type is None:
             self.query_type = 'unknown'
         tools.log('a4kScrapers.%s.%s cancellation requested' % (self.query_type, self._caller_name), 'notice')
@@ -407,7 +407,9 @@ class CoreScraper(object):
                 return empty_result
             return self._search_core(query, url)
         except:
-            traceback.print_exc()
+            exc = traceback.format_exc(limit=1)
+            if 'PreemptiveCancellation' not in exc:
+              traceback.print_exc()
             return empty_result
 
         results = []
