@@ -115,7 +115,7 @@ class Request(object):
     def _check_redirect(self, response):
         if response.status_code in [301, 302]:
             redirect_url = response.headers['Location']
-            if not redirect_url.endswith('127.0.0.1') and not redirect_url.endswith('localhost'):
+            if not redirect_url.endswith('127.0.0.1') and not redirect_url.endswith('localhost') and response.url != redirect_url:
                 return redirect_url
         return False
 

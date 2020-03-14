@@ -7,7 +7,7 @@ from .third_party import source_utils
 from .utils import normalize, safe_list_get, get_caller_name, beautifulSoup
 
 class NoResultsScraper(object):
-    def movie_query(self, title, year, caller_name=None, single_query=False):
+    def movie_query(self, title, year, auto_query=True, single_query=False, caller_name=None):
         return []
     def episode_query(self, simple_info, auto_query=True, single_query=False, caller_name=None):
         return []
@@ -200,7 +200,7 @@ class MultiUrlScraper(object):
         self._torrent_scrapers = torrent_scrapers
         self._request = self._torrent_scrapers[0]._request
 
-    def movie_query(self, title, year, caller_name=None, single_query=False):
+    def movie_query(self, title, year, auto_query=True, single_query=False, caller_name=None):
         if caller_name is None:
             caller_name = get_caller_name()
 
