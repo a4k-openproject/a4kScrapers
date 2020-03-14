@@ -29,14 +29,14 @@
             "cat_movie": "movies",
             "cat_episode": "tv",
             "domains": [
+                { "base": "https://thekat.app/" },
                 { "base": "https://kickass.vc" },
                 { "base": "https://kickass2.biz" },
                 { "base": "https://kat.how" },
                 { "base": "https://kat.li" },
                 { "base": "https://kickass.cm" },
                 { "base": "https://kickass2.st" },
-                { "base": "https://thekat.info" },
-                { "base": "https://kat.sx" }
+                { "base": "https://thekat.info" }
             ]
         },
         "leet": {
@@ -72,7 +72,7 @@
                 { "base": "https://torrentquest.com" }
             ]
         },
-        "movcr": {
+        "-movcr": {
             "search": "/search/search.php?q=%s",
             "domains": [
                 { "base": "https://movcr.tv" },
@@ -88,9 +88,12 @@
         "piratebay": {
             "search": "/search/%s/0/99/200",
             "domains": [
-                { "base": "https://thepiratebay.org" },
+                { "base": "https://lepiratebay.org" },
+                { "base": "https://piratebayproxy.cx" },
+                { "base": "https://piratepiratepirate.net" },
+                { "base": "https://proxybay.tech" },
                 { "base": "https://pirateproxy.bet" },
-                { "base": "https://tpb.ukpass.co" },
+                { "base": "https://thepiratebay.org" },
                 { "base": "https://thepiratebay.vip" },
                 { "base": "https://thepiratebay.unblockthe.net" },
                 { "base": "https://thepiratebay.unblocker.cc" },
@@ -145,7 +148,7 @@
                 { "base": "https://torrentz2.is" }
             ]
         },
-        "torrentz2": {
+        "-torrentz2": {
             "search": "/search?f=%s&safe=1",
             "domains": [
                 { "base": "https://torrentz2.cc" },
@@ -170,10 +173,9 @@
             "domains": [
                 { "base": "https://zooqle.com" },
                 { "base": "https://zooqle.unblocked.win" },
-                { "base": "https://zooqle.nocensor.xyz" },
                 { "base": "https://zooqle.unblocked.llc" },
-                { "base": "https://zooqle.unblocked.krd" },
-                { "base": "https://zooqle.p4y.info" }
+                { "base": "https://zooqle.nocensor.xyz" },
+                { "base": "https://zooqle.unblocked.krd" }
             ]
         }
     },
@@ -181,8 +183,7 @@
         "rlsbb": {
             "search": "/lib/search%s?phrase=%s&pindex=1&code=%s",
             "domains": [
-                { "base": "http://rlsbb.to",
-                  "search": "" },
+                { "base": "http://rlsbb.to", "search": "" },
                 { "base": "https://search.rlsbb.ru" },
                 { "base": "https://rlsbb.unblocked.krd/searchp" }
             ]

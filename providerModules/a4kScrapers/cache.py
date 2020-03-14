@@ -44,8 +44,10 @@ scraper_keys = {
     sha1('showrss'): 'showrss'
 }
 for key in trackers.keys():
+    key = key.strip('-')
     scraper_keys[sha1(key)] = key
 for key in hosters.keys():
+    key = key.strip('-')
     scraper_keys[sha1(key)] = key
 
 package_keys = {
