@@ -64,7 +64,8 @@ for movie_result in movies:
         sources = sources_dict.setdefault(scraper, torrent_scrapers[scraper].sources())
         results = sources.movie(movie['title'], str(movie['year']), movie['ids']['imdb'])
 
-        full_query = sources.scraper.full_query
-        scraper_results[scraper] = results
+        if not isinstance(sources.scraper, core.NoResultsScraper):
+            full_query = sources.scraper.full_query
+            scraper_results[scraper] = results
 
     cache.set_cache(full_query, scraper_results)

@@ -9,7 +9,13 @@ from .utils import normalize, safe_list_get, get_caller_name, beautifulSoup
 class NoResultsScraper(object):
     def movie_query(self, title, year, auto_query=True, single_query=False, caller_name=None):
         return []
-    def episode_query(self, simple_info, auto_query=True, single_query=False, caller_name=None):
+    def episode_query(self,
+                      simple_info,
+                      auto_query=True,
+                      single_query=False,
+                      caller_name=None,
+                      query_seasons=None,
+                      query_show_packs=None):
         return []
 
 class GenericTorrentScraper(object):

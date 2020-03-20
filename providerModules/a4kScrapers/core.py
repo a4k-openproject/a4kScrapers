@@ -282,13 +282,16 @@ class DefaultHosterSources(DefaultSources):
             else:
                 hoster_results = []
 
+            if self.query_type == 'episode':
+                filter_single_episode_fn = source_utils.get_filter_single_episode_fn(simple_info)
+
             for result in hoster_results:
                 quality = source_utils.get_quality(result.title)
 
                 if self.query_type == 'movie' and not source_utils.filter_movie_title(result.title, simple_info['title'], simple_info['year']):
                     continue
 
-                if self.query_type == 'episode' and not source_utils.filter_single_episode(simple_info, result.title):
+                if self.query_type == 'episode' and not filter_single_episode_fn(result.title):
                     continue
 
                 for url in result.urls:
@@ -363,16 +366,19 @@ class CoreScraper(object):
         filter_movie_title = lambda t: source_utils.filter_movie_title(t, self.title, self.year)
         self.filter_movie_title = Filter(fn=filter_movie_title, type='single')
 
-        filter_single_episode = lambda t: source_utils.filter_single_episode(self.simple_info, t)
+        self.filter_single_episode_by_simple_info = None
+        filter_single_episode = lambda t: self.filter_single_episode_by_simple_info(t)
         self.filter_single_episode = Filter(fn=filter_single_episode, type='single')
 
         filter_single_special_episode = lambda t: source_utils.filter_single_special_episode(self.simple_info, t)
         self.filter_single_special_episode = Filter(fn=filter_single_special_episode, type='single')
 
-        filter_season_pack = lambda t: source_utils.filter_season_pack(self.simple_info, t)
+        self.filter_season_pack_by_simple_info = None
+        filter_season_pack = lambda t: self.filter_season_pack_by_simple_info(t)
         self.filter_season_pack = Filter(fn=filter_season_pack, type='season')
 
-        filter_show_pack = lambda t: source_utils.filter_show_pack(self.simple_info, t)
+        self.filter_show_pack_by_simple_info = None
+        filter_show_pack = lambda t: self.filter_show_pack_by_simple_info(t)
         self.filter_show_pack = Filter(fn=filter_show_pack, type='show')
 
     def _search_core(self, query, url=None):
@@ -662,6 +668,10 @@ class CoreScraper(object):
                 simple_info['show_aliases'].append(alias.replace('.', ''))
 
         self.simple_info = simple_info
+        self.filter_single_episode_by_simple_info = source_utils.get_filter_single_episode_fn(simple_info)
+        self.filter_season_pack_by_simple_info = source_utils.get_filter_season_pack_fn(simple_info)
+        self.filter_show_pack_by_simple_info = source_utils.get_filter_show_pack_fn(simple_info)
+
         self.year = simple_info['year']
         self.country = simple_info['country']
         self.show_title = simple_info['show_title']
