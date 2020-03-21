@@ -6,7 +6,7 @@ class sources(core.DefaultSources):
     def __init__(self, *args, **kwargs):
         super(sources, self).__init__(__name__,
                                      *args,
-                                     request=core.Request(sequental=True, wait=2.3),
+                                     request=core.Request(sequental=True, wait=0.4),
                                      **kwargs)
         self._imdb = None
 
@@ -14,7 +14,7 @@ class sources(core.DefaultSources):
         response = self._request.get(url.base + '&get_token=get_token')
         return core.json.loads(response.text)['token']
 
-    def _search_request(self, url, query, force_token_refresh=False):
+    def _search_request(self, url, query, force_token_refresh=False, too_many_requests_max_retries=2, no_results_skip_retry=False):
         token = core.database.get(self._get_token, 0 if force_token_refresh else 1, url)
 
         search = url.search
@@ -28,6 +28,10 @@ class sources(core.DefaultSources):
                     search_string = original_query[len(self.scraper.show_title_fallback):]
                 else:
                     search_string = original_query[len(self.scraper.show_title):]
+
+                if len(search_string.strip()) == 0:
+                  return []
+
                 search += '&search_string=%s' % core.quote_plus(search_string.strip())
 
         search_url = url.base + search % (core.quote_plus(query), token)
@@ -42,8 +46,22 @@ class sources(core.DefaultSources):
         if 'error_code' in response:
             error_code = response['error_code']
 
+            # unauthenticated/expired
             if error_code == 1 or error_code == 2:
                 return self._search_request(url, original_query, force_token_refresh=True)
+            # too many requests per second
+            elif error_code == 5:
+                core.time.sleep(2)
+                core.tools.log('Retrying after too many requests error from %s' % search_url, 'info')
+                too_many_requests_max_retries -= 1
+                return self._search_request(url, original_query, force_token_refresh, too_many_requests_max_retries, no_results_skip_retry)
+            # no results found
+            elif core.DEV_MODE and error_code == 20 and not no_results_skip_retry:
+                core.time.sleep(6)
+                core.tools.log('Retrying after no results from %s' % search_url, 'info')
+                return self._search_request(url, original_query, force_token_refresh, too_many_requests_max_retries, no_results_skip_retry=True)
+
+            core.tools.log('Error response from %s: %s' % (search_url, core.json.dumps(response)), 'info')
             return []
 
         else:
