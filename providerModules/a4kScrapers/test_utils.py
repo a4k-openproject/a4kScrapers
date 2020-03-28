@@ -107,7 +107,6 @@ def _clock_scraping(scrape_fn, scraper):
     results = scrape_fn()
     end = time.time()
     time_ms = int(round((end - start) * 1000))
-    tools.log('%s took: %s ms' % (scraper, time_ms), 'notice')
     return (results, time_ms)
 
 def _movie(scraper_module, scraper, url, test=None):
