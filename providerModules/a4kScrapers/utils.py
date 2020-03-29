@@ -235,3 +235,6 @@ def check_timeout(datetime, timeout_in_hours):
     now = int(time.time())
     diff = now - datetime
     return (timeout_in_hours * 3600) > diff
+
+def clock_time_ms(start, end):
+  return int(round((end - start) * 1000))

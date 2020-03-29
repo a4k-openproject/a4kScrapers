@@ -8,7 +8,7 @@ from string import capwords
 from .request import threading, Request
 from .third_party import source_utils
 from .third_party.source_utils import tools
-from .utils import beautifulSoup, encode, decode, now, time, safe_list_get, get_caller_name, replace_text_with_int, database
+from .utils import beautifulSoup, encode, decode, now, time, clock_time_ms, safe_list_get, get_caller_name, replace_text_with_int, database
 from .utils import get_all_relative_py_files, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL, CACHE_LOG, AWS_ADMIN
 from .common_types import namedtuple, SearchResult, UrlParts, Filter, HosterResult, CancellationToken
 from .scrapers import re, NoResultsScraper, GenericTorrentScraper, GenericExtraQueryTorrentScraper, MultiUrlScraper
@@ -206,6 +206,7 @@ class DefaultExtraQuerySources(DefaultSources):
 
 class DefaultHosterSources(DefaultSources):
     def movie(self, imdb, title, localtitle, aliases, year):
+        self.start_time = time.time()
         self.query_type = 'movie'
 
         if isinstance(self._get_scraper(title), NoResultsScraper):
@@ -219,6 +220,7 @@ class DefaultHosterSources(DefaultSources):
         return simple_info
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
+        self.start_time = time.time()
         self.query_type = 'episode'
 
         if isinstance(self._get_scraper(tvshowtitle), NoResultsScraper):
@@ -273,6 +275,8 @@ class DefaultHosterSources(DefaultSources):
                             raise requests.exceptions.RequestException()
                         return result
                     except requests.exceptions.RequestException:
+                        if self._request.has_timeout_exc:
+                            return []
                         url = self.scraper._find_next_url(url)
                         if url is None:
                             return []
@@ -287,11 +291,12 @@ class DefaultHosterSources(DefaultSources):
 
             for result in hoster_results:
                 quality = source_utils.get_quality(result.title)
+                release_title = source_utils.clean_release_title_with_simple_info(result.title, simple_info)
 
-                if self.query_type == 'movie' and not source_utils.filter_movie_title(result.title, simple_info['title'], simple_info['year']):
+                if self.query_type == 'movie' and not source_utils.filter_movie_title(result.title, release_title, simple_info['title'], simple_info):
                     continue
 
-                if self.query_type == 'episode' and not filter_single_episode_fn(result.title):
+                if self.query_type == 'episode' and not filter_single_episode_fn(release_title):
                     continue
 
                 for url in result.urls:
@@ -324,6 +329,11 @@ class DefaultHosterSources(DefaultSources):
 
             result_count = len(sources) if len(supported_hosts) > 0 else 'disabled'
             tools.log('a4kScrapers.%s.%s: %s' % (self.query_type, self._caller_name, result_count), 'notice')
+
+
+            self.end_time = time.time()
+            self.time_ms = clock_time_ms(self.start_time, self.end_time)
+            tools.log('a4kScrapers.%s.%s: took %s ms' % (self.query_type, self._caller_name, self.time_ms), 'notice')
 
             return sources
         except:
@@ -362,23 +372,26 @@ class CoreScraper(object):
         self._cancellation_token = cancellation_token
 
         self.caller_name = caller_name
+        self.start_time = None
+        self.end_time = None
+        self.time_ms = None
 
-        filter_movie_title = lambda t: source_utils.filter_movie_title(t, self.title, self.year)
+        filter_movie_title = lambda t, clean_t: source_utils.filter_movie_title(t, clean_t, self.title, self.simple_info)
         self.filter_movie_title = Filter(fn=filter_movie_title, type='single')
 
         self.filter_single_episode_by_simple_info = None
-        filter_single_episode = lambda t: self.filter_single_episode_by_simple_info(t)
+        filter_single_episode = lambda t, clean_t: self.filter_single_episode_by_simple_info(clean_t)
         self.filter_single_episode = Filter(fn=filter_single_episode, type='single')
 
-        filter_single_special_episode = lambda t: source_utils.filter_single_special_episode(self.simple_info, t)
+        filter_single_special_episode = lambda t, clean_t: source_utils.filter_single_special_episode(self.simple_info, clean_t)
         self.filter_single_special_episode = Filter(fn=filter_single_special_episode, type='single')
 
         self.filter_season_pack_by_simple_info = None
-        filter_season_pack = lambda t: self.filter_season_pack_by_simple_info(t)
+        filter_season_pack = lambda t, clean_t: self.filter_season_pack_by_simple_info(clean_t)
         self.filter_season_pack = Filter(fn=filter_season_pack, type='season')
 
         self.filter_show_pack_by_simple_info = None
-        filter_show_pack = lambda t: self.filter_show_pack_by_simple_info(t)
+        filter_show_pack = lambda t, clean_t: self.filter_show_pack_by_simple_info(clean_t)
         self.filter_show_pack = Filter(fn=filter_show_pack, type='show')
 
     def _search_core(self, query, url=None):
@@ -408,6 +421,8 @@ class CoreScraper(object):
             else:
                 search_results = self._soup_filter(response)
         except requests.exceptions.RequestException:
+            if self._request.has_timeout_exc:
+                return empty_result
             url = self._find_next_url(url)
             if url is None:
                 return empty_result
@@ -448,26 +463,31 @@ class CoreScraper(object):
         (results, url) = self._search_core(query.encode('utf-8'))
 
         threads = []
+        max_threads = 5
+        if self.simple_info.get('show_title', None) != None:
+          max_threads = 2
+
         for result in results:
             el = result.el
             title = result.title
+            clean_title = source_utils.clean_release_title_with_simple_info(title, self.simple_info)
 
-            if self._cancellation_token.is_cancellation_requested:
-                return
+            custom_filter = False
+            packageType = None
+            if self._custom_filter is not None:
+                if self._custom_filter.fn(clean_title):
+                    custom_filter = True
+                    packageType = self._custom_filter.type
 
             for filter in filters:
-                custom_filter = False
-                packageType = filter.type
-                if self._custom_filter is not None:
-                    if self._custom_filter.fn(title):
-                        custom_filter = True
-                        packageType = self._custom_filter.type
+                if self._cancellation_token.is_cancellation_requested:
+                    return
 
-                if custom_filter or filter.fn(title):
+                if custom_filter or filter.fn(title, clean_title):
                     torrent = {}
                     torrent['scraper'] = self.caller_name
                     torrent['hash'] = ''
-                    torrent['package'] = packageType
+                    torrent['package'] = packageType if custom_filter else filter.type
                     torrent['release_title'] = title
                     torrent['size'] = None
                     torrent['seeds'] = None
@@ -479,13 +499,13 @@ class CoreScraper(object):
                             wait_threads(threads)
                             threads = []
 
-                        if len(threads) >= 5:
+                        if len(threads) >= max_threads:
                             wait_threads(threads)
                             return
                     else:
                         self._info_core(el, torrent, url)
 
-                    if DEV_MODE and len(self._results) > 0:
+                    if DEV_MODE and len(self._results) > 0 or self._request.has_timeout_exc:
                         return
 
                     break
@@ -585,14 +605,19 @@ class CoreScraper(object):
         if self.caller_name != 'showrss':
             stats += additional_info
 
+        self.end_time = time.time()
+        self.time_ms = clock_time_ms(self.start_time, self.end_time)
+
         return stats
 
     def _get_movie_results(self):
         tools.log('a4kScrapers.movie.%s: %s' % (self.caller_name, self._sanitize_and_get_status()), 'notice')
+        tools.log('a4kScrapers.movie.%s: took %s ms' % (self.caller_name, self.time_ms), 'notice')
         return self._results
 
     def _get_episode_results(self):
         tools.log('a4kScrapers.episode.%s: %s' % (self.caller_name, self._sanitize_and_get_status()), 'notice')
+        tools.log('a4kScrapers.episode.%s: took %s ms' % (self.caller_name, self.time_ms), 'notice')
         return self._results
 
     def _episode(self, query):
@@ -601,16 +626,12 @@ class CoreScraper(object):
     def _episode_special(self, query):
         return self._query_thread(query, [self.filter_single_special_episode])
 
-    def _season(self, query):
-        return self._query_thread(query, [self.filter_season_pack])
-
-    def _pack(self, query):
-        return self._query_thread(query, [self.filter_show_pack])
-
-    def _season_and_pack(self, query):
-        return self._query_thread(query, [self.filter_season_pack, self.filter_show_pack])
+    def _pack_and_season(self, query):
+        return self._query_thread(query, [self.filter_show_pack, self.filter_season_pack])
 
     def movie_query(self, title, year, auto_query=True, single_query=False, caller_name=None):
+        self.start_time = time.time()
+
         if self.caller_name is None:
             if caller_name is None:
                 caller_name = get_caller_name()
@@ -618,6 +639,7 @@ class CoreScraper(object):
 
         self.title = source_utils.clean_title(title)
         self.year = year
+        self.simple_info = {'year':year}
         self.full_query = '%s %s' % (source_utils.strip_accents(title), year)
 
         try:
@@ -654,6 +676,7 @@ class CoreScraper(object):
             return self._get_movie_results()
 
     def episode_query(self, simple_info, auto_query=True, single_query=False, caller_name=None, query_seasons=True, query_show_packs=True):
+        self.start_time = time.time()
         simple_info['show_title'] = source_utils.clean_title(simple_info['show_title'])
 
         if self.caller_name is None:
@@ -701,7 +724,7 @@ class CoreScraper(object):
 
                 if DEV_MODE:
                     if self.caller_name != 'eztv':
-                        wait_threads([ self._season(season_query) ])
+                        wait_threads([ self._pack_and_season(season_query) ])
                     else:
                         wait_threads([ self._episode(single_episode_query) ])
                     return
@@ -721,21 +744,24 @@ class CoreScraper(object):
 
                 if query_seasons:
                     queries = queries + [
-                        self._season(season_query),
+                        self._pack_and_season(season_query),
                     ]
 
                     if query_show_packs:
                         queries = queries + [
-                            self._season(self.show_title + ' Season %s' % self.season_x),
-                            self._pack(self.show_title + ' Season'),
-                            self._season_and_pack(self.show_title + ' Complete'),
+                            self._pack_and_season(self.show_title + ' Season %s' % self.season_x),
+                            self._pack_and_season(self.show_title + ' Season'),
+                            self._pack_and_season(self.show_title + ' Complete'),
                         ]
 
                 if simple_info.get('isanime', False) and simple_info.get('absolute_number', None) is not None:
                     queries.insert(0, self._episode(self.show_title + ' %s' % simple_info['absolute_number']))
 
                 if self._use_thread_for_info:
-                    wait_threads([queries[0]])
+                    wait_threads([
+                      queries[0],
+                      queries[2] if simple_info.get('isanime', False) else queries[1]
+                    ])
                 else:
                     wait_threads(queries)
 

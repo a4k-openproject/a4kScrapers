@@ -12,11 +12,9 @@ class sources(core.DefaultSources):
         if self.is_movie_query():
             return False
 
-        title = title.lower()
-
         if self.scraper.show_title not in title:
             return False
-        
+
         if title == self.scraper.show_title:
             self._filter.type = 'show'
             return True
