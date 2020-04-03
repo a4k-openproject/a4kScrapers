@@ -1,7 +1,7 @@
 import json
 
 from providers.a4kScrapers.en import get_torrent, get_hosters
-from providerModules.a4kScrapers.third_party.source_utils import tools
+from providerModules.a4kScrapers.source_utils import tools
 
 def optimize_requests(cancel=lambda: False, results=[]):
     def optimize(scrapers, type, ctor_fn):

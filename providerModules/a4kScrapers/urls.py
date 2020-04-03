@@ -3,7 +3,7 @@
 import os
 import json
 
-from .third_party import source_utils
+from . import source_utils
 from .utils import database, decode
 
 def _get_json(filename):

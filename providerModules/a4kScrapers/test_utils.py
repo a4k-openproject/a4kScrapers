@@ -3,7 +3,7 @@
 import os
 import warnings
 import time
-from .third_party.source_utils import tools
+from .source_utils import tools
 from .urls import trackers, hosters, get_urls
 
 _scraper_sources_dict = {}
