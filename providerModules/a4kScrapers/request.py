@@ -6,9 +6,9 @@ import traceback
 import sys
 import re
 
-from .third_party import source_utils
+from . import source_utils
+from .source_utils import tools
 from .third_party.cloudscraper import cloudscraper
-from .third_party.source_utils import tools
 from .common_types import UrlParts
 from .utils import database
 from requests.compat import urlparse, urlunparse

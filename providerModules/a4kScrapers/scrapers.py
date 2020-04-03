@@ -3,7 +3,7 @@
 import re
 
 from string import capwords
-from .third_party import source_utils
+from . import source_utils
 from .utils import normalize, safe_list_get, get_caller_name, beautifulSoup
 
 class NoResultsScraper(object):
@@ -72,7 +72,7 @@ class GenericTorrentScraper(object):
         return None
 
     def parse_size(self, row):
-        size = safe_list_get(re.findall(r'(\d+\.?\d*\s*[GM]i?B)', row), 0) \
+        size = safe_list_get(re.findall(r'(\d+(?:\,\d+)?\.?\d*\s*[GM]i?B)', row), 0) \
             .replace('GiB', 'GB') \
             .replace('MiB', 'MB')
 
