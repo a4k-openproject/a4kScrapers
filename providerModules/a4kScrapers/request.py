@@ -57,6 +57,7 @@ class Request(object):
         if timeout is not None:
             self._timeout = timeout
         self.has_timeout_exc = False
+        self.has_cf_exc = False
         self.exc_msg = ''
         self.skip_head = False
 
@@ -69,6 +70,7 @@ class Request(object):
 
     def _request_core(self, request, sequental = None):
         self.has_timeout_exc = False
+        self.has_cf_exc = False
         self.exc_msg = ''
 
         if sequental is None:
@@ -104,6 +106,7 @@ class Request(object):
                   self.has_timeout_exc = True
                   self.exc_msg = 'request timed out'
               elif 'Cloudflare' in exc or '!!Loop Protection!!' in exc:
+                  self.has_cf_exc = True
                   self.exc_msg = 'failed Cloudflare protection'
               else:
                   self.exc_msg = 'failed - %s' % exc
@@ -173,7 +176,7 @@ class Request(object):
             if response_url.endswith("/"):
                 response_url = response_url[:-1]
 
-            return UrlParts(base=response_url, search=url.search)
+            return UrlParts(base=response_url, search=url.search, default_search=url.default_search)
 
         return None
 
@@ -200,7 +203,7 @@ class Request(object):
             )
         )
 
-        tools.log('GET: %s' % re.sub(r'\?key=(.+?)&', '?', url), 'info')
+        tools.log('GET: %s' % url, 'info')
         request = lambda: self._cfscrape.get(url, headers=headers, timeout=self._timeout, allow_redirects=allow_redirects)
         request.url = url
 

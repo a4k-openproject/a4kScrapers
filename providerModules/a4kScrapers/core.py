@@ -12,7 +12,7 @@ from .utils import beautifulSoup, encode, decode, now, time, clock_time_ms, safe
 from .utils import get_all_relative_py_files, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL, CACHE_LOG, AWS_ADMIN
 from .common_types import namedtuple, SearchResult, UrlParts, Filter, HosterResult, CancellationToken
 from .scrapers import re, NoResultsScraper, GenericTorrentScraper, GenericExtraQueryTorrentScraper, MultiUrlScraper
-from .urls import trackers, hosters, get_urls, update_urls
+from .urls import trackers, hosters, get_urls, update_urls, deprioritize_url
 from .cache import check_cache_result, get_cache, get_config, set_config
 from .test_utils import test_torrent, test_hoster
 
@@ -56,7 +56,7 @@ def get_scraper(
     if scraper_urls is None:
         return NoResultsScraper()
 
-    urls = list(map(lambda t: UrlParts(base=t['base'], search=t['search']), scraper_urls))
+    urls = list(map(lambda t: UrlParts(base=t['base'], search=t['search'], default_search=t['default_search']), scraper_urls))
 
     if DEV_MODE_ALL:
         scrapers = []
@@ -275,7 +275,8 @@ class DefaultHosterSources(DefaultSources):
                             raise requests.exceptions.RequestException()
                         return result
                     except requests.exceptions.RequestException:
-                        if self._request.has_timeout_exc:
+                        if self._request.has_timeout_exc or self._request.has_cf_exc:
+                            #deprioritize_url(self._caller_name, url)
                             return []
                         url = self.scraper._find_next_url(url)
                         if url is None:
@@ -421,7 +422,8 @@ class CoreScraper(object):
             else:
                 search_results = self._soup_filter(response)
         except requests.exceptions.RequestException:
-            if self._request.has_timeout_exc:
+            if self._request.has_timeout_exc or self._request.has_cf_exc:
+                #deprioritize_url(self.caller_name, url)
                 return empty_result
             url = self._find_next_url(url)
             if url is None:
@@ -505,7 +507,7 @@ class CoreScraper(object):
                     else:
                         self._info_core(el, torrent, url)
 
-                    if DEV_MODE and len(self._results) > 0 or self._request.has_timeout_exc:
+                    if DEV_MODE and len(self._results) > 0 or self._request.has_timeout_exc or self._request.has_cf_exc:
                         return
 
                     break
@@ -668,7 +670,7 @@ class CoreScraper(object):
 
             wait_threads(queries)
 
-            if not single_query and len(self._results) == 0 and not self._request.self.has_timeout_exc:
+            if not single_query and len(self._results) == 0 and not self._request.self.has_timeout_exc and not self._request.has_cf_exc:
                 wait_threads([movie(self.title)])
         except:
             pass

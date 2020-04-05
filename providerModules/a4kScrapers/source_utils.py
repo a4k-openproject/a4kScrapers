@@ -215,11 +215,11 @@ def get_regex_pattern(titles, sufixes_list):
     for title in titles:
         title = title.strip()
         if len(title) > 0:
-            pattern += re.escape(title) + r'|'
-    pattern = pattern[:-1] + r')+.*? (?:'
+            pattern += re.escape(title) + r' |'
+    pattern = pattern[:-1] + r')+.*?(?:'
     for sufix in sufixes_list:
         if len(sufix) > 0:
-            pattern += re.escape(sufix) + r'|'
+            pattern += re.escape(sufix) + r' |'
     pattern = pattern[:-1] + r')+'
     regex_pattern = re.compile(pattern)
     return regex_pattern
