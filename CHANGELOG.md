@@ -1,3 +1,6 @@
+* [v2.13.2](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.13.2):
+  * make the regex match expect the season/episode identifier follow right after the show name
+
 * [v2.13.1](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.13.1):
   * fix show pack season range match
 

@@ -216,7 +216,7 @@ def get_regex_pattern(titles, sufixes_list):
         title = title.strip()
         if len(title) > 0:
             pattern += re.escape(title) + r' |'
-    pattern = pattern[:-1] + r')+.*?(?:'
+    pattern = pattern[:-1] + r')+(?:'
     for sufix in sufixes_list:
         sufix = sufix.strip()
         if len(sufix) > 0:
