@@ -56,7 +56,7 @@
           ]
       },
       "lime": {
-          "search": "/search/{{category}}/%s",
+          "search": "/search/{{category}}/%s/seeds/1/",
           "cat_movie": "movies",
           "cat_episode": "tv",
           "domains": [
@@ -66,17 +66,16 @@
           ]
       },
       "magnetdl": {
-          "search": "/%s/%s/",
+          "search": "/%s/%s/se/desc/",
           "domains": [
               { "base": "https://www.magnetdl.com" },
               { "base": "https://torrentquest.com" }
           ]
       },
-      "-movcr": {
+      "movcr": {
           "search": "/search/search.php?q=%s",
           "domains": [
-              { "base": "https://movcr.tv" },
-              { "base": "https://movcr.cc" }
+              { "base": "https://movcr.to" }
           ]
       },
       "nyaa": {
@@ -141,20 +140,14 @@
               { "base": "https://torrentgalaxy.pw" }
           ]
       },
-      "torrentz2_": {
+      "torrentz2": {
           "search": "/search?f=%s&safe=1",
           "domains": [
               { "base": "https://torrentz2.eu" },
               { "base": "https://torrentz2.is" }
           ]
       },
-      "-torrentz2": {
-          "search": "/search?f=%s&safe=1",
-          "domains": [
-              { "base": "https://torrentz2.cc" },
-              { "base": "https://torrentz2.tv" }
-          ]
-      },
+      "-torrentz2_": { "search": "", "domains": [{ "base": "" }] },
       "yts": {
           "search": "/api/v2/list_movies.json?query_term=%s",
           "domains": [
@@ -188,12 +181,7 @@
               { "base": "https://rlsbb.unblocked.krd/searchp" }
           ]
       },
-      "directdl": {
-          "search": "/api?key=4B0BB862F24C8A29&keyword=%s",
-          "domains": [
-              { "base": "https://directdownload.tv" }
-          ]
-      },
+      "-directdl": { "search": "", "domains": [{ "base": "" }] },
       "scenerls": {
           "search": "/?s=%s",
           "domains": [
