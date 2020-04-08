@@ -1,3 +1,6 @@
+* [v2.13.1](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.13.1):
+  * fix show pack season range match
+
 * [v2.13.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.13.0):
   * do not try next site url when cf challenge fails
   * sort magnetdl and lime results by seeders
