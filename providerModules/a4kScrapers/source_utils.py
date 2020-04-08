@@ -218,6 +218,7 @@ def get_regex_pattern(titles, sufixes_list):
             pattern += re.escape(title) + r' |'
     pattern = pattern[:-1] + r')+.*?(?:'
     for sufix in sufixes_list:
+        sufix = sufix.strip()
         if len(sufix) > 0:
             pattern += re.escape(sufix) + r' |'
     pattern = pattern[:-1] + r')+'
@@ -408,19 +409,19 @@ def get_filter_show_pack_fn(simple_info):
             '%s seasons' % (last_season),
             '%s seasons' % (last_season_fill),
 
-            'season 1 %s ' % (last_season),
-            'season 01 %s ' % (last_season_fill),
-            'season1 %s ' % (last_season),
-            'season01 %s ' % (last_season_fill),
+            'season 1 %s' % (last_season),
+            'season 01 %s' % (last_season_fill),
+            'season1 %s' % (last_season),
+            'season01 %s' % (last_season_fill),
             'season 1 to %s' % (last_season),
             'season 01 to %s' % (last_season_fill),
             'season 1 thru %s' % (last_season),
             'season 01 thru %s' % (last_season_fill),
 
-            'seasons 1 %s ' % (last_season),
-            'seasons 01 %s ' % (last_season_fill),
-            'seasons1 %s ' % (last_season),
-            'seasons01 %s ' % (last_season_fill),
+            'seasons 1 %s' % (last_season),
+            'seasons 01 %s' % (last_season_fill),
+            'seasons1 %s' % (last_season),
+            'seasons01 %s' % (last_season_fill),
             'seasons 1 to %s' % (last_season),
             'seasons 01 to %s' % (last_season_fill),
             'seasons 1 thru %s' % (last_season),
