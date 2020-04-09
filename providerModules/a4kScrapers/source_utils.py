@@ -196,7 +196,7 @@ def clean_title_with_simple_info(title, simple_info):
     title = remove_country(title, country)
     year = simple_info.get('year', '')
     title = remove_from_title(title, year)
-    return title
+    return re.sub(r'\s+', ' ', title)
 
 def clean_release_title_with_simple_info(title, simple_info):
     title = clean_tags(title) + ' '
@@ -208,7 +208,7 @@ def clean_release_title_with_simple_info(title, simple_info):
     year = simple_info.get('year', '')
     title = remove_from_title(title, year)
     title = title.replace('the complete', '').replace('complete', '')
-    return title + ' '
+    return re.sub(r'\s+', ' ', title) + ' '
 
 def get_regex_pattern(titles, sufixes_list):
     pattern = r'^(?:'

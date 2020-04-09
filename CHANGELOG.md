@@ -1,3 +1,6 @@
+* [v2.13.3](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.13.3):
+  * remove repeated whitespace after title cleanup
+
 * [v2.13.2](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.13.2):
   * make the regex match expect the season/episode identifier follow right after the show name
 
