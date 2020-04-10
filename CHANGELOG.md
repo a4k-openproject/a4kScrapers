@@ -1,3 +1,8 @@
+* [v2.14.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.13.4):
+  * support year ranges
+  * other show pack title matching improvements
+  * fix some size rounding
+
 * [v2.13.3](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.13.3):
   * remove repeated whitespace after title cleanup
 

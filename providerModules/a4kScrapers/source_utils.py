@@ -6,6 +6,7 @@ import inspect
 import os
 import unicodedata
 import string
+import sys
 
 from requests import Session
 
@@ -18,6 +19,11 @@ except:
         if os.getenv('A4KSCRAPERS_TEST_TOTAL') != '1':
             print(msg)
     tools.log = log
+
+def log(msg, level):
+  pass
+  # if 'showpack' in msg:
+  #   tools.log('[failed to match %s' % msg, level)
 
 USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.86 Safari/537.36",
@@ -67,14 +73,14 @@ def de_string_size(size):
             return size
         if 'GB' in size or 'GiB' in size:
             size = float(size.replace('GB', ''))
-            size = int(size * 1024)
+            size = int(size * 1000)
             return size
         if 'MB' in size or 'MiB' in size:
             size = int(size.replace('MB', '').replace(',', '').replace(' ', '').split('.')[0])
             return size
         if 'B' in size:
             size = int(size.replace('B', ''))
-            size = int(size / 1024 / 1024)
+            size = int(size / 1000 / 1000)
             return size
     except:
         return 0
@@ -152,6 +158,10 @@ def clean_tags(title):
 
     return title
 
+def clean_year_range(title, year):
+    title = re.sub(r'(?:\(|\[\{)\s*' + re.escape(year) + r'(?:\s|-)\d{' + str(len(year)) + r'}(?:\)|\]\})', ' ', title)
+    return re.sub(r'\s+', ' ', title)
+
 def remove_sep(release_title, title):
     def check_for_sep(t, sep):
         if sep in t and t[t.find(sep)+1:].strip().lower().startswith(title):
@@ -199,15 +209,35 @@ def clean_title_with_simple_info(title, simple_info):
     return re.sub(r'\s+', ' ', title)
 
 def clean_release_title_with_simple_info(title, simple_info):
+    if sys.version_info[0] < 3:
+      try:
+          title = title.encode('utf8')
+      except:
+          pass
+
+    title = (title.lower()
+      .replace('&ndash;', '-')
+      .replace('–', '-')
+    )
+    year = simple_info.get('year', '')
+    title = clean_year_range(title, year) + ' '
     title = clean_tags(title) + ' '
     country = simple_info.get('country', '')
     title = remove_country(title, country, False)
     title = remove_from_title(title, get_quality(title), False)
     title = remove_sep(title, title)
     title = clean_title(title) + ' '
-    year = simple_info.get('year', '')
     title = remove_from_title(title, year)
-    title = title.replace('the complete', '').replace('complete', '')
+    title = (title
+      .replace(' tv series ', ' ')
+      .replace(' the completed ', ' ')
+      .replace(' completed ', ' ')
+      .replace(' the complete ', ' ')
+      .replace(' complete ', ' ')
+      .replace(' boxset ', ' ')
+      .replace(' dvdrip ', ' ')
+      .replace(' bdrip ', ' ')
+    )
     return re.sub(r'\s+', ' ', title) + ' '
 
 def get_regex_pattern(titles, sufixes_list):
@@ -260,24 +290,24 @@ def check_episode_title_match(titles, release_title, simple_info):
 
 def filter_movie_title(org_release_title, release_title, movie_title, simple_info):
     if simple_info['year'] not in org_release_title:
-        #tools.log('%s - %s' % (inspect.stack()[0][3], release_title), 'notice')
+        log('movienoyear]: %s' % release_title, 'notice')
         return False
 
     if any(i in release_title for i in exclusions):
-        #tools.log('%s - %s' % (inspect.stack()[0][3], release_title), 'notice')
+        log('movieexcluded]: %s' % release_title, 'notice')
         return False
 
     title = clean_title(movie_title)
 
     if 'xxx' in release_title and 'xxx' not in title:
-        #tools.log('%s - %s' % (inspect.stack()[0][3], release_title), 'notice')
+        log('movieporn]: %s' % release_title, 'notice')
         return False
 
     title_broken_1 = clean_title(movie_title, broken=1)
     title_broken_2 = clean_title(movie_title, broken=2)
 
     if not check_title_match([title], release_title, simple_info) and not check_title_match([title_broken_1], release_title, simple_info) and not check_title_match([title_broken_2], release_title, simple_info):
-        #tools.log('%s - %s' % (inspect.stack()[0][3], release_title), 'notice')
+        log('movie]: %s' % release_title, 'notice')
         return False
 
     return True
@@ -320,7 +350,7 @@ def get_filter_single_episode_fn(simple_info):
         if check_episode_title_match(clean_titles, release_title, simple_info):
             return True
 
-        #tools.log('%s - %s' % (inspect.stack()[0][3], release_title), 'notice')
+        log('singleepisode]: %s' % release_title, 'notice')
         return False
 
     return filter_fn
@@ -332,7 +362,7 @@ def filter_single_special_episode(simple_info, release_title):
     if episode_title in release_title:
       return True
 
-    #tools.log('%s - %s' % (inspect.stack()[0][3], release_title), 'notice')
+    log('episodespecial]: %s' % release_title, 'notice')
     return False
 
 def get_filter_season_pack_fn(simple_info):
@@ -365,7 +395,7 @@ def get_filter_season_pack_fn(simple_info):
         if re.match(regex_pattern, release_title):
             return True
 
-        #tools.log('%s - %s' % (inspect.stack()[0][3], release_title), 'notice')
+        log('seasonpack]: %s' % release_title, 'notice')
         return False
 
     return filter_fn
@@ -384,18 +414,37 @@ def get_filter_show_pack_fn(simple_info):
     for idx, title in enumerate(titles):
         titles[idx] = clean_title_with_simple_info(title, simple_info)
 
-    all_seasons = '1'
-    season_count = 1
-    while season_count <= int(season):
+    all_season_ranges = []
+    all_seasons = '1 '
+    season_count = 2
+    while season_count <= int(no_seasons):
+        all_season_ranges.append(all_seasons + 'and %s' % str(season_count))
+        all_seasons += '%s ' % str(season_count)
+        all_season_ranges.append(all_seasons)
         season_count += 1
-        all_seasons += ' %s' % str(season_count)
 
     season_fill = season.zfill(2)
 
     def get_pack_names(title):
+        no_seasons_fill = no_seasons.zfill(2)
+        no_seasons_minus_one = str(int(no_seasons) - 1)
+        no_seasons_minus_one_fill = no_seasons_minus_one.zfill(2)
+
         results = [
-            '%s' % all_seasons,
+            'all of serie %s seasons' % no_seasons,
+            'all of serie %s seasons' % no_seasons_fill,
+            'all of serie %s seasons' % no_seasons_minus_one,
+            'all of serie %s seasons' % no_seasons_minus_one_fill,
+            'all torrent of serie %s seasons' % no_seasons,
+            'all torrent of serie %s seasons' % no_seasons_fill,
+            'all torrent of serie %s seasons' % no_seasons_minus_one,
+            'all torrent of serie %s seasons' % no_seasons_minus_one_fill,
         ]
+
+        for all_seasons in all_season_ranges:
+          results.append('%s' % all_seasons)
+          results.append('season %s' % all_seasons)
+          results.append('seasons %s' % all_seasons)
 
         if 'series' not in title:
             results.append('series')
@@ -427,11 +476,35 @@ def get_filter_show_pack_fn(simple_info):
             'seasons 1 thru %s' % (last_season),
             'seasons 01 thru %s' % (last_season_fill),
 
+            'full season 1 %s' % (last_season),
+            'full season 01 %s' % (last_season_fill),
+            'full season1 %s' % (last_season),
+            'full season01 %s' % (last_season_fill),
+            'full season 1 to %s' % (last_season),
+            'full season 01 to %s' % (last_season_fill),
+            'full season 1 thru %s' % (last_season),
+            'full season 01 thru %s' % (last_season_fill),
+
+            'full seasons 1 %s' % (last_season),
+            'full seasons 01 %s' % (last_season_fill),
+            'full seasons1 %s' % (last_season),
+            'full seasons01 %s' % (last_season_fill),
+            'full seasons 1 to %s' % (last_season),
+            'full seasons 01 to %s' % (last_season_fill),
+            'full seasons 1 thru %s' % (last_season),
+            'full seasons 01 thru %s' % (last_season_fill),
+
+            's1 %s' % (last_season),
             's1 s%s' % (last_season),
+            's01 %s' % (last_season_fill),
             's01 s%s' % (last_season_fill),
+            's1 to %s' % (last_season),
             's1 to s%s' % (last_season),
+            's01 to %s' % (last_season_fill),
             's01 to s%s' % (last_season_fill),
+            's1 thru %s' % (last_season),
             's1 thru s%s' % (last_season),
+            's01 thru %s' % (last_season_fill),
             's01 thru s%s' % (last_season_fill),
         ]
 
@@ -451,7 +524,7 @@ def get_filter_show_pack_fn(simple_info):
         if re.match(regex_pattern, release_title):
             return True
 
-        #tools.log('%s - %s' % (inspect.stack()[0][3], release_title), 'notice')
+        log('showpack]: %s' % release_title, 'notice')
         return False
 
     return filter_fn
