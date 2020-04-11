@@ -278,7 +278,7 @@ class DefaultHosterSources(DefaultSources):
                         return result
                     except requests.exceptions.RequestException:
                         if self._request.has_timeout_exc or self._request.has_cf_exc:
-                            #deprioritize_url(self._caller_name, url)
+                            deprioritize_url(self._caller_name)
                             return []
                         url = self.scraper._find_next_url(url)
                         if url is None:
@@ -425,7 +425,7 @@ class CoreScraper(object):
                 search_results = self._soup_filter(response)
         except requests.exceptions.RequestException:
             if self._request.has_timeout_exc or self._request.has_cf_exc:
-                #deprioritize_url(self.caller_name, url)
+                self._deprioritize_url = True
                 return empty_result
             url = self._find_next_url(url)
             if url is None:
@@ -635,6 +635,7 @@ class CoreScraper(object):
 
     def movie_query(self, title, year, auto_query=True, single_query=False, caller_name=None):
         self.start_time = time.time()
+        self._deprioritize_url = False
 
         if self.caller_name is None:
             if caller_name is None:
@@ -677,10 +678,14 @@ class CoreScraper(object):
         except:
             pass
         finally:
+            if self._deprioritize_url:
+                deprioritize_url(self.caller_name)
             return self._get_movie_results()
 
     def episode_query(self, simple_info, auto_query=True, single_query=False, caller_name=None, query_seasons=True, query_show_packs=True):
         self.start_time = time.time()
+        self._deprioritize_url = False
+
         simple_info['show_title'] = source_utils.clean_title(simple_info['show_title'])
         simple_info['query_title'] = simple_info['show_title']
         simple_info['year'] = str(simple_info['year'])
@@ -744,7 +749,7 @@ class CoreScraper(object):
                     self._episode(single_episode_query)
                 ]
 
-                if single_query:
+                if single_query or simple_info.get('is_airing', False):
                     wait_threads(queries)
                     return
 
@@ -779,4 +784,6 @@ class CoreScraper(object):
         except:
             pass
         finally:
+            if self._deprioritize_url:
+                deprioritize_url(self.caller_name)
             return self._get_episode_results()
