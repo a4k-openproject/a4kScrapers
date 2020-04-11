@@ -129,6 +129,7 @@
             { "base": "https://www.torrentdownload.info" }
         ]
       },
+      "-torrentdownloads": { "search": "", "domains": [{ "base": "" }] },
       "torrentgalaxy": {
           "search": "/torrents.php?&search=%s&nox=1&sort=seeders&order=desc",
           "domains": [
