@@ -29,11 +29,11 @@
           "cat_movie": "movies",
           "cat_episode": "tv",
           "domains": [
-              { "base": "https://kickass.cm" },
-              { "base": "https://kat.how" },
+              { "base": "https://thekat.app/" },
               { "base": "https://kat.li" },
               { "base": "https://thekat.info" },
-              { "base": "https://thekat.app/" },
+              { "base": "https://kickass.cm" },
+              { "base": "https://kat.how" },
               { "base": "https://kickass.vc" },
               { "base": "https://kickass2.biz" },
               { "base": "https://kickass2.st" }
@@ -123,14 +123,11 @@
               { "base": "https://torrentapi.org/pubapi_v2.php?app_id=Torapi" }
           ]
       },
-      "torrentdownloads": {
-          "search": "/search/?new=1&s_cat={{category}}&search=%s",
-          "cat_movie": "4",
-          "cat_episode": "8",
-          "domains": [
-              { "base": "https://www.torrentdownloads.me" },
-              { "base": "https://www.torrentdownloads.info" }
-          ]
+      "torrentdownload": {
+        "search": "/search?q=%s",
+        "domains": [
+            { "base": "https://www.torrentdownload.info" }
+        ]
       },
       "torrentgalaxy": {
           "search": "/torrents.php?&search=%s&nox=1&sort=seeders&order=desc",

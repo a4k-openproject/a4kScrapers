@@ -216,6 +216,7 @@ class DefaultHosterSources(DefaultSources):
 
         simple_info = {}
         simple_info['title'] = source_utils.clean_title(title)
+        simple_info['query_title'] = simple_info['title']
         simple_info['year'] = year
         return simple_info
 
@@ -230,6 +231,7 @@ class DefaultHosterSources(DefaultSources):
 
         simple_info = {}
         simple_info['show_title'] = re.sub(r'\s+', ' ', source_utils.clean_title(tvshowtitle).replace(year, ''))
+        simple_info['query_title'] = simple_info['show_title']
         simple_info['year'] = year
         return simple_info
 
@@ -640,8 +642,8 @@ class CoreScraper(object):
             self.caller_name = caller_name
 
         self.title = source_utils.clean_title(title)
-        self.year = year
-        self.simple_info = {'year':year}
+        self.year = str(year)
+        self.simple_info = {'query_title': self.title, 'year':self.year}
         self.full_query = '%s %s' % (source_utils.strip_accents(title), year)
 
         try:
@@ -680,6 +682,8 @@ class CoreScraper(object):
     def episode_query(self, simple_info, auto_query=True, single_query=False, caller_name=None, query_seasons=True, query_show_packs=True):
         self.start_time = time.time()
         simple_info['show_title'] = source_utils.clean_title(simple_info['show_title'])
+        simple_info['query_title'] = simple_info['show_title']
+        simple_info['year'] = str(simple_info['year'])
 
         if self.caller_name is None:
             if caller_name is None:
