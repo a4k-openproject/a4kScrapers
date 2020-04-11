@@ -59,7 +59,7 @@ USER_AGENTS = [
 ]
 
 exclusions = ['soundtrack', 'gesproken']
-release_groups_blacklist = ['lostfilm', 'coldfilm', 'newstudio', 'hamsterstudio', 'jaskier', 'ideafilm', 'lakefilm', 'gears media', 'profix media', 'baibako', 'eniahd', 'alexfilm', 'kerob', 'omskbird']
+release_groups_blacklist = ['lostfilm', 'coldfilm', 'newstudio', 'hamsterstudio', 'jaskier', 'ideafilm', 'lakefilm', 'gears media', 'profix media', 'baibako', 'eniahd', 'alexfilm', 'kerob', 'omskbird', 'kb 1080p', 'tvshows']
 
 class randomUserAgentRequests(Session):
     def __init__(self, *args, **kwargs):
@@ -220,10 +220,6 @@ def clean_release_title_with_simple_info(title, simple_info):
                   .replace('&ndash;', '-')
                   .replace('–', '-'))
 
-    for group in release_groups_blacklist:
-        if group not in simple_info['query_title'] and group in title:
-            return ''
-
     year = simple_info.get('year', '')
     title = clean_year_range(title, year) + ' '
     title = clean_tags(title) + ' '
@@ -241,6 +237,12 @@ def clean_release_title_with_simple_info(title, simple_info):
                   .replace(' boxset ', ' ')
                   .replace(' dvdrip ', ' ')
                   .replace(' bdrip ', ' '))
+
+    for group in release_groups_blacklist:
+        target = ' %s ' % group
+        if target not in (simple_info['query_title'] + ' ') and target in (title + ' '):
+            return ''
+
     return re.sub(r'\s+', ' ', title) + ' '
 
 def get_regex_pattern(titles, sufixes_list):
@@ -426,6 +428,7 @@ def get_filter_show_pack_fn(simple_info):
         all_season_ranges.append(all_seasons)
         season_count += 1
 
+    all_season_ranges = [x for x in all_season_ranges if season in x]
     season_fill = season.zfill(2)
 
     def get_pack_names(title):

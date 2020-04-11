@@ -1,3 +1,7 @@
+* [v2.15.1](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.15.1):
+  * fix show packs could not contain the target season
+  * more incomplete seasons blacklist
+
 * [v2.15.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.15.0):
   * add torrentdownload - doesn't require extra query and returns same results as torrentdownloads
   * remove torrentdownloads
