@@ -59,6 +59,7 @@ USER_AGENTS = [
 ]
 
 exclusions = ['soundtrack', 'gesproken']
+release_groups_blacklist = ['lostfilm', 'coldfilm', 'newstudio', 'hamsterstudio', 'jaskier', 'ideafilm', 'lakefilm', 'gears media', 'profix media', 'baibako', 'eniahd', 'alexfilm', 'kerob', 'omskbird']
 
 class randomUserAgentRequests(Session):
     def __init__(self, *args, **kwargs):
@@ -216,9 +217,13 @@ def clean_release_title_with_simple_info(title, simple_info):
           pass
 
     title = (title.lower()
-      .replace('&ndash;', '-')
-      .replace('–', '-')
-    )
+                  .replace('&ndash;', '-')
+                  .replace('–', '-'))
+
+    for group in release_groups_blacklist:
+        if group not in simple_info['query_title'] and group in title:
+            return ''
+
     year = simple_info.get('year', '')
     title = clean_year_range(title, year) + ' '
     title = clean_tags(title) + ' '
@@ -228,16 +233,14 @@ def clean_release_title_with_simple_info(title, simple_info):
     title = remove_sep(title, title)
     title = clean_title(title) + ' '
     title = remove_from_title(title, year)
-    title = (title
-      .replace(' tv series ', ' ')
-      .replace(' the completed ', ' ')
-      .replace(' completed ', ' ')
-      .replace(' the complete ', ' ')
-      .replace(' complete ', ' ')
-      .replace(' boxset ', ' ')
-      .replace(' dvdrip ', ' ')
-      .replace(' bdrip ', ' ')
-    )
+    title = (title.replace(' tv series ', ' ')
+                  .replace(' the completed ', ' ')
+                  .replace(' completed ', ' ')
+                  .replace(' the complete ', ' ')
+                  .replace(' complete ', ' ')
+                  .replace(' boxset ', ' ')
+                  .replace(' dvdrip ', ' ')
+                  .replace(' bdrip ', ' '))
     return re.sub(r'\s+', ' ', title) + ' '
 
 def get_regex_pattern(titles, sufixes_list):

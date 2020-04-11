@@ -1,4 +1,9 @@
-* [v2.14.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.13.4):
+* [v2.15.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.15.0):
+  * add torrentdownload - doesn't require extra query and returns same results as torrentdownloads
+  * remove torrentdownloads
+  * filter out release groups known for incomplete seasons
+
+* [v2.14.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.14.0):
   * support year ranges
   * other show pack title matching improvements
   * fix some size rounding

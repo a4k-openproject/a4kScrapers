@@ -121,6 +121,8 @@ class GenericTorrentScraper(object):
         except: pass
 
         try:
+            if isinstance(el.seeds, str):
+                el.seeds = el.seeds.replace(',', '')
             torrent['seeds'] = int(el.seeds)
         except: pass
 
