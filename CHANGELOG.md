@@ -1,3 +1,7 @@
+* [v2.16.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.16.0):
+  * deprioritize urls if cf fails or timeout occurs
+  * do not query season and show packs for episodes from a still airing season
+
 * [v2.15.1](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.15.1):
   * fix show packs could not contain the target season
   * more incomplete seasons blacklist

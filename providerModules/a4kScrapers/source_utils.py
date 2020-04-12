@@ -59,7 +59,7 @@ USER_AGENTS = [
 ]
 
 exclusions = ['soundtrack', 'gesproken']
-release_groups_blacklist = ['lostfilm', 'coldfilm', 'newstudio', 'hamsterstudio', 'jaskier', 'ideafilm', 'lakefilm', 'gears media', 'profix media', 'baibako', 'eniahd', 'alexfilm', 'kerob', 'omskbird', 'kb 1080p', 'tvshows']
+release_groups_blacklist = ['lostfilm', 'coldfilm', 'newstudio', 'hamsterstudio', 'jaskier', 'ideafilm', 'lakefilm', 'gears media', 'profix media', 'baibako', 'eniahd', 'alexfilm', 'kerob', 'omskbird', 'kb 1080p', 'tvshows', '400p octopus', '720p octopus', '1080p octopus']
 
 class randomUserAgentRequests(Session):
     def __init__(self, *args, **kwargs):

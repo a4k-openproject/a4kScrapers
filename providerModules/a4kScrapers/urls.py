@@ -22,13 +22,31 @@ def _get_cached_urls(scraper):
     cached_urls = None
 
     if cache_result is not None:
-        cached_urls = json.loads(cache_result['value'])
+        cached_urls = json.loads(cache_result['value'] if isinstance(cache_result, dict) else cache_result)
+        if len(cached_urls) == 0:
+            return None
 
     return cached_urls
 
 def _set_cached_urls(scraper, urls):
     cache_key = _get_cached_urls_key(scraper)
     database.cache_insert(cache_key, json.dumps(urls))
+
+def _should_invalidate_cache(cached_urls, default_urls):
+    if cached_urls is None:
+        return False
+
+    for cached_url in cached_urls:
+        cached_url_valid = False
+        for default_url in default_urls:
+            if cached_url['base'] == default_url['base'] and cached_url['search'] == default_url['search']:
+                cached_url_valid = True
+                break
+
+        if not cached_url_valid:
+            return True
+
+    return False
 
 def _get_urls_in_array_format(urls_as_objects):
     urls_as_arrays = {}
@@ -42,23 +60,10 @@ def _get_urls_in_array_format(urls_as_objects):
                 "search": domain.get('search', scraper_urls['search'])
             })
 
+        default_urls = urls_as_arrays[scraper]
         cached_urls = _get_cached_urls(scraper)
-        if cached_urls is not None:
-            default_urls = urls_as_arrays[scraper]
-            should_update_cache = False
-
-            for cached_url in cached_urls:
-              cached_url_valid = False
-              for default_url in default_urls:
-                  if cached_url['base'] == default_url['base'] and cached_url['search'] == default_url['search']:
-                      cached_url_valid = True
-                      break
-
-              if not cached_url_valid:
-                  should_update_cache = True
-
-            if should_update_cache:
-                _set_cached_urls(scraper, urls_as_arrays[scraper])
+        if _should_invalidate_cache(cached_urls, default_urls):
+            _set_cached_urls(scraper, [])
 
     return urls_as_arrays
 
@@ -116,15 +121,18 @@ def update_urls(scraper, urls):
     elif scraper in hosters:
         hosters[scraper] = urls
 
-def deprioritize_url(scraper, url):
+def deprioritize_url(scraper):
     urls = _get_cached_urls(scraper)
     if urls is None:
+        urls = get_urls(scraper)
+
+    if len(urls) < 2:
         return
 
-    urls = list(filter(lambda x: x['base'] != url['base'] and x['search'] != url['default_search'], urls))
-    urls.append({
-        "base": url['base'],
-        "search": url['default_search']
-    })
+    url = urls[0]
 
+    source_utils.tools.log('a4kScrapers.deprioritize.%s: %s' % (scraper, url['base']), 'notice')
+
+    urls.remove(url)
+    urls.append(url)
     update_urls(scraper, urls)
