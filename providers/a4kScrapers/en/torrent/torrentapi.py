@@ -86,7 +86,7 @@ class sources(core.DefaultSources):
         return torrent
 
     def _get_scraper(self, title):
-        filter_fn = lambda t: self._imdb is not None and self.is_movie_query()
+        filter_fn = lambda t, clean_t: self._imdb is not None and self.is_movie_query()
         custom_filter = core.Filter(fn=filter_fn, type='single')
         return super(sources, self)._get_scraper(title, custom_filter=custom_filter)
 

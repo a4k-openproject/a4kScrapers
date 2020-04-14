@@ -59,7 +59,7 @@ USER_AGENTS = [
 ]
 
 exclusions = ['soundtrack', 'gesproken']
-release_groups_blacklist = ['lostfilm', 'coldfilm', 'newstudio', 'hamsterstudio', 'jaskier', 'ideafilm', 'lakefilm', 'gears media', 'profix media', 'baibako', 'eniahd', 'alexfilm', 'kerob', 'omskbird', 'kb 1080p', 'tvshows', '400p octopus', '720p octopus', '1080p octopus']
+release_groups_blacklist = ['lostfilm', 'coldfilm', 'newstudio', 'hamsterstudio', 'jaskier', 'ideafilm', 'lakefilms', 'gears media', 'profix media', 'baibako', 'alexfilm', 'kerob', 'omskbird', 'kb 1080p', 'tvshows', '400p octopus', '720p octopus', '1080p octopus']
 
 class randomUserAgentRequests(Session):
     def __init__(self, *args, **kwargs):
@@ -209,25 +209,52 @@ def clean_title_with_simple_info(title, simple_info):
     title = remove_from_title(title, year)
     return re.sub(r'\s+', ' ', title)
 
-def clean_release_title_with_simple_info(title, simple_info):
+def encode_text_py2(text):
     if sys.version_info[0] < 3:
-      try:
-          title = title.encode('utf8')
-      except:
-          pass
+        try:
+            text = text.encode('utf8')
+        except:
+            try:
+                text = text.encode('ascii')
+            except:
+                pass
+    return text
+
+def decode_text_py2(text):
+    if sys.version_info[0] < 3:
+        try:
+            text = text.decode('utf8')
+        except:
+            try:
+                text = text.decode('ascii')
+            except:
+                pass
+    return text
+
+def clean_release_title_with_simple_info(title, simple_info):
+    title = encode_text_py2(title)
 
     title = (title.lower()
                   .replace('&ndash;', '-')
                   .replace('–', '-'))
+
+    title = decode_text_py2(title)
+    title = strip_non_ascii_and_unprintable(title)
 
     year = simple_info.get('year', '')
     title = clean_year_range(title, year) + ' '
     title = clean_tags(title) + ' '
     country = simple_info.get('country', '')
     title = remove_country(title, country, False)
-    title = remove_from_title(title, get_quality(title), False)
-    title = remove_sep(title, title)
+    title = remove_sep(title, simple_info['query_title'])
     title = clean_title(title) + ' '
+
+    for group in release_groups_blacklist:
+        target = ' %s ' % group
+        if target not in (simple_info['query_title'] + ' ') and target in (title + ' '):
+            return ''
+
+    title = remove_from_title(title, get_quality(title), False)
     title = remove_from_title(title, year)
     title = (title.replace(' tv series ', ' ')
                   .replace(' the completed ', ' ')
@@ -237,11 +264,6 @@ def clean_release_title_with_simple_info(title, simple_info):
                   .replace(' boxset ', ' ')
                   .replace(' dvdrip ', ' ')
                   .replace(' bdrip ', ' '))
-
-    for group in release_groups_blacklist:
-        target = ' %s ' % group
-        if target not in (simple_info['query_title'] + ' ') and target in (title + ' '):
-            return ''
 
     return re.sub(r'\s+', ' ', title) + ' '
 
