@@ -8,26 +8,25 @@ class sources(core.DefaultSources):
         super(sources, self).__init__(__name__, *args, single_query=True, **kwargs)
         self._filter = core.Filter(fn=self._filter_fn, type='single')
 
-    def _filter_fn(self, title):
+    def _filter_fn(self, title, clean_title):
         if self.is_movie_query():
             return False
 
-        if self.scraper.show_title not in title:
-            return False
-
-        if title == self.scraper.show_title:
-            self._filter.type = 'show'
+        if self.scraper.filter_single_episode.fn(title, clean_title):
+            self._filter.type = self.scraper.filter_single_episode.type
             return True
 
-        for pack_str in ['pack', 'seasons']:
-            if pack_str in title:
-                self._filter.type = 'show'
-                return True
+        if self.scraper.filter_single_special_episode.fn(title, clean_title):
+            self._filter.type = self.scraper.filter_single_special_episode.type
+            return True
 
-        for season_str in ['season', 'S%s' % self.scraper.season_x, 'S%s' % self.scraper.season_xx]:
-            if season_str in title:
-                self._filter.type = 'season'
-                return True
+        if self.scraper.filter_show_pack.fn(title, clean_title):
+            self._filter.type = self.scraper.filter_show_pack.type
+            return True
+
+        if self.scraper.filter_season_pack.fn(title, clean_title):
+            self._filter.type = self.scraper.filter_season_pack.type
+            return True
 
         return False
 

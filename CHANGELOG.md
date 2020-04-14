@@ -1,3 +1,8 @@
+* [v2.17.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.17.0):
+  * update torrentz2 filter to reuse the same general title match
+  * remove eniahd from the release groups blacklist
+  * fix encoding issue in release title cleanup
+
 * [v2.16.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.16.0):
   * deprioritize urls if cf fails or timeout occurs
   * do not query season and show packs for episodes from a still airing season

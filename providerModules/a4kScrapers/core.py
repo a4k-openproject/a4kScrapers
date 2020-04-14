@@ -479,7 +479,7 @@ class CoreScraper(object):
             custom_filter = False
             packageType = None
             if self._custom_filter is not None:
-                if self._custom_filter.fn(clean_title):
+                if self._custom_filter.fn(title, clean_title):
                     custom_filter = True
                     packageType = self._custom_filter.type
 
