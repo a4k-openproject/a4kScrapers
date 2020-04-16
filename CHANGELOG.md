@@ -1,3 +1,6 @@
+* [v2.18.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.18.0):
+  * support for imdb id from Seren 2.0 meta
+
 * [v2.17.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.17.0):
   * update torrentz2 filter to reuse the same general title match
   * remove eniahd from the release groups blacklist

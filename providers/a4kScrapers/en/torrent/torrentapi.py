@@ -95,5 +95,7 @@ class sources(core.DefaultSources):
         return super(sources, self).movie(title, year, imdb, auto_query=False)
 
     def episode(self, simple_info, all_info):
-        self._imdb = all_info.get('showInfo', {}).get('ids', {}).get('imdb', None)
+        self._imdb = all_info.get('info', {}).get('tvshow.imdb_id', None)
+        if self._imdb is None:
+            self._imdb = all_info.get('showInfo', {}).get('ids', {}).get('imdb', None)
         return super(sources, self).episode(simple_info, all_info, query_show_packs=False)
