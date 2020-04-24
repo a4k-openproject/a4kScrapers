@@ -277,7 +277,7 @@ class DefaultHosterSources(DefaultSources):
                             raise requests.exceptions.RequestException()
                         return result
                     except requests.exceptions.RequestException:
-                        if self._request.has_timeout_exc or self._request.has_cf_exc:
+                        if self._request.exc_msg:
                             deprioritize_url(self._caller_name)
                             return []
                         url = self.scraper._find_next_url(url)
@@ -424,7 +424,7 @@ class CoreScraper(object):
             else:
                 search_results = self._soup_filter(response)
         except requests.exceptions.RequestException:
-            if self._request.has_timeout_exc or self._request.has_cf_exc:
+            if self._request.exc_msg:
                 self._deprioritize_url = True
                 return empty_result
             url = self._find_next_url(url)
@@ -509,7 +509,7 @@ class CoreScraper(object):
                     else:
                         self._info_core(el, torrent, url)
 
-                    if DEV_MODE and len(self._results) > 0 or self._request.has_timeout_exc or self._request.has_cf_exc:
+                    if DEV_MODE and len(self._results) > 0 or self._request.exc_msg:
                         return
 
                     break
@@ -673,7 +673,7 @@ class CoreScraper(object):
 
             wait_threads(queries)
 
-            if not single_query and len(self._results) == 0 and not self._request.self.has_timeout_exc and not self._request.has_cf_exc:
+            if not single_query and len(self._results) == 0 and not self._request.exc_msg:
                 wait_threads([movie(self.title)])
         except:
             pass
