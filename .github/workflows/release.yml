@@ -1,0 +1,16 @@
+name: Create Release
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: "startsWith(github.event.head_commit.message, 'release: v')"
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Release
+      run: |
+        sh ./scripts/release.sh ${{ secrets.GITHUB_TOKEN }} "${{ github.event.head_commit.message }}"
