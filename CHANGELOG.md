@@ -1,3 +1,8 @@
+* [v2.19.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.19.0):
+  * update cloudscraper (1.2.32 -> 1.2.34)
+  * handle endless redirects (https to http to https to http...)
+  * display pretty error message for max retries exceeded
+
 * [v2.18.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.18.0):
   * support for imdb id from Seren 2.0 meta
 

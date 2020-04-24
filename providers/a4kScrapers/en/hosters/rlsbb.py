@@ -58,7 +58,9 @@ class source(core.DefaultHosterSources):
         result_url = '%s%s/%s' % (protocol, domain, query.replace(' ', '-'))
         response = self._request.get(result_url, allow_redirects=False)
 
-        if response.status_code == 200:
+        if response is None:
+            return []
+        elif response.status_code == 200:
             result_content = response.text
         elif response.status_code == 301:
             redirect_url = response.headers['Location']

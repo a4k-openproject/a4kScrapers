@@ -56,8 +56,6 @@ class Request(object):
         self._timeout = 10
         if timeout is not None:
             self._timeout = timeout
-        self.has_timeout_exc = False
-        self.has_cf_exc = False
         self.exc_msg = ''
         self.skip_head = False
 
@@ -69,8 +67,6 @@ class Request(object):
           raise Exception()
 
     def _request_core(self, request, sequental = None):
-        self.has_timeout_exc = False
-        self.has_cf_exc = False
         self.exc_msg = ''
 
         if sequental is None:
@@ -103,11 +99,11 @@ class Request(object):
             if self.exc_msg == '':
               exc = traceback.format_exc(limit=1)
               if 'ConnectTimeout' in exc or 'ReadTimeout' in exc:
-                  self.has_timeout_exc = True
                   self.exc_msg = 'request timed out'
               elif 'Cloudflare' in exc or '!!Loop Protection!!' in exc:
-                  self.has_cf_exc = True
                   self.exc_msg = 'failed Cloudflare protection'
+              elif 'Max retries exceeded with url' in exc:
+                  self.exc_msg = 'Max retries exceeded'
               else:
                   self.exc_msg = 'failed - %s' % exc
 
@@ -115,11 +111,15 @@ class Request(object):
 
             return response_err
 
-    def _check_redirect(self, response):
+    def _check_redirect(self, src, response):
         if response.status_code in [301, 302]:
             redirect_url = response.headers['Location']
             if not redirect_url.endswith('127.0.0.1') and not redirect_url.endswith('localhost') and response.url != redirect_url:
-                return redirect_url
+                dest = redirect_url
+                src_clean = re.sub(r'https?://', '', src)
+                dest_clean = re.sub(r'https?://', '', _get_domain(dest))
+                if src_clean != dest_clean or 'https://' in dest:
+                  dest
         return False
 
     def _head(self, url):
@@ -155,7 +155,7 @@ class Request(object):
             response.url = url
             head_check_key = _get_domain(url)
 
-        redirect_url = self._check_redirect(response)
+        redirect_url = self._check_redirect(head_check_key, response)
         if redirect_url:
             _head_checks[head_check_key] = redirect_url
             return self._head(redirect_url)
