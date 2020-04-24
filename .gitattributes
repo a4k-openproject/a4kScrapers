@@ -1,0 +1,9 @@
+.*                  export-ignore
+scripts             export-ignore
+appveyor.yml        export-ignore
+codefresh.yml       export-ignore
+shippable.yml       export-ignore
+wercker.yml         export-ignore
+tests_runner.py     export-ignore
+update_cached_db.py export-ignore
+requirements.txt    export-ignore

@@ -1,3 +1,6 @@
+* [v2.20.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.20.0):
+  * exclude development files from release
+
 * [v2.19.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.19.0):
   * update cloudscraper (1.2.32 -> 1.2.34)
   * handle endless redirects (https to http to https to http...)
