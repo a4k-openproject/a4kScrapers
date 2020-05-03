@@ -14,6 +14,6 @@ script:
   - python3 -m unittest tests_runner.py
 after_success:
   - |
-    if [ "$TRAVIS_EVENT_TYPE" = "cron" ] || [ "$A4KSCRAPERS_MANUAL_UPDATE" = "1" ]; then
+    if [ "$A4KSCRAPERS_MANUAL_UPDATE" = "1" ]; then
       python3 update_cached_db.py
     fi
