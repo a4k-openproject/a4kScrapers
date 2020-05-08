@@ -53,8 +53,8 @@ def _assert_hosters_result(test, scraper_module, scraper_sources, scraper, hoste
 def _get_movie_query(scraper):
     movie_imdb = None
     if scraper == 'movcr':
-        movie_title = 'Gully Boy'
-        movie_year = '2019'
+        movie_title = 'Star Trek'
+        movie_year = '2009'
     elif scraper == 'nyaa':
         movie_title = 'Ghost in the Shell'
         movie_year = '1995'
