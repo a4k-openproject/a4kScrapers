@@ -537,6 +537,13 @@ class CoreScraper(object):
         if DEV_MODE and len(self._results) > 1:
             self._results = [self._results[0]]
 
+        def filter_torrent(torrent):
+            title = torrent['release_title']
+            title = source_utils.clean_release_title_with_simple_info(title, self.simple_info)
+            return self.filter_movie_title.fn(None, title)
+
+        self._results = list(filter(filter_torrent, self._results))
+
         return True
 
     def _find_next_url(self, curr_url):
