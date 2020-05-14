@@ -1,3 +1,9 @@
+* [v2.21.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.21.0):
+  * fix country meta may be a list
+  * filter more adult movie results
+  * filter rare case of season pack showing as movie result
+  * update cloudscraper (1.2.34 -> 1.2.36)
+
 * [v2.20.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.20.0):
   * exclude development files from release
 
