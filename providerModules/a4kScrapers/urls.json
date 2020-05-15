@@ -84,17 +84,14 @@
               { "base": "https://nyaa.si" }
           ]
       },
-      "piratebay": {
-          "search": "/search/%s/0/99/200",
+      "-piratebay": {
+          "search": "/search.php?q=%s&page=0&orderby=99",
           "domains": [
               { "base": "https://lepiratebay.org" },
               { "base": "https://piratebayproxy.cx" },
-              { "base": "https://piratepiratepirate.net" },
               { "base": "https://proxybay.tech" },
               { "base": "https://pirateproxy.bet" },
               { "base": "https://thepiratebay.org" },
-              { "base": "https://thepiratebay.vip" },
-              { "base": "https://thepiratebay.unblockthe.net" },
               { "base": "https://thepiratebay.unblocker.cc" },
               { "base": "https://thepiratebay.unblockall.org" }
           ]
@@ -138,7 +135,7 @@
               { "base": "https://torrentgalaxy.pw" }
           ]
       },
-      "torrentz2": {
+      "-torrentz2": {
           "search": "/search?f=%s&safe=1",
           "domains": [
               { "base": "https://torrentz2.eu" },

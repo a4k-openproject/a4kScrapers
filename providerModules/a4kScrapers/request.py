@@ -66,7 +66,7 @@ class Request(object):
             self.exc_msg = '%s (probably Cloudflare)' % self.exc_msg
           raise Exception()
 
-    def _request_core(self, request, sequental = None):
+    def _request_core(self, request, sequental = None, cf_retries=5):
         self.exc_msg = ''
 
         if sequental is None:
@@ -100,6 +100,10 @@ class Request(object):
               exc = traceback.format_exc(limit=1)
               if 'ConnectTimeout' in exc or 'ReadTimeout' in exc:
                   self.exc_msg = 'request timed out'
+              if 'Detected the new Cloudflare challenge.' in exc and cf_retries > 0:
+                  cf_retries -= 1
+                  tools.log('cf_new_challenge_retry: %s' % request.url, 'notice')
+                  return self._request_core(request, sequental, cf_retries)
               elif 'Cloudflare' in exc or '!!Loop Protection!!' in exc:
                   self.exc_msg = 'failed Cloudflare protection'
               elif 'Max retries exceeded with url' in exc:
