@@ -1,3 +1,10 @@
+* [v2.22.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.22.0):
+  * update cloudscraper (1.2.36 -> 1.2.37-dev)
+  * retry if cf returns new challenge
+  * disable torrentz2 as it is down
+  * temporary disable piratebay (needs update)
+  * handle bitlord timeout issue
+
 * [v2.21.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.21.0):
   * fix country meta may be a list
   * filter more adult movie results

@@ -8,6 +8,9 @@ class sources(core.DefaultSources):
 
     def _get_token_and_cookies(self, url):
         response = self._request.get(url.base)
+        if response.status_code != 200:
+            return (None, None)
+
         token_id = core.re.findall(r'token\: (.*)\n', response.text)[0]
         token = ''.join(core.re.findall(token_id + r" ?\+?\= ?'(.*)'", response.text))
 
@@ -19,6 +22,8 @@ class sources(core.DefaultSources):
 
     def _search_request(self, url, query, force_token_refresh=False):
         (token, cookies) = core.database.get(self._get_token_and_cookies, 0 if force_token_refresh else 1, url)
+        if not token:
+            return []
 
         headers = {
             'x-request-token': token,
