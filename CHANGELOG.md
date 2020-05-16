@@ -1,3 +1,6 @@
+* [v2.23.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.23.0):
+  * re-enable piratebay
+
 * [v2.22.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.22.0):
   * update cloudscraper (1.2.36 -> 1.2.37-dev)
   * retry if cf returns new challenge

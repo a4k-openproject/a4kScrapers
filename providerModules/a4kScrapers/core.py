@@ -565,7 +565,7 @@ class CoreScraper(object):
         if self._url is not None:
             return self._url
 
-        if self.caller_name in ['showrss', 'skytorrents', 'torrentapi', 'torrentz2_', 'scenerls']:
+        if self.caller_name in ['showrss', 'skytorrents', 'torrentapi', 'torrentz2_', 'scenerls', 'piratebay']:
             self._request.skip_head = True
 
         return self._request.find_url(self._urls)

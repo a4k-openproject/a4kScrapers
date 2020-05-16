@@ -84,16 +84,12 @@
               { "base": "https://nyaa.si" }
           ]
       },
-      "-piratebay": {
-          "search": "/search.php?q=%s&page=0&orderby=99",
+      "piratebay": {
+          "search": "/q.php?q=%s&cat={{category}}",
+          "cat_movie": "207,202,201",
+          "cat_episode": "208,205",
           "domains": [
-              { "base": "https://lepiratebay.org" },
-              { "base": "https://piratebayproxy.cx" },
-              { "base": "https://proxybay.tech" },
-              { "base": "https://pirateproxy.bet" },
-              { "base": "https://thepiratebay.org" },
-              { "base": "https://thepiratebay.unblocker.cc" },
-              { "base": "https://thepiratebay.unblockall.org" }
+              { "base": "https://apibay.org" }
           ]
       },
       "showrss": {

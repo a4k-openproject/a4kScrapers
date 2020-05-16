@@ -80,10 +80,10 @@ def de_string_size(size):
         if 'MB' in size or 'MiB' in size:
             size = int(size.replace('MB', '').replace(',', '').replace(' ', '').split('.')[0])
             return size
-        if 'B' in size:
-            size = int(size.replace('B', ''))
-            size = int(size / 1000 / 1000)
-            return size
+
+        size = int(size.replace('B', ''))
+        size = int(size / 1000 / 1000)
+        return size
     except:
         return 0
 
