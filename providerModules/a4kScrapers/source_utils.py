@@ -75,15 +75,15 @@ def de_string_size(size):
             return size
         if 'GB' in size or 'GiB' in size:
             size = float(size.replace('GB', ''))
-            size = int(size * 1000)
+            size = int(size * 1024)
             return size
         if 'MB' in size or 'MiB' in size:
             size = int(size.replace('MB', '').replace(',', '').replace(' ', '').split('.')[0])
             return size
-
-        size = int(size.replace('B', ''))
-        size = int(size / 1000 / 1000)
-        return size
+        if 'B' in size:
+            size = int(size.replace('B', ''))
+            size = int(size / 1024 / 1024)
+            return size
     except:
         return 0
 
