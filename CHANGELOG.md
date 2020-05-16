@@ -1,3 +1,7 @@
+* [v2.23.1](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.23.1):
+  * fix piratebay size
+  * fix some more file sizes
+
 * [v2.23.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.23.0):
   * re-enable piratebay
 

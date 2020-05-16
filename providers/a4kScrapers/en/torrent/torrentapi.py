@@ -78,7 +78,7 @@ class sources(core.DefaultSources):
     def _info(self, el, url, torrent):
         torrent['magnet'] = el['download']
 
-        try: torrent['size'] = int((el['size'] / 1000) / 1000)
+        try: torrent['size'] = int((el['size'] / 1024) / 1024)
         except: pass
 
         torrent['seeds'] = el['seeders']

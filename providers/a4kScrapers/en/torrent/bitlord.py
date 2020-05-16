@@ -73,9 +73,9 @@ class sources(core.DefaultSources):
                 torrent['magnet'] = ''
             else:
                 if size < 120 and el['source'] == 'thePirateBay':
-                    size = size * 1000
+                    size = size * 1024
                 elif size > 122880:
-                    size = int(size / 1000)
+                    size = int(size / 1024)
                 elif size < 120:
                     torrent['magnet'] = ''
             torrent['size'] = size
