@@ -5,7 +5,10 @@ import time
 import traceback
 import sys
 import re
+import os
+import json
 
+from collections import OrderedDict
 from . import source_utils
 from .source_utils import tools
 from .third_party.cloudscraper import cloudscraper
@@ -14,6 +17,60 @@ from .utils import database
 from requests.compat import urlparse, urlunparse
 
 _head_checks = {}
+_request_cache_path = os.path.join(os.path.dirname(__file__), 'request_cache.json')
+_shared_lock = threading.Lock()
+
+def _request_cache_save(cache):
+    with open(_request_cache_path, 'w') as f:
+        f.write(json.dumps(cache, indent=4))
+
+def _request_cache_get():
+    if not os.path.exists(_request_cache_path):
+        return {}
+
+    try:
+        with open(_request_cache_path, 'r') as f:
+            return json.load(f)
+    except:
+        return {}
+
+def _save_cf_cookies(response, cache_key):
+    set_cookie = response.headers.get('Set-Cookie', '')
+    if set_cookie == '':
+        return
+
+    cookies = ''
+    cf_cookies = re.findall(r'(PHPSESSID|__cfduid|cf_clearance)=(.*?);', set_cookie)
+    cookies_dict = {key: value for (key, value) in cf_cookies}
+
+    cf_cookies = response.request.headers.get('Cookie', '').replace(' ', '').split(';')
+    cf_cookies = list(filter(lambda v: v != '', cf_cookies))
+    original_cookies = {}
+    for cookie in cf_cookies:
+        (key, value) = cookie.split('=')
+        original_cookies[key] = value
+
+    for key in original_cookies.keys():
+            if cookies_dict.get(key, None) is None:
+                cookies_dict[key] = original_cookies[key]
+
+    cookies_dict = OrderedDict(sorted(cookies_dict.items()))
+    for key in cookies_dict.keys():
+        cookies += '%s=%s; ' % (key, cookies_dict[key])
+
+    cookies = cookies.strip()
+    if cookies == '':
+        return
+
+    headers = {
+        'User-Agent': response.request.headers['User-Agent'],
+        'Cookie': cookies.strip()
+    }
+
+    with _shared_lock:
+        request_cache = _request_cache_get()
+        request_cache[cache_key] = headers
+        _request_cache_save(request_cache)
 
 def _is_cloudflare_iuam_challenge(resp, allow_empty_body=False):
     try:
@@ -66,7 +123,7 @@ class Request(object):
             self.exc_msg = '%s (probably Cloudflare)' % self.exc_msg
           raise Exception()
 
-    def _request_core(self, request, sequental = None, cf_retries=5):
+    def _request_core(self, request, sequental = None, cf_retries=3):
         self.exc_msg = ''
 
         if sequental is None:
@@ -75,10 +132,19 @@ class Request(object):
         response_err = lambda: None
         response_err.status_code = 501
 
+        request_cache = _request_cache_get()
+        domain_cache = lambda: None
+        domain_cache.key = None
+        def update_request(request_options):
+            domain_cache.key = _get_domain(request_options['url'])
+            headers = request_cache.setdefault(domain_cache.key, '')
+            request_options.setdefault('headers', {})
+            request_options['headers'].update(headers)
+
         try:
             response = None
             if sequental is False:
-                response = request()
+                response = request(update_request)
 
                 response_err = response
                 self._verify_response(response)
@@ -89,10 +155,14 @@ class Request(object):
                 if self._should_wait:
                     time.sleep(self._wait)
                 self._should_wait = True
-                response = request()
+                response = request(update_request)
 
             response_err = response
             self._verify_response(response)
+
+            if self.exc_msg == '' and domain_cache.key is not None:
+                try: _save_cf_cookies(response, domain_cache.key)
+                except: pass
 
             return response
         except:
@@ -140,7 +210,7 @@ class Request(object):
 
         url = _get_domain(url)
         tools.log('HEAD: %s' % url, 'info')
-        request = lambda: self._request.head(url, timeout=2)
+        request = lambda _: self._request.head(url, timeout=2)
         request.url = url
         response = self._request_core(request, sequental=False)
         if _is_cloudflare_iuam_challenge(response, allow_empty_body=True):
@@ -208,13 +278,27 @@ class Request(object):
         )
 
         tools.log('GET: %s' % url, 'info')
-        request = lambda: self._cfscrape.get(url, headers=headers, timeout=self._timeout, allow_redirects=allow_redirects)
+
+        request_options = {
+            'method': 'GET',
+            'url': url,
+            'headers': headers,
+            'timeout': self._timeout,
+            'allow_redirects': allow_redirects
+        }
+
+        def get(update_options_fn=None):
+            if update_options_fn is not None:
+                update_options_fn(request_options)
+            return self._cfscrape.request(**request_options)
+
+        request = lambda x: get(x)
         request.url = url
 
         return self._request_core(request)
 
     def post(self, url, data, headers={}):
         tools.log('POST: %s' % url, 'info')
-        request = lambda: self._cfscrape.post(url, data, headers=headers, timeout=self._timeout)
+        request = lambda _: self._cfscrape.post(url, data, headers=headers, timeout=self._timeout)
         request.url = url
         return self._request_core(request)

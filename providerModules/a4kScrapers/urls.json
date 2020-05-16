@@ -139,7 +139,7 @@
           ]
       },
       "-torrentz2_": { "search": "", "domains": [{ "base": "" }] },
-      "yts": {
+      "-yts": {
           "search": "/api/v2/list_movies.json?query_term=%s",
           "domains": [
               { "base": "https://yts.am" },

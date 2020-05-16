@@ -1,3 +1,8 @@
+* [v2.24.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.24.0):
+  * exclude tvshow queries from adult content filter
+  * preserve cf cookies in order not to solve the challenge on each request
+  * disable yts as their api is down
+
 * [v2.23.1](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.23.1):
   * fix piratebay size
   * fix some more file sizes

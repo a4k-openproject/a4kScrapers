@@ -260,9 +260,10 @@ def clean_release_title_with_simple_info(title, simple_info):
         if target not in (simple_info['query_title'] + ' ') and target in (title + ' '):
             return ''
 
-    for target in adult_movie_tags:
-        if target not in (simple_info['query_title'] + ' ') and target in (title + ' '):
-            return ''
+    if simple_info.get('show_title', None) is None:
+        for target in adult_movie_tags:
+            if target not in (simple_info['query_title'] + ' ') and target in (title + ' '):
+                return ''
 
     title = remove_from_title(title, get_quality(title), False)
     title = remove_from_title(title, year)
