@@ -104,4 +104,4 @@ venv.bak/
 
 .vscode/settings.json
 .DS_Store
-
+providerModules/a4kScrapers/request_cache.json
