@@ -1,3 +1,6 @@
+* [v2.24.1](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.24.1):
+  * multi-threading fixes
+
 * [v2.24.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.24.0):
   * exclude tvshow queries from adult content filter
   * preserve cf cookies in order not to solve the challenge on each request
