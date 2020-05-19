@@ -43,7 +43,7 @@ def _update_request_options(request_options):
     request_options.setdefault('headers', {})
     request_options['headers'].update(headers)
 
-def _save_cf_cookies(response):
+def _save_cf_cookies(cfscrape, response):
     lock = filelock.FileLock(_request_cache_path + '.lock')
     with lock:
         cookies = ''
@@ -58,6 +58,12 @@ def _save_cf_cookies(response):
         for key in original_cookies.keys():
                 if cookies_dict.get(key, None) is None:
                     cookies_dict[key] = original_cookies[key]
+
+        try:
+            cf_cookies = cfscrape.cookies.items()
+            for (key, value) in cf_cookies:
+                cookies_dict[key] = value
+        except: pass
 
         cookies_dict = OrderedDict(sorted(cookies_dict.items()))
         for key in cookies_dict.keys():
@@ -172,7 +178,7 @@ class Request(object):
 
             try: 
                 if self.exc_msg == '' and response.request.headers.get('X-Domain', None) is not None:
-                    _save_cf_cookies(response)
+                    _save_cf_cookies(self._cfscrape, response)
             except: pass
 
             return response
