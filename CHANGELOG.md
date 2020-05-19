@@ -1,3 +1,6 @@
+* [v2.24.2](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.24.2):
+  * include cf cookies from cloudscraper
+
 * [v2.24.1](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.24.1):
   * multi-threading fixes
 
