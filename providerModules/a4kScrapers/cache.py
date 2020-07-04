@@ -123,11 +123,11 @@ def __get_cache_core(query):
         return __cache_results[query]
 
     try:
-      result['d'] = base64.b85decode(result['d'].encode('ascii'))
+      result['d'] = json.loads(result['d'].replace("'", '"'))
+    except:
+      result['d'] = base64.b64decode(result['d'].encode('ascii'))
       result['d'] = zlib.decompress(result['d']).decode('utf-8')
-    except: pass
-
-    result['d'] = json.loads(result['d'].replace("'", '"'))
+      result['d'] = json.loads(result['d'].replace("'", '"'))
 
     parsed_result = {}
     cached_results = []
@@ -190,7 +190,7 @@ def __set_cache_core(query, cached_results):
 
         data = json.dumps(cached_results).replace('"', "'")
         data = zlib.compress(data.encode('utf-8'))
-        item['d'] = base64.b85encode(data).decode('ascii')
+        item['d'] = base64.b64encode(data).decode('ascii')
 
         if CACHE_LOG:
             tools.log('set_cache_request: %s' % query, 'notice')
