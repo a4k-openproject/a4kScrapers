@@ -1,3 +1,6 @@
+* [v2.26.1](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.26.1):
+  * fix cache py2 compatibility
+
 * [v2.26.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.26.0):
   * update cloudscraper to 1.2.42
 
