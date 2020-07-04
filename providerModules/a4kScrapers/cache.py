@@ -6,6 +6,8 @@ import json
 import threading
 import traceback
 import requests
+import zlib
+import base64
 
 from .utils import encode, decode, now, DEV_MODE, CACHE_LOG, AWS_ADMIN, ACCESS_KEY, SECRET_ACCESS_KEY
 from .urls import trackers, hosters
@@ -120,6 +122,11 @@ def __get_cache_core(query):
             tools.log('get_cache_nocache: %s' % query, 'notice')
         return __cache_results[query]
 
+    try:
+      result['d'] = base64.b85decode(result['d'].encode('ascii'))
+      result['d'] = zlib.decompress(result['d']).decode('utf-8')
+    except: pass
+
     result['d'] = json.loads(result['d'].replace("'", '"'))
 
     parsed_result = {}
@@ -180,7 +187,10 @@ def __set_cache_core(query, cached_results):
         item = {}
         item['q'] = sha256(query)
         item['t'] = now()
-        item['d'] = json.dumps(cached_results).replace('"', "'")
+
+        data = json.dumps(cached_results).replace('"', "'")
+        data = zlib.compress(data.encode('utf-8'))
+        item['d'] = base64.b85encode(data).decode('ascii')
 
         if CACHE_LOG:
             tools.log('set_cache_request: %s' % query, 'notice')
