@@ -1,3 +1,6 @@
+* [v2.26.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.26.0):
+  * update cloudscraper to 1.2.42
+
 * [v2.25.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.25.0):
   * re-enable yts
   * change btdb.io to btdb.eu again
