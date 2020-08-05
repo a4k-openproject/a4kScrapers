@@ -75,7 +75,7 @@
       "movcr": {
           "search": "/search/search.php?q=%s",
           "domains": [
-              { "base": "https://movcr.to" }
+              { "base": "https://movcr.st" }
           ]
       },
       "nyaa": {

@@ -136,7 +136,8 @@ def clean_title(title, broken=None):
     title = title.replace("&#039;s", apostrophe_replacement)
     title = title.replace(" 039 s", apostrophe_replacement)
 
-    title = re.sub(r'\:|\\|\/|\,|\!|\?|\(|\)|\'|\’|\"|\+|\[|\]|\-|\_|\.|\{|\}', ' ', title)
+    title = re.sub(r'\'|\’', '', title)
+    title = re.sub(r'\:|\\|\/|\,|\!|\?|\(|\)|\"|\+|\[|\]|\-|\_|\.|\{|\}', ' ', title)
     title = re.sub(r'\s+', ' ', title)
     title = re.sub(r'\&', 'and', title)
 
