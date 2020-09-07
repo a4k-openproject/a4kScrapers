@@ -323,6 +323,10 @@ def check_episode_title_match(titles, release_title, simple_info):
         episode_title = clean_title(simple_info['episode_title'])
         if len(episode_title.split(' ')) >= 3 and episode_title in release_title:
             for title in titles:
+                if episode_title in title:
+                    return False
+
+            for title in titles:
                 if release_title.startswith(title):
                     return True
     return False
@@ -395,10 +399,10 @@ def get_filter_single_episode_fn(simple_info):
     return filter_fn
 
 def filter_single_special_episode(simple_info, release_title):
-    episode_title = simple_info['episode_title']
-    episode_title = clean_title(episode_title)
+    show_title = clean_title(simple_info['show_title'])
+    episode_title = clean_title(simple_info['episode_title'])
 
-    if episode_title in release_title:
+    if episode_title in release_title and episode_title not in show_title:
       return True
 
     log('episodespecial]: %s' % release_title, 'notice')
