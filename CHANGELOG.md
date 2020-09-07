@@ -1,3 +1,6 @@
+* [v2.28.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.28.0):
+  * ignore episode title match when episode title matches the show title
+
 * [v2.27.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.27.0):
   * update movcr
   * strip apostrophes from title
