@@ -11,7 +11,3 @@ Semaphore:&nbsp;&nbsp;[![Build Status](https://semaphoreci.com/api/v1/newt-sc/a4
 Shippable:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![Run Status](https://api.shippable.com/projects/5c7ab3b6867d9e0700f6fa64/badge?branch=master)](https://app.shippable.com/github/a4k-openproject/a4kScrapers/dashboard)  
 Travis:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![Build Status](https://travis-ci.com/a4k-openproject/a4kScrapers.svg?branch=master)](https://travis-ci.com/a4k-openproject/a4kScrapers)  
 Wercker:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![wercker status](https://app.wercker.com/status/3edd14e027f559dac94fc344cfb64733/s/master "wercker status")](https://app.wercker.com/project/byKey/3edd14e027f559dac94fc344cfb64733)  
-
-Codeship*:&nbsp;&nbsp;&nbsp;&nbsp;[![Codeship Status](https://app.codeship.com/projects/a9879000-09ea-0137-e503-4277cc15dde1/status?branch=master)](https://app.codeship.com/projects/326157)  
-
-\* - Do not run daily

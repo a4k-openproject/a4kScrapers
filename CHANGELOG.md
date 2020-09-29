@@ -1,3 +1,6 @@
+* [v2.28.1](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.28.1):
+  * update tags removal when separated by -
+
 * [v2.28.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.28.0):
   * ignore episode title match when episode title matches the show title
 
