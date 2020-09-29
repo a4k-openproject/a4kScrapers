@@ -166,13 +166,15 @@ def clean_year_range(title, year):
     return re.sub(r'\s+', ' ', title)
 
 def remove_sep(release_title, title):
-    def check_for_sep(t, sep):
+    def check_for_sep(t, sep, check_count=False):
+        if check_count and t.count(sep) > 1:
+            return t
         if sep in t and t[t.find(sep)+1:].strip().lower().startswith(title):
             return t[t.find(sep)+1:].strip()
         return t
 
     release_title = check_for_sep(release_title, '/')
-    release_title = check_for_sep(release_title, '-')
+    release_title = check_for_sep(release_title, '-',  True)
 
     return release_title
 
