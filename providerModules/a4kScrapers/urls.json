@@ -99,9 +99,11 @@
           ]
       },
       "skytorrents": {
-          "search": "/?query=%s&type=video",
+          "search": "/?search=%s",
           "domains": [
-              { "base": "https://www.skytorrents.lol" }
+              { "base": "https://www.skytorrents.to" },
+              { "base": "https://www.skytorrents.org" },
+              { "base": "https://www.skytorrents.net" }
           ]
       },
       "solidtorrents": {
@@ -131,11 +133,12 @@
               { "base": "https://torrentgalaxy.pw" }
           ]
       },
-      "-torrentz2": {
+      "torrentz2": {
           "search": "/search?f=%s&safe=1",
           "domains": [
-              { "base": "https://torrentz2.eu" },
-              { "base": "https://torrentz2.is" }
+              { "base": "https://torrentz2.is" },
+              { "base": "https://torrentsmirror.com" },
+              { "base": "https://torrentz.pl" }
           ]
       },
       "-torrentz2_": { "search": "", "domains": [{ "base": "" }] },

@@ -1,3 +1,7 @@
+* [v2.29.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.29.0):
+  * re-enable torrentz2 with updated urls
+  * update skytorrents urls and query params
+
 * [v2.28.1](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.28.1):
   * update tags removal when separated by -
 
