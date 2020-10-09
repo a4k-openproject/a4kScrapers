@@ -275,7 +275,6 @@ def clean_release_title_with_simple_info(title, simple_info):
                   .replace(' completed ', ' ')
                   .replace(' the complete ', ' ')
                   .replace(' complete ', ' ')
-                  .replace(' boxset ', ' ')
                   .replace(' dvdrip ', ' ')
                   .replace(' bdrip ', ' '))
 
@@ -477,6 +476,10 @@ def get_filter_show_pack_fn(simple_info):
         no_seasons_minus_one_fill = no_seasons_minus_one.zfill(2)
 
         results = [
+            'all %s seasons' % no_seasons,
+            'all %s seasons' % no_seasons_fill,
+            'all %s seasons' % no_seasons_minus_one,
+            'all %s seasons' % no_seasons_minus_one_fill,
             'all of serie %s seasons' % no_seasons,
             'all of serie %s seasons' % no_seasons_fill,
             'all of serie %s seasons' % no_seasons_minus_one,
@@ -494,6 +497,12 @@ def get_filter_show_pack_fn(simple_info):
 
         if 'series' not in title:
             results.append('series')
+
+        if 'boxset' not in title:
+            results.append('boxset')
+
+        if 'collection' not in title:
+            results.append('collection')
 
         return results
 

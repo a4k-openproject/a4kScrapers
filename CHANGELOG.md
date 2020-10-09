@@ -1,3 +1,6 @@
+* [v2.30.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.30.0):
+  * more show pack checks
+
 * [v2.29.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.29.0):
   * re-enable torrentz2 with updated urls
   * update skytorrents urls and query params
