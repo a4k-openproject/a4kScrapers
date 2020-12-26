@@ -1,3 +1,6 @@
+* [v2.31.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.31.0):
+  * disable torrentz2 (site is down)
+
 * [v2.30.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.30.0):
   * more show pack checks
 
