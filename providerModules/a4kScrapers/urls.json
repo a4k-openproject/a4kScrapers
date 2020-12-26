@@ -133,7 +133,7 @@
               { "base": "https://torrentgalaxy.pw" }
           ]
       },
-      "torrentz2": {
+      "-torrentz2": {
           "search": "/search?f=%s&safe=1",
           "domains": [
               { "base": "https://torrentz2.is" },
