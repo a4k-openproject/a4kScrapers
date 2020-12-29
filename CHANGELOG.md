@@ -1,3 +1,6 @@
+* [v2.32.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.32.0):
+  * drop eztv bad url
+
 * [v2.31.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.31.0):
   * disable torrentz2 (site is down)
 
