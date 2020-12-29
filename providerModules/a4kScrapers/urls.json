@@ -16,7 +16,6 @@
       "eztv": {
           "search": "/search/%s",
           "domains": [
-              { "base": "https://eztv.io" },
               { "base": "https://eztv.re" },
               { "base": "https://eztv.ag" },
               { "base": "https://eztv.it" },

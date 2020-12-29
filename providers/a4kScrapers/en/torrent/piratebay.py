@@ -39,7 +39,11 @@ class sources(core.DefaultSources):
         if response.status_code != 200:
             return []
 
-        results = core.json.loads(response.text)
+        try:
+            results = core.json.loads(response.text)
+        except Exception as e:
+            self._request.exc_msg = 'Failed to parse json: %s' % response.text
+            return []
 
         if len(results) == 0 or results[0]['id'] == '0':
             return []
