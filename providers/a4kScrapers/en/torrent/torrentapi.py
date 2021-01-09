@@ -69,8 +69,7 @@ class sources(core.DefaultSources):
             return response['torrent_results']
 
     def _soup_filter(self, response):
-        ignored_categories = set(['Movies/Full BD'])
-        return [i for i in response if i['category'] not in ignored_categories]
+        return response
 
     def _title_filter(self, el):
         return el['title']
