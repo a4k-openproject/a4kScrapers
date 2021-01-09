@@ -132,12 +132,10 @@
               { "base": "https://torrentgalaxy.pw" }
           ]
       },
-      "-torrentz2": {
-          "search": "/search?f=%s&safe=1",
+      "torrentz2": {
+          "search": "/data.php?q=%s",
           "domains": [
-              { "base": "https://torrentz2.is" },
-              { "base": "https://torrentsmirror.com" },
-              { "base": "https://torrentz.pl" }
+              { "base": "https://torrentzeu.org" }
           ]
       },
       "-torrentz2_": { "search": "", "domains": [{ "base": "" }] },
@@ -161,14 +159,7 @@
       }
   },
   "hosters": {
-      "rlsbb": {
-          "search": "/lib/search%s?phrase=%s&pindex=1&code=%s",
-          "domains": [
-              { "base": "http://rlsbb.to", "search": "" },
-              { "base": "https://search.rlsbb.ru" },
-              { "base": "https://rlsbb.unblocked.krd/searchp" }
-          ]
-      },
+      "-rlsbb": { "search": "", "domains": [{ "base": "" }] },
       "scenerls": {
           "search": "/?s=%s",
           "domains": [

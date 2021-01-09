@@ -1,3 +1,9 @@
+* [v2.33.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.33.0):
+  * drop rlsbb as it uses new cf protection now
+  * filter out torrents from dilnix
+  * bring back torrentz2 with new url
+  * remove torrentapi filter of full bd rips
+
 * [v2.32.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.32.0):
   * drop eztv bad url
 
