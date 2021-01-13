@@ -7,7 +7,7 @@
               { "base": "https://bitlordsearch.com" }
           ]
       },
-      "btdb": {
+      "-btdb": {
           "search": "/search/%s/?sort=popular",
           "domains": [
               { "base": "https://btdb.eu" }
@@ -97,7 +97,7 @@
               { "base": "https://showrss.info" }
           ]
       },
-      "skytorrents": {
+      "-skytorrents": {
           "search": "/?search=%s",
           "domains": [
               { "base": "https://www.skytorrents.to" },
