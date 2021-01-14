@@ -1,3 +1,6 @@
+* [v2.35.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.35.0):
+  * enable btdb and skytorrents with new urls
+
 * [v2.34.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.34.0):
   * disable btdb and skytorrents - cf challenge
 

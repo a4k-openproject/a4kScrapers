@@ -7,10 +7,10 @@
               { "base": "https://bitlordsearch.com" }
           ]
       },
-      "-btdb": {
+      "btdb": {
           "search": "/search/%s/?sort=popular",
           "domains": [
-              { "base": "https://btdb.eu" }
+              { "base": "https://btdb.unblockit.ltd" }
           ]
       },
       "eztv": {
@@ -97,12 +97,10 @@
               { "base": "https://showrss.info" }
           ]
       },
-      "-skytorrents": {
-          "search": "/?search=%s",
+      "skytorrents": {
+          "search": "/o.php?b=60&pv=4&mobile=&u=http%%3A%%2F%%2Fskytorrents.in%%2Fsearch%%3Fl%%3Den-us%%26q%%3D%s",
           "domains": [
-              { "base": "https://www.skytorrents.to" },
-              { "base": "https://www.skytorrents.org" },
-              { "base": "https://www.skytorrents.net" }
+              { "base": "https://sitenable.top" }
           ]
       },
       "solidtorrents": {

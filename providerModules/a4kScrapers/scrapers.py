@@ -65,6 +65,18 @@ class GenericTorrentScraper(object):
             if len(magnet_links) == 0: # lime
                 matches = safe_list_get(re.findall(r'\/([0-9a-zA-Z]*).torrent\?title=(.*?)"', row), 0, [])
                 magnet_links = build_magnet(matches)
+            if len(magnet_links) == 0: # missing dn
+                magnet_links = re.findall(r'(magnet:\?.*?)&\w\w=.*?[&"\']', row)
+                if len(magnet_links) > 0:
+                    title_matches = re.findall(r'<a.*?>(.*?)</a>', row)
+                    title_match = ''
+                    for match in title_matches:
+                        if len(match) > len(title_match) and match[0] not in ['<', '>', '%', '[', ']']:
+                            title_match = match
+                    if title_match != '':
+                        magnet_links[0] += '&dn=%s' % title_match 
+                    else:
+                        magnet_links = []
 
         if len(magnet_links) > 0:
             return safe_list_get(magnet_links, 0)

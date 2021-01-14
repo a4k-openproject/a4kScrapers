@@ -84,6 +84,9 @@ class DefaultSources(object):
         else:
             query = query.decode('utf-8')
 
+        if '%%' in url.search:
+            query = query.replace(' ', '%2B')
+
         return self._request.get(url.base + url.search % query)
 
     def _get_scraper(self, title, genericScraper=None, use_thread_for_info=False, custom_filter=None):
