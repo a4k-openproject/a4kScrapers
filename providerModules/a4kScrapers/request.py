@@ -251,7 +251,7 @@ class Request(object):
             _head_checks[head_check_key] = redirect_url
             return self._head(redirect_url)
 
-        _head_checks[head_check_key] = response.status_code is 200
+        _head_checks[head_check_key] = response.status_code == 200
 
         return (response.url, response.status_code)
 

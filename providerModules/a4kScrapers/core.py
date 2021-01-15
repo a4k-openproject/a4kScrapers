@@ -79,6 +79,10 @@ class DefaultSources(object):
         self.query_type = None
 
     def _search_request(self, url, query):
+        if not query:
+            tools.log('a4kScrapers.%s.%s: %s' % (self.query_type, self._caller_name, 'empty query'), 'notice')
+            return None
+
         if '=%s' in url.search:
             query = quote_plus(query)
         else:

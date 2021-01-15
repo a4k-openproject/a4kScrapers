@@ -13,12 +13,32 @@ from requests import Session
 try:
     from resources.lib.common import tools
 except:
-    tools = lambda: None
-    tools.addonName = "Seren"
-    def log(msg, level=None):
-        if os.getenv('A4KSCRAPERS_TEST_TOTAL') != '1':
-            print(msg)
-    tools.log = log
+    try:
+        import xbmc
+        tools = lambda: None
+        tools.addonName = ''
+        def log(msg, level=None):
+            info_type = xbmc.LOGINFO
+            try: msg_type = xbmc.LOGNOTICE
+            except:
+                msg_type = xbmc.LOGINFO
+                info_type = xbmc.LOGDEBUG
+
+            if level == 'info':
+                msg_type = info_type
+            elif level == 'debug':
+                msg_type = xbmc.LOGDEBUG
+            elif level == 'error':
+                msg_type = xbmc.LOGERROR
+            xbmc.log(msg, msg_type)
+        tools.log = log
+    except:
+        tools = lambda: None
+        tools.addonName = ''
+        def log(msg, level=None):
+            if os.getenv('A4KSCRAPERS_TEST_TOTAL') != '1':
+                print(msg)
+        tools.log = log
 
 def log(msg, level):
   pass
