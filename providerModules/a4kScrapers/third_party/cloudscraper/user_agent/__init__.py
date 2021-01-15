@@ -74,11 +74,18 @@ class User_Agent():
             sys.tracebacklimit = 0
             raise RuntimeError("Sorry you can't have mobile and desktop disabled at the same time.")
 
-        with open(os.path.join(os.path.dirname(__file__), 'browsers.json'), 'r') as fp:
-            user_agents = json.load(
-                fp,
-                object_pairs_hook=OrderedDict
-            )
+        try:
+            with open(os.path.join(os.path.dirname(__file__), 'browsers.json'), 'r', encoding="utf-8") as fp:
+                user_agents = json.load(
+                    fp,
+                    object_pairs_hook=OrderedDict
+                )
+        except:
+            with open(os.path.join(os.path.dirname(__file__), 'browsers.json'), 'r') as fp:
+                user_agents = json.load(
+                    fp,
+                    object_pairs_hook=OrderedDict
+                )
 
         if self.custom:
             if not self.tryMatchCustom(user_agents):

@@ -1,3 +1,6 @@
+* [v2.36.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.36.0):
+  * fix KODI 19 Matrix support
+
 * [v2.35.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.35.0):
   * enable btdb and skytorrents with new urls
 
