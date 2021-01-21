@@ -16,7 +16,7 @@
       "btdb": {
           "search": "/search/%s/?sort=popular",
           "domains": [
-              { "base": "https://btdb.eu" }
+              { "base": "https://btdb.unblockit.ltd" }
           ]
       },
       "btscene": {
