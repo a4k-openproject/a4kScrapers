@@ -91,7 +91,7 @@ class DefaultSources(object):
         if '%%' in url.search:
             query = query.replace(' ', '%2B')
 
-        return self._request.get(url.base + url.search % query)
+        return self._request.get((url.base + url.search) % query)
 
     def _get_scraper(self, title, genericScraper=None, use_thread_for_info=False, custom_filter=None):
         if genericScraper is None:
@@ -572,7 +572,7 @@ class CoreScraper(object):
         if self._url is not None:
             return self._url
 
-        if self.caller_name in ['showrss', 'skytorrents', 'torrentapi', 'torrentz2', 'scenerls', 'piratebay']:
+        if self.caller_name in ['showrss', 'skytorrents', 'bt4g', 'btscene', 'glodls', 'ext', 'torrentapi', 'torrentz2', 'scenerls', 'piratebay']:
             self._request.skip_head = True
 
         return self._request.find_url(self._urls)

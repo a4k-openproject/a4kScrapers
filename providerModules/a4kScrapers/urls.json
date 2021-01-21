@@ -7,10 +7,28 @@
               { "base": "https://bitlordsearch.com" }
           ]
       },
+      "bt4g": {
+          "search": "/search/%s",
+          "domains": [
+              { "base": "http://bt4g.org" }
+          ]
+      },
       "btdb": {
           "search": "/search/%s/?sort=popular",
           "domains": [
-              { "base": "https://btdb.unblockit.ltd" }
+              { "base": "https://btdb.eu" }
+          ]
+      },
+      "btscene": {
+          "search": "/search?q=%s",
+          "domains": [
+              { "base": "http://btscene.nl" }
+          ]
+      },
+      "ext": {
+          "search": "/search?q=%s",
+          "domains": [
+              { "base": "https://ext.to" }
           ]
       },
       "eztv": {
@@ -21,6 +39,14 @@
               { "base": "https://eztv.it" },
               { "base": "https://eztv.ch" },
               { "base": "https://eztv.unblocked.llc" }
+          ]
+      },
+      "glodls": {
+          "search": "/search_results.php?search=%s&cat={{category}}&incldead=0&inclexternal=0&lang=1&sort=seeders&order=desc",
+          "cat_movie": "1",
+          "cat_episode": "41",
+          "domains": [
+              { "base": "https://glodls.to" }
           ]
       },
       "kickass": {
@@ -98,9 +124,10 @@
           ]
       },
       "skytorrents": {
-          "search": "/o.php?b=60&pv=4&mobile=&u=http%%3A%%2F%%2Fskytorrents.in%%2Fsearch%%3Fl%%3Den-us%%26q%%3D%s",
+          "search": "",
           "domains": [
-              { "base": "https://sitenable.top" }
+              { "base": "https://www.skytorrents.net/?search=%s" },
+              { "base": "https://sitenable.top/o.php?b=60&pv=4&mobile=&u=http%%3A%%2F%%2Fskytorrents.in%%2Fsearch%%3Fl%%3Den-us%%26q%%3D%s" }
           ]
       },
       "solidtorrents": {
