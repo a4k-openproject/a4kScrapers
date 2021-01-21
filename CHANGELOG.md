@@ -1,3 +1,6 @@
+* [v2.38.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.38.0):
+  * revert btdb
+
 * [v2.37.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.37.0):
   * added bt4g, btscene, ext, glodls
 
