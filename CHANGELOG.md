@@ -1,3 +1,6 @@
+* [v2.37.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.37.0):
+  * added bt4g, btscene, ext, glodls
+
 * [v2.36.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.36.0):
   * fix KODI 19 Matrix support
 
