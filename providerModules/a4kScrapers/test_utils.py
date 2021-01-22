@@ -17,7 +17,7 @@ def _assert_result(test, scraper_module, scraper_sources, scraper, torrent_list)
             total_results[torrent['release_title']] = 1
         return
 
-    if scraper not in trackers or scraper in ['torrentz2', 'torrentgalaxy'] and results_count == 0:
+    if scraper not in trackers or scraper in ['btdb', 'torrentz2', 'torrentgalaxy'] and results_count == 0:
         tools.log('%s is disabled' % scraper, 'notice')
         return
 
