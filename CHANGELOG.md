@@ -1,3 +1,6 @@
+* [v2.39.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.39.0):
+  * use local cache for tokens and head requests
+
 * [v2.38.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.38.0):
   * revert btdb
 

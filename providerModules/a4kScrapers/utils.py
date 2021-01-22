@@ -7,11 +7,13 @@ import threading
 import time
 import base64
 import re
+import json
 import hashlib
 
 from functools import wraps
 from inspect import getframeinfo, stack
 from bs4 import BeautifulSoup
+from .third_party.filelock import filelock
 
 try:
     from urlparse import unquote
@@ -36,22 +38,44 @@ def _get_function_name(function_instance):
 def _hash_function(function_instance, *args):
     return _get_function_name(function_instance) + _generate_md5(args)
 
-try:
-    from resources.lib.modules import database
-except:
-    database_dict = {}
-    def get_or_add(fn, *args, **kwargs):
-      key = _hash_function(fn, *args)
 
-      if database_dict.get(key, None):
-        return database_dict[key]
+_cache_path = os.path.join(os.path.dirname(__file__), 'cache.json')
 
-      return database_dict.setdefault(key, fn(*args, **kwargs))
+def _cache_save(cache):
+    with open(_cache_path, 'w') as f:
+        f.write(json.dumps(cache, indent=4))
 
-    database = lambda: None
-    database.get = lambda fn, duration, *args, **kwargs: get_or_add(fn, *args, **kwargs)
-    database.cache_get = lambda key: None
-    database.cache_insert = lambda key, value: None
+def _cache_get():
+    if not os.path.exists(_cache_path):
+        return {}
+    try:
+        with open(_cache_path, 'r') as f:
+            return json.load(f)
+    except:
+        return {}
+
+lock = filelock.FileLock(_cache_path + '.lock')
+def get_or_add(key, value, fn, duration, *args, **kwargs):
+    with lock:
+        database_dict = _cache_get()
+        key = _hash_function(fn, *args) if not key else key
+        if not value and database_dict.get(key, None):
+            data = database_dict[key]
+            if not duration or time.time() - data['t'] < (duration * 60):
+                return data['v']
+
+        if not value and not fn:
+            return None
+
+        value = fn(*args, **kwargs) if not value else value
+        database_dict[key] = { 't': time.time(), 'v': value }
+        _cache_save(database_dict)
+        return value
+
+database = lambda: None
+database.get = lambda fn, duration, *args, **kwargs: get_or_add(None, None, fn, duration, *args, **kwargs)
+database.cache_get = lambda key: get_or_add(key, None, None, None)
+database.cache_insert = lambda key, value: get_or_add(key, value, None, None)
 
 DEV_MODE = os.getenv('A4KSCRAPERS_TEST') == '1'
 DEV_MODE_ALL = os.getenv('A4KSCRAPERS_TEST_ALL') == '1'
