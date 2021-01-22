@@ -16,5 +16,5 @@ blocks:
       - name: Run
         commands:
           - checkout
-          - pip install -r requirements.txt --user
+          - pip install -r requirements.txt
           - python3 -m unittest tests_runner.py
