@@ -14,14 +14,14 @@ from .source_utils import tools
 from .third_party.cloudscraper import cloudscraper
 from .third_party.filelock import filelock
 from .common_types import UrlParts
-from .utils import database
+from .utils import database, open_file_wrapper
 from requests.compat import urlparse, urlunparse
 
 _head_checks = {}
 _request_cache_path = os.path.join(os.path.dirname(__file__), 'request_cache.json')
 
 def _request_cache_save(cache):
-    with open(_request_cache_path, 'w') as f:
+    with open_file_wrapper(_request_cache_path, mode='w')() as f:
         cache = OrderedDict(sorted(cache.items()))
         f.write(json.dumps(cache, indent=4))
 
@@ -30,7 +30,7 @@ def _request_cache_get():
         return {}
 
     try:
-        with open(_request_cache_path, 'r') as f:
+        with open_file_wrapper(_request_cache_path)() as f:
             return json.load(f)
     except:
         return {}

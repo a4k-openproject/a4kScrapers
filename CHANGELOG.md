@@ -1,3 +1,6 @@
+* [v2.40.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.40.0):
+  * fix file open issues on KODI 19
+
 * [v2.39.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.39.0):
   * use local cache for tokens and head requests
 
