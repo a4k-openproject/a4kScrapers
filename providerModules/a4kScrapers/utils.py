@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import sys
 import os
 import ntpath
 import unicodedata
@@ -14,6 +15,9 @@ from functools import wraps
 from inspect import getframeinfo, stack
 from bs4 import BeautifulSoup
 from .third_party.filelock import filelock
+
+py2 = sys.version_info[0] == 2
+py3 = not py2
 
 try:
     from urlparse import unquote
@@ -38,18 +42,22 @@ def _get_function_name(function_instance):
 def _hash_function(function_instance, *args):
     return _get_function_name(function_instance) + _generate_md5(args)
 
+def open_file_wrapper(file, mode='r', encoding='utf-8'):
+    if py2:
+        return lambda: open(file, mode)
+    return lambda: open(file, mode, encoding=encoding)
 
 _cache_path = os.path.join(os.path.dirname(__file__), 'cache.json')
 
 def _cache_save(cache):
-    with open(_cache_path, 'w') as f:
+    with open_file_wrapper(_cache_path, mode='w')() as f:
         f.write(json.dumps(cache, indent=4))
 
 def _cache_get():
     if not os.path.exists(_cache_path):
         return {}
     try:
-        with open(_cache_path, 'r') as f:
+        with open_file_wrapper(_cache_path)() as f:
             return json.load(f)
     except:
         return {}
