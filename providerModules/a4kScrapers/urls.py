@@ -4,11 +4,11 @@ import os
 import json
 
 from . import source_utils
-from .utils import database, decode
+from .utils import database, decode, open_file_wrapper
 
 def _get_json(filename):
     json_path = os.path.join(os.path.dirname(__file__), filename)
-    with open(json_path) as json_result:
+    with open_file_wrapper(json_path)() as json_result:
         return json.load(json_result)
 
 urls = _get_json('urls.json')
