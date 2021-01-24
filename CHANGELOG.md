@@ -1,3 +1,6 @@
+* [v2.41.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.41.0):
+  * add caching fallbacks
+
 * [v2.40.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.40.0):
   * fix file open issues on KODI 19
 
