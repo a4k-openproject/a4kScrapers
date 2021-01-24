@@ -45,6 +45,8 @@ def _update_request_options(request_options):
 
 lock = filelock.FileLock(_request_cache_path + '.lock')
 def _save_cf_cookies(cfscrape, response):
+    global lock
+
     with lock:
         cookies = ''
 
