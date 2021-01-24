@@ -43,7 +43,12 @@ def _update_request_options(request_options):
     request_options.setdefault('headers', {})
     request_options['headers'].update(headers)
 
-lock = filelock.FileLock(_request_cache_path + '.lock')
+lock = filelock.SoftFileLock(_request_cache_path + '.lock')
+def remove_lock():
+    try: os.remove(_request_cache_path + '.lock')
+    except: pass
+remove_lock()
+
 def _save_cf_cookies(cfscrape, response):
     with lock:
         cookies = ''
@@ -176,10 +181,11 @@ class Request(object):
             response_err = response
             self._verify_response(response)
 
-            try: 
+            try:
                 if self.exc_msg == '' and response.request.headers.get('X-Domain', None) is not None:
                     _save_cf_cookies(self._cfscrape, response)
-            except: pass
+            except:
+                remove_lock()
 
             return response
         except:
