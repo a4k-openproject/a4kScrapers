@@ -43,8 +43,10 @@ def _update_request_options(request_options):
     request_options.setdefault('headers', {})
     request_options['headers'].update(headers)
 
-lock = filelock.FileLock(_request_cache_path + '.lock')
 def _save_cf_cookies(cfscrape, response):
+    global lock
+
+    lock = filelock.FileLock(_request_cache_path + '.lock')
     with lock:
         cookies = ''
 
