@@ -28,6 +28,23 @@ except:
     from html import unescape
     from urllib.parse import quote_plus, quote, unquote
 
+try:
+    from resources.lib.modules import database as alt_database
+except:
+    alt_database_dict = {}
+    def alt_get_or_add(fn, *args, **kwargs):
+      key = _hash_function(fn, *args)
+
+      if alt_database_dict.get(key, None):
+        return alt_database_dict[key]
+
+      return alt_database_dict.setdefault(key, fn(*args, **kwargs))
+
+    alt_database = lambda: None
+    alt_database.get = lambda fn, duration, *args, **kwargs: alt_get_or_add(fn, *args, **kwargs)
+    alt_database.cache_get = lambda key: None
+    alt_database.cache_insert = lambda key, value: None
+
 def _generate_md5(*args):
     md5_hash = hashlib.md5()
     try:
@@ -62,7 +79,12 @@ def _cache_get():
     except:
         return {}
 
-lock = filelock.FileLock(_cache_path + '.lock')
+lock = filelock.SoftFileLock(_cache_path + '.lock')
+def remove_lock():
+    try: os.remove(_cache_path + '.lock')
+    except: pass
+remove_lock()
+
 def get_or_add(key, value, fn, duration, *args, **kwargs):
     with lock:
         database_dict = _cache_get()
@@ -81,9 +103,27 @@ def get_or_add(key, value, fn, duration, *args, **kwargs):
         return value
 
 database = lambda: None
-database.get = lambda fn, duration, *args, **kwargs: get_or_add(None, None, fn, duration, *args, **kwargs)
-database.cache_get = lambda key: get_or_add(key, None, None, None)
-database.cache_insert = lambda key, value: get_or_add(key, value, None, None)
+def db_get(fn, duration, *args, **kwargs):
+    try: return get_or_add(None, None, fn, duration, *args, **kwargs)
+    except:
+        remove_lock()
+        try: return alt_database.get(fn, duration, *args, **kwargs)
+        except: return None
+database.get = db_get
+def db_cache_get(key):
+    try: return get_or_add(key, None, None, None)
+    except:
+        remove_lock()
+        try: return alt_database.cache_get(key)
+        except: return None
+database.cache_get = db_cache_get
+def db_cache_insert(key, value):
+    try: return get_or_add(key, value, None, None)
+    except:
+        remove_lock()
+        try: alt_database.cache_insert(key, value)
+        except: return None
+database.cache_insert = db_cache_insert
 
 DEV_MODE = os.getenv('A4KSCRAPERS_TEST') == '1'
 DEV_MODE_ALL = os.getenv('A4KSCRAPERS_TEST_ALL') == '1'
