@@ -14,7 +14,7 @@ class sources(core.DefaultSources):
         response = self._request.get(url.base + '&get_token=get_token')
         return core.json.loads(response.text)['token']
 
-    def _search_request(self, url, query, force_token_refresh=False, too_many_requests_max_retries=2, no_results_max_retries=2):
+    def _search_request(self, url, query, force_token_refresh=False, too_many_requests_max_retries=3, no_results_max_retries=2):
         token = core.database.get(self._get_token, 0 if force_token_refresh else 1, url)
 
         search = url.search
@@ -56,8 +56,8 @@ class sources(core.DefaultSources):
                 too_many_requests_max_retries -= 1
                 return self._search_request(url, original_query, force_token_refresh, too_many_requests_max_retries, no_results_max_retries)
             # no results found
-            elif core.DEV_MODE and error_code == 20 and no_results_max_retries > 0:
-                core.time.sleep(6)
+            elif error_code == 20 and no_results_max_retries > 0:
+                core.time.sleep(2)
                 core.tools.log('Retrying after no results from %s' % search_url, 'info')
                 no_results_max_retries -= 1
                 return self._search_request(url, original_query, force_token_refresh, too_many_requests_max_retries, no_results_max_retries)
