@@ -86,9 +86,8 @@ def remove_lock():
 remove_lock()
 
 def get_or_add(key, value, fn, duration, *args, **kwargs):
-    global lock
-
-    with lock:
+    try:
+        lock.acquire()
         database_dict = _cache_get()
         key = _hash_function(fn, *args) if not key else key
         if not value and database_dict.get(key, None):
@@ -103,6 +102,9 @@ def get_or_add(key, value, fn, duration, *args, **kwargs):
         database_dict[key] = { 't': time.time(), 'v': value }
         _cache_save(database_dict)
         return value
+    finally:
+        try: lock.release()
+        except: pass
 
 database = lambda: None
 def db_get(fn, duration, *args, **kwargs):

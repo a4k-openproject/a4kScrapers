@@ -50,9 +50,9 @@ def remove_lock():
 remove_lock()
 
 def _save_cf_cookies(cfscrape, response):
-    global lock
+    try:
+        lock.acquire()
 
-    with lock:
         cookies = ''
 
         set_cookie = response.headers.get('Set-Cookie', '')
@@ -89,6 +89,9 @@ def _save_cf_cookies(cfscrape, response):
         cache_key = response.request.headers['X-Domain']
         request_cache[cache_key] = headers
         _request_cache_save(request_cache)
+    finally:
+        try: lock.release()
+        except: pass
 
 def _get(cfscrape, url, headers, timeout, allow_redirects, update_options_fn):
     request_options = {
