@@ -1,3 +1,6 @@
+* [v2.43.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.43.0):
+  * remove the cache locking
+
 * [v2.42.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.42.0):
   * more caching error handling
 
