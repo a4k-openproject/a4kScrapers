@@ -14,7 +14,6 @@ import hashlib
 from functools import wraps
 from inspect import getframeinfo, stack
 from bs4 import BeautifulSoup
-from .third_party.filelock import filelock
 
 py2 = sys.version_info[0] == 2
 py3 = not py2
@@ -64,67 +63,58 @@ def open_file_wrapper(file, mode='r', encoding='utf-8'):
         return lambda: open(file, mode)
     return lambda: open(file, mode, encoding=encoding)
 
-_cache_path = os.path.join(os.path.dirname(__file__), 'cache.json')
+_cache_path = os.path.join(os.path.dirname(__file__), 'temp')
+def _cache_key_path(key):
+    path = ''.join([x if x.isalnum() else '_' for x in key]) + '.json'
+    return os.path.join(_cache_path, path)
 
-def _cache_save(cache):
-    with open_file_wrapper(_cache_path, mode='w')() as f:
-        f.write(json.dumps(cache, indent=4))
+def _cache_save(key, data):
+    path = _cache_key_path(key)
+    with open_file_wrapper(path, mode='w')() as f:
+        f.write(json.dumps(data, indent=4))
 
-def _cache_get():
-    if not os.path.exists(_cache_path):
+def _cache_get(key):
+    path = _cache_key_path(key)
+    if not os.path.exists(path):
         return {}
     try:
-        with open_file_wrapper(_cache_path)() as f:
+        with open_file_wrapper(path)() as f:
             return json.load(f)
     except:
         return {}
 
-lock = filelock.SoftFileLock(_cache_path + '.lock')
-def remove_lock():
-    try: os.remove(_cache_path + '.lock')
-    except: pass
-remove_lock()
-
 def get_or_add(key, value, fn, duration, *args, **kwargs):
-    try:
-        lock.acquire()
-        database_dict = _cache_get()
-        key = _hash_function(fn, *args) if not key else key
-        if not value and database_dict.get(key, None):
-            data = database_dict[key]
+    key = _hash_function(fn, *args) if not key else key
+    if not value:
+        data = _cache_get(key)
+        if data:
             if not duration or time.time() - data['t'] < (duration * 60):
                 return data['v']
 
-        if not value and not fn:
-            return None
+    if not value and not fn:
+        return None
 
-        value = fn(*args, **kwargs) if not value else value
-        database_dict[key] = { 't': time.time(), 'v': value }
-        _cache_save(database_dict)
-        return value
-    finally:
-        try: lock.release()
-        except: pass
+    value = fn(*args, **kwargs) if not value else value
+    data = { 't': time.time(), 'v': value }
+    _cache_save(key, data)
+    return value
 
 database = lambda: None
 def db_get(fn, duration, *args, **kwargs):
     try: return get_or_add(None, None, fn, duration, *args, **kwargs)
     except:
-        remove_lock()
         try: return alt_database.get(fn, duration, *args, **kwargs)
         except: return None
 database.get = db_get
 def db_cache_get(key):
     try: return get_or_add(key, None, None, None)
     except:
-        remove_lock()
         try: return alt_database.cache_get(key)
         except: return None
 database.cache_get = db_cache_get
 def db_cache_insert(key, value):
     try: return get_or_add(key, value, None, None)
     except:
-        remove_lock()
         try: alt_database.cache_insert(key, value)
         except: return None
 database.cache_insert = db_cache_insert

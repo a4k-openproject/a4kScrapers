@@ -12,86 +12,58 @@ from collections import OrderedDict
 from . import source_utils
 from .source_utils import tools
 from .third_party.cloudscraper import cloudscraper
-from .third_party.filelock import filelock
 from .common_types import UrlParts
-from .utils import database, open_file_wrapper
+from .utils import database, open_file_wrapper, _cache_get, _cache_save
 from requests.compat import urlparse, urlunparse
 
 _head_checks = {}
-_request_cache_path = os.path.join(os.path.dirname(__file__), 'request_cache.json')
 
-def _request_cache_save(cache):
-    with open_file_wrapper(_request_cache_path, mode='w')() as f:
-        cache = OrderedDict(sorted(cache.items()))
-        f.write(json.dumps(cache, indent=4))
-
-def _request_cache_get():
-    if not os.path.exists(_request_cache_path):
-        return {}
-
-    try:
-        with open_file_wrapper(_request_cache_path)() as f:
-            return json.load(f)
-    except:
-        return {}
+def _request_cache_save(key, cache):
+    data = cache = OrderedDict(sorted(cache.items()))
+    _cache_save(key, data)
 
 def _update_request_options(request_options):
-    request_cache = _request_cache_get()
     domain = _get_domain(request_options['url'])
-    headers = request_cache.get(domain, {})
+    headers = _cache_get(domain)
     headers['X-Domain'] = domain
     request_options.setdefault('headers', {})
     request_options['headers'].update(headers)
 
-lock = filelock.SoftFileLock(_request_cache_path + '.lock')
-def remove_lock():
-    try: os.remove(_request_cache_path + '.lock')
-    except: pass
-remove_lock()
-
 def _save_cf_cookies(cfscrape, response):
+    cookies = ''
+
+    set_cookie = response.headers.get('Set-Cookie', '')
+    cf_cookies = re.findall(r'(PHPSESSID|__cf.*?|cf.*?)=(.*?);', set_cookie)
+    cookies_dict = {key: value for (key, value) in cf_cookies}
+
+    cf_cookies = re.findall(r'(PHPSESSID|__cf.*?|cf.*?)=(.*?);', response.request.headers.get('Cookie', ''))
+    original_cookies = {key: value for (key, value) in cf_cookies}
+
+    for key in original_cookies.keys():
+            if cookies_dict.get(key, None) is None:
+                cookies_dict[key] = original_cookies[key]
+
     try:
-        lock.acquire()
+        cf_cookies = cfscrape.cookies.items()
+        for (key, value) in cf_cookies:
+            cookies_dict[key] = value
+    except: pass
 
-        cookies = ''
+    cookies_dict = OrderedDict(sorted(cookies_dict.items()))
+    for key in cookies_dict.keys():
+        cookies += '%s=%s; ' % (key, cookies_dict[key])
 
-        set_cookie = response.headers.get('Set-Cookie', '')
-        cf_cookies = re.findall(r'(PHPSESSID|__cf.*?|cf.*?)=(.*?);', set_cookie)
-        cookies_dict = {key: value for (key, value) in cf_cookies}
+    cookies = cookies.strip()
+    if cookies == '':
+        return
 
-        cf_cookies = re.findall(r'(PHPSESSID|__cf.*?|cf.*?)=(.*?);', response.request.headers.get('Cookie', ''))
-        original_cookies = {key: value for (key, value) in cf_cookies}
+    headers = {
+        'User-Agent': response.request.headers['User-Agent'],
+        'Cookie': cookies.strip()
+    }
 
-        for key in original_cookies.keys():
-                if cookies_dict.get(key, None) is None:
-                    cookies_dict[key] = original_cookies[key]
-
-        try:
-            cf_cookies = cfscrape.cookies.items()
-            for (key, value) in cf_cookies:
-                cookies_dict[key] = value
-        except: pass
-
-        cookies_dict = OrderedDict(sorted(cookies_dict.items()))
-        for key in cookies_dict.keys():
-            cookies += '%s=%s; ' % (key, cookies_dict[key])
-
-        cookies = cookies.strip()
-        if cookies == '':
-            return
-
-        headers = {
-            'User-Agent': response.request.headers['User-Agent'],
-            'Cookie': cookies.strip()
-        }
-
-        request_cache = _request_cache_get()
-        cache_key = response.request.headers['X-Domain']
-        request_cache[cache_key] = headers
-        _request_cache_save(request_cache)
-    finally:
-        try: lock.release()
-        except: pass
+    cache_key = response.request.headers['X-Domain']
+    _request_cache_save(cache_key, headers)
 
 def _get(cfscrape, url, headers, timeout, allow_redirects, update_options_fn):
     request_options = {
@@ -189,8 +161,7 @@ class Request(object):
             try:
                 if self.exc_msg == '' and response.request.headers.get('X-Domain', None) is not None:
                     _save_cf_cookies(self._cfscrape, response)
-            except:
-                remove_lock()
+            except: pass
 
             return response
         except:

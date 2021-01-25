@@ -10,7 +10,7 @@
       "bt4g": {
           "search": "/search/%s",
           "domains": [
-              { "base": "http://bt4g.org" }
+              { "base": "https://bt4g.org" }
           ]
       },
       "btdb": {
