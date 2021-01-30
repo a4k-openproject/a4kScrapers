@@ -1,3 +1,6 @@
+* [v2.44.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.44.0):
+  * skip torrentapi 'no result' retries outside CI
+
 * [v2.43.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.43.0):
   * remove the cache locking
 
