@@ -1,6 +1,7 @@
 # a4kScrapers
 
-Provider for [Seren](https://github.com/nixgates/plugin.video.seren)  
+Provider for [Seren](https://github.com/nixgates/plugin.video.seren) and [a4kStreaming](https://github.com/a4k-openproject/a4kStreaming) 
+<br/>
 Latest version: [bit.ly/a4kScrapers](https://bit.ly/a4kScrapers)
 
 **Status**  
