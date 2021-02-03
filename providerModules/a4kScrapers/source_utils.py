@@ -144,12 +144,12 @@ def clean_title(title, broken=None):
     title = strip_accents(title)
     title = strip_non_ascii_and_unprintable(title)
 
-    if broken is None:
-        apostrophe_replacement = 's'
-    elif broken == 1:
+    if broken == 1:
         apostrophe_replacement = ''
     elif broken == 2:
         apostrophe_replacement = ' s'
+    else:
+        apostrophe_replacement = 's'
 
     title = title.replace("\\'s", apostrophe_replacement)
     title = title.replace("'s", apostrophe_replacement)
