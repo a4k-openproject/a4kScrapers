@@ -1,3 +1,7 @@
+* [v2.45.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.45.0):
+  * update urls
+  * remove movcr
+
 * [v2.44.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.44.0):
   * skip torrentapi 'no result' retries outside CI
 
