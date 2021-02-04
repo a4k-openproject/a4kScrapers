@@ -13,18 +13,18 @@ from . import source_utils
 from .source_utils import tools
 from .third_party.cloudscraper import cloudscraper
 from .common_types import UrlParts
-from .utils import database, open_file_wrapper, _cache_get, _cache_save
+from .utils import database, cache_get, cache_save
 from requests.compat import urlparse, urlunparse
 
 _head_checks = {}
 
 def _request_cache_save(key, cache):
     data = cache = OrderedDict(sorted(cache.items()))
-    _cache_save(key, data)
+    cache_save(key, data)
 
 def _update_request_options(request_options):
     domain = _get_domain(request_options['url'])
-    headers = _cache_get(domain)
+    headers = cache_get(domain)
     headers['X-Domain'] = domain
     request_options.setdefault('headers', {})
     request_options['headers'].update(headers)

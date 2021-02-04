@@ -22,7 +22,8 @@ def _get_cached_urls(scraper):
     cached_urls = None
 
     if cache_result is not None:
-        cached_urls = json.loads(cache_result['value'] if isinstance(cache_result, dict) else cache_result)
+        try: cached_urls = json.loads(cache_result['value'] if isinstance(cache_result, dict) else cache_result)
+        except: cached_urls = []
         if len(cached_urls) == 0:
             return None
 
