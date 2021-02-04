@@ -28,21 +28,24 @@ except:
     from urllib.parse import quote_plus, quote, unquote
 
 try:
-    from resources.lib.modules import database as database
+    from resources.lib.modules import database
 except:
-    database_dict = {}
-    def alt_get_or_add(fn, *args, **kwargs):
-      key = _hash_function(fn, *args)
+    try:
+        from a4kStreaming.lib.database import database
+    except:
+        database_dict = {}
+        def alt_get_or_add(fn, *args, **kwargs):
+            key = _hash_function(fn, *args)
 
-      if database_dict.get(key, None):
-        return database_dict[key]
+            if database_dict.get(key, None):
+                return database_dict[key]
 
-      return database_dict.setdefault(key, fn(*args, **kwargs))
+            return database_dict.setdefault(key, fn(*args, **kwargs))
 
-    database = lambda: None
-    database.get = lambda fn, duration, *args, **kwargs: alt_get_or_add(fn, *args, **kwargs)
-    database.cache_get = lambda key: {}
-    database.cache_insert = lambda key, value: {}
+        database = lambda: None
+        database.get = lambda fn, duration, *args, **kwargs: alt_get_or_add(fn, *args, **kwargs)
+        database.cache_get = lambda key: {}
+        database.cache_insert = lambda key, value: {}
 
 def _generate_md5(*args):
     md5_hash = hashlib.md5()
@@ -53,7 +56,7 @@ def _generate_md5(*args):
     return str(md5_hash.hexdigest())
 
 def _get_function_name(function_instance):
-    return re.sub('.+\smethod\s|.+function\s|\sat\s.+|\sof\s.+', '', repr(function_instance))
+    return re.sub(r'.+?\s*method\s*|.+function\s*|\sat\s*?.+|\s*?of\s*?.+', '', repr(function_instance))
 
 def _hash_function(function_instance, *args):
     return _get_function_name(function_instance) + _generate_md5(args)
@@ -64,10 +67,10 @@ def open_file_wrapper(file, mode='r', encoding='utf-8'):
     return lambda: open(file, mode, encoding=encoding)
 
 def cache_save(key, data):
-    database.cache_get(key, data)
+    return database.cache_get(key, data)
 
 def cache_get(key):
-    database.cache_get(key)
+    return database.cache_get(key)
 
 DEV_MODE = os.getenv('A4KSCRAPERS_TEST') == '1'
 DEV_MODE_ALL = os.getenv('A4KSCRAPERS_TEST_ALL') == '1'
