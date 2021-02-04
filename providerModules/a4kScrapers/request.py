@@ -25,6 +25,8 @@ def _request_cache_save(key, cache):
 def _update_request_options(request_options):
     domain = _get_domain(request_options['url'])
     headers = cache_get(domain)
+    if not headers:
+        headers = {}
     headers['X-Domain'] = domain
     request_options.setdefault('headers', {})
     request_options['headers'].update(headers)
