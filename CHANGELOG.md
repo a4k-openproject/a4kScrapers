@@ -1,3 +1,6 @@
+* [v2.46.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.46.0):
+  * use external caching
+
 * [v2.45.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.45.0):
   * update urls
   * remove movcr
