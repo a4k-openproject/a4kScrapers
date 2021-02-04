@@ -28,21 +28,21 @@ except:
     from urllib.parse import quote_plus, quote, unquote
 
 try:
-    from resources.lib.modules import database as alt_database
+    from resources.lib.modules import database as database
 except:
-    alt_database_dict = {}
+    database_dict = {}
     def alt_get_or_add(fn, *args, **kwargs):
       key = _hash_function(fn, *args)
 
-      if alt_database_dict.get(key, None):
-        return alt_database_dict[key]
+      if database_dict.get(key, None):
+        return database_dict[key]
 
-      return alt_database_dict.setdefault(key, fn(*args, **kwargs))
+      return database_dict.setdefault(key, fn(*args, **kwargs))
 
-    alt_database = lambda: None
-    alt_database.get = lambda fn, duration, *args, **kwargs: alt_get_or_add(fn, *args, **kwargs)
-    alt_database.cache_get = lambda key: None
-    alt_database.cache_insert = lambda key, value: None
+    database = lambda: None
+    database.get = lambda fn, duration, *args, **kwargs: alt_get_or_add(fn, *args, **kwargs)
+    database.cache_get = lambda key: {}
+    database.cache_insert = lambda key, value: {}
 
 def _generate_md5(*args):
     md5_hash = hashlib.md5()
@@ -63,61 +63,11 @@ def open_file_wrapper(file, mode='r', encoding='utf-8'):
         return lambda: open(file, mode)
     return lambda: open(file, mode, encoding=encoding)
 
-_cache_path = os.path.join(os.path.dirname(__file__), 'temp')
-def _cache_key_path(key):
-    path = ''.join([x if x.isalnum() else '_' for x in key]) + '.json'
-    return os.path.join(_cache_path, path)
+def cache_save(key, data):
+    database.cache_get(key, data)
 
-def _cache_save(key, data):
-    path = _cache_key_path(key)
-    with open_file_wrapper(path, mode='w')() as f:
-        f.write(json.dumps(data, indent=4))
-
-def _cache_get(key):
-    path = _cache_key_path(key)
-    if not os.path.exists(path):
-        return {}
-    try:
-        with open_file_wrapper(path)() as f:
-            return json.load(f)
-    except:
-        return {}
-
-def get_or_add(key, value, fn, duration, *args, **kwargs):
-    key = _hash_function(fn, *args) if not key else key
-    if not value:
-        data = _cache_get(key)
-        if data:
-            if not duration or time.time() - data['t'] < (duration * 60):
-                return data['v']
-
-    if not value and not fn:
-        return None
-
-    value = fn(*args, **kwargs) if not value else value
-    data = { 't': time.time(), 'v': value }
-    _cache_save(key, data)
-    return value
-
-database = lambda: None
-def db_get(fn, duration, *args, **kwargs):
-    try: return get_or_add(None, None, fn, duration, *args, **kwargs)
-    except:
-        try: return alt_database.get(fn, duration, *args, **kwargs)
-        except: return None
-database.get = db_get
-def db_cache_get(key):
-    try: return get_or_add(key, None, None, None)
-    except:
-        try: return alt_database.cache_get(key)
-        except: return None
-database.cache_get = db_cache_get
-def db_cache_insert(key, value):
-    try: return get_or_add(key, value, None, None)
-    except:
-        try: alt_database.cache_insert(key, value)
-        except: return None
-database.cache_insert = db_cache_insert
+def cache_get(key):
+    database.cache_get(key)
 
 DEV_MODE = os.getenv('A4KSCRAPERS_TEST') == '1'
 DEV_MODE_ALL = os.getenv('A4KSCRAPERS_TEST_ALL') == '1'
