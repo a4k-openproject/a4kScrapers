@@ -1,3 +1,6 @@
+* [v2.47.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.47.0):
+  * support a4kStreaming db
+
 * [v2.46.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.46.0):
   * use external caching
 
