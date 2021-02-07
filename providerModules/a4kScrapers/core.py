@@ -287,10 +287,12 @@ class DefaultHosterSources(DefaultSources):
                         if self._request.exc_msg:
                             deprioritize_url(self._caller_name)
                             return []
-                        url = self.scraper._find_next_url(url)
-                        if url is None:
-                            return []
-                        return search(url)
+                        if self._request.request_time < 2:
+                            url = self.scraper._find_next_url(url)
+                            if url is None:
+                                return []
+                            return search(url)
+                        return []
 
                 hoster_results = search(url) if url is not None else []
             else:
