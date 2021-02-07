@@ -124,6 +124,7 @@ class Request(object):
             self._timeout = timeout
         self.exc_msg = ''
         self.skip_head = False
+        self.request_time = 99
 
     def _verify_response(self, response):
       if response.status_code >= 400:
@@ -155,7 +156,10 @@ class Request(object):
                 if self._should_wait:
                     time.sleep(self._wait)
                 self._should_wait = True
+                self._request_start = time.time()
                 response = request(_update_request_options)
+                self._request_end = time.time()
+                self.request_time = round(self._request_end - self._request_start)
 
             response_err = response
             self._verify_response(response)
@@ -167,11 +171,14 @@ class Request(object):
 
             return response
         except:
+            self._request_end = time.time()
+            self.request_time = round(self._request_end - self._request_start)
+
             if self.exc_msg == '':
               exc = traceback.format_exc(limit=1)
               if 'ConnectTimeout' in exc or 'ReadTimeout' in exc:
                   self.exc_msg = 'request timed out'
-              if 'Detected the new Cloudflare challenge.' in exc and cf_retries > 0:
+              if 'Detected the new Cloudflare challenge.' in exc and cf_retries > 0 and self.request_time < 2:
                   cf_retries -= 1
                   tools.log('cf_new_challenge_retry: %s' % request.url, 'notice')
                   return self._request_core(request, sequental, cf_retries)
