@@ -1,3 +1,6 @@
+* [v2.49.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.49.0):
+  * do not retry slow responses
+
 * [v2.48.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.48.0):
   * check if headers are cached
 
