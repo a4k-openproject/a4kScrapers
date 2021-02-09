@@ -19,6 +19,12 @@
               { "base": "https://btdb.unblockit.ltd" }
           ]
       },
+      "btdig": {
+          "search": "/search?q=%s",
+          "domains": [
+              { "base": "https://www.btdig.com" }
+          ]
+      },
       "btscene": {
           "search": "/search?q=%s",
           "domains": [
@@ -28,7 +34,14 @@
       "ext": {
           "search": "/search?q=%s",
           "domains": [
-              { "base": "https://ext.to" }
+              { "base": "https://torrent.extto.com" }
+          ]
+      },
+      "extratorrent": {
+          "search": "/search/?new=1&search=%s",
+          "domains": [
+              { "base": "https://extratorrents.it" },
+              { "base": "https://extratorrent.si" }
           ]
       },
       "eztv": {
