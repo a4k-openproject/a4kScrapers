@@ -1,3 +1,6 @@
+* [v2.51.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.51.0):
+  * added btdig and extratorrent
+
 * [v2.50.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.50.0):
   * use proper category and sorting for bt4g
 
