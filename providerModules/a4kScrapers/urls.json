@@ -8,7 +8,7 @@
           ]
       },
       "bt4g": {
-          "search": "/search/%s",
+          "search": "/movie/search/%s/byseeders/1",
           "domains": [
               { "base": "https://bt4g.org" }
           ]
