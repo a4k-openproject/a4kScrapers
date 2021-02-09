@@ -1,3 +1,6 @@
+* [v2.50.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.50.0):
+  * use proper category and sorting for bt4g
+
 * [v2.49.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.49.0):
   * do not retry slow responses
 
