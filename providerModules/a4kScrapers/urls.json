@@ -54,12 +54,14 @@
               { "base": "https://eztv.unblocked.llc" }
           ]
       },
-      "glodls": {
+      "glo": {
           "search": "/search_results.php?search=%s&cat={{category}}&incldead=0&inclexternal=0&lang=1&sort=seeders&order=desc",
           "cat_movie": "1",
           "cat_episode": "41",
           "domains": [
-              { "base": "https://glodls.to" }
+              { "base": "https://glodls.to" },
+              { "base": "https://gtdb.to" },
+              { "base": "https://glotorrents.unblockit.link" }
           ]
       },
       "kickass": {
