@@ -585,9 +585,9 @@ class CoreScraper(object):
         missing_seeds = 0
 
         for torrent in self._results:
+            torrent['hash'] = torrent['hash'].strip('"\'\\/')
+            torrent['magnet'] = 'magnet:?xt=urn:btih:%s&' % torrent['hash']
             torrent['release_title'] = source_utils.strip_non_ascii_and_unprintable(torrent['release_title'])
-            if torrent.get('magnet', None) is None:
-                torrent['magnet'] = 'magnet:?xt=urn:btih:%s&' % torrent['hash']
 
             if DEV_MODE:
                 tools.log(torrent['release_title'], 'notice')
@@ -610,6 +610,9 @@ class CoreScraper(object):
         results = {}
         for result in self._results:
             item_key = result['hash']
+            if len(item_key) < 40:
+                continue
+
             item = results.get(result['hash'], None)
             if item is None:
                 results[item_key] = result
