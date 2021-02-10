@@ -1,3 +1,7 @@
+* [v2.52.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.52.0):
+  * trim invalid symbol from hashes
+  * ignore invalid hashes
+
 * [v2.51.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.51.0):
   * added btdig and extratorrent
 
