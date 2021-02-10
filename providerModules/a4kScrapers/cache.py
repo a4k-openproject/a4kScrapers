@@ -43,7 +43,8 @@ def sha1(string):
     return hashlib.sha1(string.encode('utf8')).hexdigest()
 
 scraper_keys = {
-    sha1('showrss'): 'showrss'
+    sha1('showrss'): 'showrss',
+    sha1('glodls'): 'glodls'
 }
 for key in trackers.keys():
     key = key.strip('-')
