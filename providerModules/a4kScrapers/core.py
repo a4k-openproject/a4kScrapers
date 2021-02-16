@@ -8,7 +8,7 @@ from string import capwords
 from .request import threading, Request
 from . import source_utils
 from .source_utils import tools
-from .utils import beautifulSoup, encode, decode, now, time, clock_time_ms, safe_list_get, get_caller_name, replace_text_with_int, database
+from .utils import beautifulSoup, encode, decode, now, time, clock_time_ms, safe_list_get, get_caller_name, replace_text_with_int, b32toHex, database
 from .utils import get_all_relative_py_files, wait_threads, quote_plus, quote, DEV_MODE, DEV_MODE_ALL, CACHE_LOG, AWS_ADMIN
 from .common_types import namedtuple, SearchResult, UrlParts, Filter, HosterResult, CancellationToken
 from .scrapers import re, NoResultsScraper, GenericTorrentScraper, GenericExtraQueryTorrentScraper, MultiUrlScraper
@@ -611,7 +611,7 @@ class CoreScraper(object):
         for result in self._results:
             item_key = result['hash']
             if len(item_key) < 40:
-                continue
+                item_key = b32toHex(item_key)
 
             item = results.get(result['hash'], None)
             if item is None:
