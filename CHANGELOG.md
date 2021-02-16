@@ -1,3 +1,8 @@
+* [v2.53.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.53.0):
+  * remove ext.to (behind cf v2)
+  * add torrenttm
+  * support base32 hashes
+
 * [v2.52.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.52.0):
   * trim invalid symbol from hashes
   * ignore invalid hashes

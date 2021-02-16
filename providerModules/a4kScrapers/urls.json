@@ -31,12 +31,7 @@
               { "base": "http://btscene.nl" }
           ]
       },
-      "ext": {
-          "search": "/search?q=%s",
-          "domains": [
-              { "base": "https://torrent.extto.com" }
-          ]
-      },
+      "-ext": { "search": "", "domains": [{ "base": "" }] },
       "extratorrent": {
           "search": "/search/?new=1&search=%s",
           "domains": [
@@ -168,6 +163,12 @@
               { "base": "https://torrentgalaxy.to" },
               { "base": "https://torrentgalaxy.mx" },
               { "base": "https://torrentgalaxy.su" }
+          ]
+      },
+      "torrenttm": {
+          "search": "/search?q=%s",
+          "domains": [
+              { "base": "https://torrent.tm" }
           ]
       },
       "torrentz2": {

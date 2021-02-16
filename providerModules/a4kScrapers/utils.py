@@ -257,3 +257,10 @@ def check_timeout(datetime, timeout_in_hours):
 
 def clock_time_ms(start, end):
   return int(round((end - start) * 1000))
+
+def b32toHex(value):
+    value = base64.b32decode(value)
+    if py2:
+        return value.encode('hex')
+    else:
+        return value.hex()
