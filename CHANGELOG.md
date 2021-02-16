@@ -1,3 +1,6 @@
+* [v2.54.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.54.0):
+  * add bitcq and torrent-paradise
+
 * [v2.53.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.53.0):
   * remove ext.to (behind cf v2)
   * add torrenttm
