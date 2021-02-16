@@ -7,6 +7,12 @@
               { "base": "https://bitlordsearch.com" }
           ]
       },
+      "bitcq": {
+          "search": "/search?q=%s&category%%5B%%5D=1",
+          "domains": [
+              { "base": "https://bitcq.com" }
+          ]
+      },
       "bt4g": {
           "search": "/movie/search/%s/byseeders/1",
           "domains": [
@@ -163,6 +169,12 @@
               { "base": "https://torrentgalaxy.to" },
               { "base": "https://torrentgalaxy.mx" },
               { "base": "https://torrentgalaxy.su" }
+          ]
+      },
+      "torrentparadise": {
+          "search": "/api/search?q=%s",
+          "domains": [
+              { "base": "https://torrent-paradise.ml" }
           ]
       },
       "torrenttm": {

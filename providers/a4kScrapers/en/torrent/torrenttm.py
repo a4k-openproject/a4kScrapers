@@ -12,6 +12,8 @@ class sources(core.DefaultSources):
         if hash:
             name = core.safe_list_get(core.re.findall(r'<a href="?' + core.re.escape(hash) + '"?>(.*?)</a>', row, core.re.DOTALL), 0, [])
             if name:
-                name = core.re.sub(r'\s+', ' ', core.re.sub(r'</?mark>', '', name))
+                name = core.re.sub(r'</?mark>', '', name)
+                name = core.re.sub(r'</?span.*?>', '', name)
+                name = core.re.sub(r'\s+', ' ', name)
                 return 'magnet:?xt=urn:btih:%s&dn=%s' % (hash, name)
         return None
