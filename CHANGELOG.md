@@ -1,3 +1,6 @@
+* [v2.55.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.55.0):
+  * fix torrent-paradise searching for packs
+
 * [v2.54.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.54.0):
   * add bitcq and torrent-paradise
 
