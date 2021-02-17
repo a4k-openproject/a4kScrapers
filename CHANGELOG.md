@@ -1,3 +1,6 @@
+* [v2.56.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.56.0):
+  * bring back official btdb url
+
 * [v2.55.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.55.0):
   * fix torrent-paradise searching for packs
 
