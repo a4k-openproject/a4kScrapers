@@ -1,0 +1,49 @@
+name: cron
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/cron.yml'
+  schedule:
+    - cron:  '0 7 * * *'
+  workflow_dispatch: ~
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: setup-python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+
+    - name: install
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
+
+    - name: trigger
+      if: github.event_name == 'schedule'
+      env:
+        APPVEYOR: ${{ secrets.APPVEYOR }}
+        WERCKER: ${{ secrets.WERCKER }}
+        CIRCLECI: ${{ secrets.CIRCLECI }}
+      run: |
+        curl -d 'accountName=newt-sc&projectSlug=a4kScrapers&branch=master' -H "Authorization: Bearer $APPVEYOR" -X POST https://ci.appveyor.com/api/account/newt-sc/builds
+        curl -d '{"pipelineId":"5c7a9ea79fb4180b007ce3c5"}' -H 'Content-Type: application/json' -H "Authorization: Bearer $WERCKER" -X POST https://app.wercker.com/api/v3/runs/
+        curl -d '{}' -H 'Content-Type: application/json' -X POST "https://circleci.com/api/v1.1/project/github/a4k-openproject/a4kScrapers/tree/master?circle-token=$CIRCLECI"
+
+    - name: test
+      run: |
+        python3 -m unittest tests_runner.py
+
+    - name: update
+      if: ${{ github.event_name == 'schedule' && success() }}
+      env:
+        A4KSCRAPERS_ENV: ${{ secrets.A4KSCRAPERS_ENV }}
+      run: |
+        python3 update_cached_db.py
