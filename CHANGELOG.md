@@ -1,3 +1,6 @@
+* [v2.57.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.57.0):
+  * improve country code cleanup from release title
+
 * [v2.56.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.56.0):
   * bring back official btdb url
 
