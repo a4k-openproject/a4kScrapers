@@ -57,7 +57,7 @@ class sources(core.DefaultSources):
                 return self._search_request(url, original_query, force_token_refresh, too_many_requests_max_retries, no_results_max_retries)
             # no results found
             elif core.DEV_MODE and error_code == 20 and no_results_max_retries > 0:
-                core.time.sleep(10)
+                core.time.sleep(25)
                 core.tools.log('Retrying after no results from %s' % search_url, 'info')
                 no_results_max_retries -= 1
                 return self._search_request(url, original_query, force_token_refresh, too_many_requests_max_retries, no_results_max_retries)
