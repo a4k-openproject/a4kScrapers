@@ -10,7 +10,7 @@ on:
   workflow_dispatch: ~
 
 jobs:
-  tests:
+  cron:
     runs-on: ubuntu-latest
 
     steps:
