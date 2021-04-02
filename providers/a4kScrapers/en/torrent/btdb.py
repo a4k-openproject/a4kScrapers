@@ -8,3 +8,7 @@ class sources(core.DefaultSources):
                                       *args,
                                       request=core.Request(sequental=True),
                                       **kwargs)
+
+    def _soup_filter(self, response):
+        response = core.normalize(response.text)
+        return self.genericScraper._parse_rows(response, row_tag='<ul class="recent-list">')
