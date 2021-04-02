@@ -141,8 +141,8 @@
       "skytorrents": {
           "search": "",
           "domains": [
-              { "base": "https://www.skytorrents.net/?search=%s" },
-              { "base": "https://sitenable.top/o.php?b=60&pv=4&mobile=&u=http%%3A%%2F%%2Fskytorrents.in%%2Fsearch%%3Fl%%3Den-us%%26q%%3D%s" }
+              { "base": "https://sitenable.top/o.php?b=60&pv=4&mobile=&u=http%%3A%%2F%%2Fskytorrents.in%%2Fsearch%%3Fl%%3Den-us%%26q%%3D%s" },
+              { "base": "https://www.skytorrents.net/?search=%s" }
           ]
       },
       "solidtorrents": {
