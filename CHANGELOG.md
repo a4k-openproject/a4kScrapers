@@ -1,3 +1,7 @@
+* [v2.58.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.58.0):
+  * fix btdb seeds info
+  * switch default skytorrents url
+
 * [v2.57.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.57.0):
   * improve country code cleanup from release title
 
