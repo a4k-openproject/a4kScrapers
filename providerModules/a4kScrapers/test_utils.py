@@ -31,7 +31,7 @@ def _assert_result(test, scraper_module, scraper_sources, scraper, torrent_list)
 
     test.assertEqual(results_count, expected_count, '%s failed to find torrent' % scraper)
 
-    if scraper == 'showrss' or scraper == 'extratorrent':
+    if scraper == 'showrss' or scraper == 'extratorrent' or scraper == 'eztv':
         return
 
     for torrent in torrent_list:
