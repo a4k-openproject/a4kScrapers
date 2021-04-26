@@ -1,3 +1,6 @@
+* [v2.59.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.59.0):
+  * remove torrenttm
+
 * [v2.58.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.58.0):
   * fix btdb seeds info
   * switch default skytorrents url
