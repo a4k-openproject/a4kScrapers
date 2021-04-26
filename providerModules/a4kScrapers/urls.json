@@ -178,12 +178,7 @@
               { "base": "https://torrent-paradise.ml" }
           ]
       },
-      "torrenttm": {
-          "search": "/search?q=%s",
-          "domains": [
-              { "base": "https://torrent.tm" }
-          ]
-      },
+      "torrenttm": { "search": "", "domains": [{ "base": "" }] },
       "torrentz2": {
           "search": "/data.php?q=%s",
           "domains": [
