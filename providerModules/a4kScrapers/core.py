@@ -681,18 +681,25 @@ class CoreScraper(object):
                 wait_threads([movie('')])
                 return
 
-            queries = [movie(self.title + ' ' + self.year)]
+            target = self.title
+            if self.year:
+                target = self.title + ' ' + self.year
+
+            queries = [movie(target)]
 
             try:
                 alternative_title = replace_text_with_int(self.title)
                 if not single_query and self.title != alternative_title:
-                    queries.append(movie(alternative_title + ' ' + self.year))
+                    target = alternative_title
+                    if self.year:
+                        target = alternative_title + ' ' + self.year
+                    queries.append(movie(target))
             except:
                 pass
 
             wait_threads(queries)
 
-            if not single_query and len(self._results) == 0 and not self._request.exc_msg:
+            if not single_query and len(self._results) == 0 and not self._request.exc_msg and self.year:
                 wait_threads([movie(self.title)])
         except:
             pass
