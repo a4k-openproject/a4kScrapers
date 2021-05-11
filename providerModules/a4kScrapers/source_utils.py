@@ -165,20 +165,23 @@ def clean_title(title, broken=None):
     return title.strip()
 
 def clean_tags(title):
-    title = title.lower()
+    try:
+        title = title.lower()
 
-    if title[0] == '[':
-        title = title[title.find(']')+1:].strip()
-        return clean_tags(title)
-    if title[0] == '(':
-        title = title[title.find(')')+1:].strip()
-        return clean_tags(title)
-    if title[0] == '{':
-        title = title[title.find('}')+1:].strip()
-        return clean_tags(title)
+        if title[0] == '[':
+            title = title[title.find(']')+1:].strip()
+            return clean_tags(title)
+        if title[0] == '(':
+            title = title[title.find(')')+1:].strip()
+            return clean_tags(title)
+        if title[0] == '{':
+            title = title[title.find('}')+1:].strip()
+            return clean_tags(title)
 
-    title = re.sub(r'\(|\)|\[|\]|\{|\}', ' ', title)
-    title = re.sub(r'\s+', ' ', title)
+        title = re.sub(r'\(|\)|\[|\]|\{|\}', ' ', title)
+        title = re.sub(r'\s+', ' ', title)
+    except:
+        pass
 
     return title
 
@@ -290,9 +293,10 @@ def clean_release_title_with_simple_info(title, simple_info):
         for target in adult_movie_tags:
             if target not in (simple_info['query_title'] + ' ') and target in (title + ' '):
                 return ''
+    else:
+        title = remove_from_title(title, year)
 
     title = remove_from_title(title, get_quality(title), False)
-    title = remove_from_title(title, year)
     title = (title.replace(' tv series ', ' ')
                   .replace(' the completed ', ' ')
                   .replace(' completed ', ' ')
@@ -326,17 +330,17 @@ def check_title_match(title_parts, release_title, simple_info, is_special=False)
     title = remove_country(title, country)
     title = remove_from_title(title, year)
 
-    if release_title.startswith(title):
+    if release_title.startswith(title + year):
         return True
 
     return False
 
 def check_episode_number_match(release_title):
-    episode_number_match = len(re.findall(r'(s\d+ *e\d+ )', release_title)) > 0
+    episode_number_match = re.search(r'[+|-|_|.| ]s\d{1,3}[+|-|_|.| ]?e\d{1,3}[+|-|_|.| ]', release_title, re.IGNORECASE)
     if episode_number_match:
         return True
 
-    episode_number_match = len(re.findall(r'(season \d+ episode \d+)', release_title)) > 0
+    episode_number_match = re.search(r'[+|-|_|.| ]season[+|-|_|.| ]\d+[+|-|_|.| ]episode[+|-|_|.| ]\d+', release_title, re.IGNORECASE)
     if episode_number_match:
         return True
 
@@ -358,6 +362,10 @@ def check_episode_title_match(titles, release_title, simple_info):
 def filter_movie_title(org_release_title, release_title, movie_title, simple_info):
     if org_release_title is not None and simple_info['year'] not in org_release_title:
         log('movienoyear]: %s' % release_title, 'notice')
+        return False
+
+    if org_release_title is not None and check_episode_number_match(org_release_title):
+        log('movieepisode]: %s' % release_title, 'notice')
         return False
 
     if any(i in release_title for i in exclusions):

@@ -220,7 +220,7 @@ class Request(object):
             return (url, 500)
 
         url = _get_domain(url)
-        tools.log('HEAD: %s' % url, 'info')
+        tools.log('HEAD: %s' % url, 'debug')
         request = lambda _: self._request.head(url, timeout=2)
         request.url = url
         response = self._request_core(request, sequental=False)
@@ -288,14 +288,14 @@ class Request(object):
             )
         )
 
-        tools.log('GET: %s' % url, 'info')
+        tools.log('GET: %s' % url, 'debug')
         request = lambda x: _get(self._cfscrape, url, headers, self._timeout, allow_redirects, x)
         request.url = url
 
         return self._request_core(request)
 
     def post(self, url, data, headers={}):
-        tools.log('POST: %s' % url, 'info')
+        tools.log('POST: %s' % url, 'debug')
         request = lambda _: self._cfscrape.post(url, data, headers=headers, timeout=self._timeout)
         request.url = url
         return self._request_core(request)
