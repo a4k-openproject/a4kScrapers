@@ -1,3 +1,9 @@
+* [v2.60.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.60.0):
+  * allow only movie results where the expected title is followed by the expected year
+  * add additional check if the movie result is actually an episode
+  * fix rare issue of title being an empty string after cleanup breaking the tags check
+  * change the request logs to debug level
+
 * [v2.59.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.59.0):
   * remove torrenttm
 
