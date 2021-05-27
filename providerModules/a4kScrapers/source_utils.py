@@ -90,21 +90,24 @@ class randomUserAgentRequests(Session):
             # Spoof common and random user agent
             self.headers["User-Agent"] = random.choice(USER_AGENTS)
 
+size_convert={'G': lambda x: int(x*1024), \
+        'M': lambda x: x.__int__(), \
+        'K': lambda x: int(x/1024), \
+        'B': lambda x: int(x/1048576)}
+valid_size=frozenset(('0','1','2','3','4','5','6','7','8','9','.'))
+valid_suffix=frozenset(('G','g','M','m','K','k','B','b'))
+
 def de_string_size(size):
     try:
-        if isinstance(size, int):
-            return size
-        if 'GB' in size or 'GiB' in size:
-            size = float(size.replace('GB', ''))
-            size = int(size * 1024)
-            return size
-        if 'MB' in size or 'MiB' in size:
-            size = int(size.replace('MB', '').replace(',', '').replace(' ', '').split('.')[0])
-            return size
-        if 'B' in size:
-            size = int(size.replace('B', ''))
-            size = int(size / 1024 / 1024)
-            return size
+        if isinstance(size, (int,float)):
+            return size.__int__()
+        if isinstance(size, str):
+            temp_size = ''.join([i for i in size if i in valid_size])
+            suffixes = [i for i in size if i in valid_suffix]
+            suffix = 'B' if len(suffixes)==0 else suffixes[0].upper()
+            if suffix in size_convert:
+                return size_convert[suffix](float(temp_size))
+            return 0
     except:
         return 0
 

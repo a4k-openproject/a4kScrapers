@@ -84,9 +84,10 @@ class GenericTorrentScraper(object):
         return None
 
     def parse_size(self, row):
-        size = safe_list_get(re.findall(r'(\d+(?:\,\d+)?\.?\d*\s*[GM]i?B)', row), 0) \
-            .replace('GiB', 'GB') \
-            .replace('MiB', 'MB')
+        size = safe_list_get(re.findall(r'(\d+(?:\,\d+)?\.?\d*\s*[GMK][Ii]?B)', row), 0) \
+            .upper().replace('GIB', 'GB') \
+            .replace('MIB', 'MB') \
+            .replace('KIB', 'KB')
 
         if size == '': # bitlord
             size = self._parse_number(row, -3)
