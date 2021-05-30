@@ -25,6 +25,9 @@ class GenericTorrentScraper(object):
 
     def _parse_rows(self, response, row_tag):
         results = []
+        if row_tag not in response:
+            return results
+
         rows = response.split(row_tag)
         for row in rows:
             torrent = self._parse_torrent(row, row_tag)
@@ -110,10 +113,11 @@ class GenericTorrentScraper(object):
         response = normalize(response.text)
 
         return (
+            self._parse_rows(response, row_tag='<div class="media"') + #7torrents
+            self._parse_rows(response, row_tag='tgxtablerow') + #torrentgalaxy
             self._parse_rows(response, row_tag='<tr') +
             self._parse_rows(response, row_tag='<dl') +
-            self._parse_rows(response, row_tag='<ul') +
-            self._parse_rows(response, row_tag='tgxtablerow') #torrentgalaxy
+            self._parse_rows(response, row_tag='<ul')
         )
 
     def title_filter(self, result):
