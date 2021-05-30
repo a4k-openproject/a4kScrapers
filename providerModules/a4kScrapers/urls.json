@@ -1,6 +1,12 @@
 {
   "trackers": {
     "cached": { "search": "", "domains": [{ "base": "" }] },
+      "7torrents": {
+          "search": "/search?query=%s&sort=seeders",
+          "domains": [
+              { "base": "https://www.7torrents.cc" }
+          ]
+      },
       "bitlord": {
           "search": "/get_list",
           "domains": [
@@ -42,8 +48,7 @@
       "extratorrent": {
           "search": "/search/?new=1&search=%s",
           "domains": [
-              { "base": "https://extratorrents.it" },
-              { "base": "https://extratorrent.si" }
+              { "base": "https://extratorrents.it" }
           ]
       },
       "eztv": {
@@ -146,7 +151,7 @@
           ]
       },
       "solidtorrents": {
-          "search": "/api/v1/search?q=%s&category=video&sort=seeders",
+          "search": "/api/v1/search?q=%s&category=video&sort=size",
           "domains": [
               { "base": "https://solidtorrents.net" }
           ]
