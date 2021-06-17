@@ -1,3 +1,6 @@
+* [v2.62.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.62.0):
+  * test fixes and handle head request exceptions
+
 * [v2.61.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.61.0):
   * add 7torrents
   * exclude more keywords for movie titles
