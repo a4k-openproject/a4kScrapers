@@ -223,13 +223,20 @@ class Request(object):
         tools.log('HEAD: %s' % url, 'debug')
         request = lambda _: self._request.head(url, timeout=2)
         request.url = url
-        response = self._request_core(request, sequental=False)
-        if _is_cloudflare_iuam_challenge(response, allow_empty_body=True):
-            response = lambda: None
-            response.url = url
-            response.status_code = 200
 
-        if response.status_code >= 400:
+        try:
+            response = self._request_core(request, sequental=False)
+            if _is_cloudflare_iuam_challenge(response, allow_empty_body=True):
+                response = lambda: None
+                response.url = url
+                response.status_code = 200
+
+            if response.status_code >= 400:
+                response = lambda: None
+                response.url = url
+                response.status_code = 200
+
+        except:
             response = lambda: None
             response.url = url
             response.status_code = 200
