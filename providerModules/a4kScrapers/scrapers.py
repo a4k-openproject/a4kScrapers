@@ -113,7 +113,6 @@ class GenericTorrentScraper(object):
         response = normalize(response.text)
 
         return (
-            self._parse_rows(response, row_tag='<div class="media"') + #7torrents
             self._parse_rows(response, row_tag='tgxtablerow') + #torrentgalaxy
             self._parse_rows(response, row_tag='<tr') +
             self._parse_rows(response, row_tag='<dl') +
