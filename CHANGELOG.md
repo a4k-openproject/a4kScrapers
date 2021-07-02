@@ -1,3 +1,9 @@
+* [v2.63.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.63.0):
+  * remove 7torrents - its slow and does not get updated
+  * remove skytorrents - dead links
+  * remove extratorrents - dead links
+  * skip head requests for lime
+
 * [v2.62.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.62.0):
   * test fixes and handle head request exceptions
 
