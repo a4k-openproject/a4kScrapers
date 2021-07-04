@@ -1,3 +1,6 @@
+* [v2.64.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.64.0):
+  * remove btdb - dead links
+
 * [v2.63.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.63.0):
   * remove 7torrents - its slow and does not get updated
   * remove skytorrents - dead links
