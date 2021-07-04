@@ -20,13 +20,7 @@
               { "base": "https://bt4g.org" }
           ]
       },
-      "btdb": {
-          "search": "/search/%s/?sort=popular",
-          "domains": [
-              { "base": "https://btdb.eu" },
-              { "base": "https://btdb.unblockit.ltd" }
-          ]
-      },
+      "-btdb": { "search": "", "domains": [{ "base": "" }] },
       "btdig": {
           "search": "/search?q=%s",
           "domains": [
