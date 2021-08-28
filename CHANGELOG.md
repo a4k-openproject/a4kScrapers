@@ -1,3 +1,7 @@
+* [v2.65.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.65.0):
+  * remove bitcq - dead
+  * remove scenerls - dropping hosters support
+
 * [v2.64.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.64.0):
   * remove btdb - dead links
 

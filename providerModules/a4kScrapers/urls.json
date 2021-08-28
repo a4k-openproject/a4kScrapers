@@ -8,12 +8,7 @@
               { "base": "https://bitlordsearch.com" }
           ]
       },
-      "bitcq": {
-          "search": "/search?q=%s&category%%5B%%5D=1",
-          "domains": [
-              { "base": "https://bitcq.com" }
-          ]
-      },
+      "-bitcq": { "search": "", "domains": [{ "base": "" }] },
       "bt4g": {
           "search": "/movie/search/%s/byseeders/1",
           "domains": [
@@ -189,11 +184,6 @@
   },
   "hosters": {
       "-rlsbb": { "search": "", "domains": [{ "base": "" }] },
-      "scenerls": {
-          "search": "/?s=%s",
-          "domains": [
-              { "base": "http://scene-rls.net" }
-          ]
-      }
+      "-scenerls": { "search": "", "domains": [{ "base": "" }] }
   }
 }
