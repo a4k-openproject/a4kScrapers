@@ -11,12 +11,12 @@ class sources(core.DefaultSources):
         if self.is_movie_query():
             return False
 
+        # ignore title
+        title = core.re.sub(r'.*(S\d\d.*)', r'%s \1' % self.scraper.show_title, title)
+        clean_title = core.re.sub(r'.*(s\d\d.*)', r'%s \1' % self.scraper.show_title, clean_title)
+
         if self.scraper.filter_single_episode.fn(title, clean_title):
             self._filter.type = self.scraper.filter_single_episode.type
-            return True
-
-        if self.scraper.filter_single_special_episode.fn(title, clean_title):
-            self._filter.type = self.scraper.filter_single_special_episode.type
             return True
 
         if self.scraper.filter_show_pack.fn(title, clean_title):
