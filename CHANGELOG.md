@@ -1,3 +1,6 @@
+* [v2.67.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.67.0):
+  * ignore result title when filtering on eztv_api
+
 * [v2.66.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.66.0):
   * additional scrape of eztv based on their api supporting imdb ids
 
