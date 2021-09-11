@@ -1,3 +1,6 @@
+* [v2.66.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.66.0):
+  * additional scrape of eztv based on their api supporting imdb ids
+
 * [v2.65.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.65.0):
   * remove bitcq - dead
   * remove scenerls - dropping hosters support
