@@ -30,8 +30,8 @@
       },
       "-ext": { "search": "", "domains": [{ "base": "" }] },
       "-extratorrent": { "search": "", "domains": [{ "base": "" }] },
-      "eztv": {
-          "search": "/search/%s",
+      "eztv_api": {
+          "search": "/api/get-torrents?limit=100&imdb_id=%s",
           "domains": [
               { "base": "https://eztv.re" },
               { "base": "https://eztv.ag" },
@@ -40,6 +40,16 @@
               { "base": "https://eztv.unblocked.llc" }
           ]
       },
+      "eztv": {
+        "search": "/search/%s",
+        "domains": [
+            { "base": "https://eztv.re" },
+            { "base": "https://eztv.ag" },
+            { "base": "https://eztv.it" },
+            { "base": "https://eztv.ch" },
+            { "base": "https://eztv.unblocked.llc" }
+        ]
+    },
       "glo": {
           "search": "/search_results.php?search=%s&cat={{category}}&incldead=0&inclexternal=0&lang=1&sort=seeders&order=desc",
           "cat_movie": "1",

@@ -171,7 +171,7 @@ def _disable_warnings():
 
 def test_torrent(self, scraper_module, scraper, url=None):
     _disable_warnings()
-    if scraper in ['showrss', 'eztv']:
+    if scraper in ['showrss', 'eztv', 'eztv_api']:
         return _episode(scraper_module, scraper, url, test=self)
     return _movie(scraper_module, scraper, url, test=self)
 
