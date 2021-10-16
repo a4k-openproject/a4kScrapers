@@ -12,6 +12,10 @@ class sources(core.DefaultSources):
             query = self._imdb
         return super(sources, self)._search_request(url, query)
 
+    def _soup_filter(self, response):
+        response = core.normalize(response.text)
+        return self.genericScraper._parse_rows(response, row_tag='tgxtablerow')
+
     def _parse_seeds(self, row):
         return core.safe_list_get(core.re.findall(r'color=\'green\'><b>(\d+)</b>.*', row), 0)
 
