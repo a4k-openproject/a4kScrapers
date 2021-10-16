@@ -1,3 +1,6 @@
+* [v2.68.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.68.0):
+  * add bitsearch
+
 * [v2.67.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.67.0):
   * ignore result title when filtering on eztv_api
 

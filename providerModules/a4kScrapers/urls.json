@@ -8,6 +8,12 @@
               { "base": "https://bitlordsearch.com" }
           ]
       },
+      "bitsearch": {
+          "search": "/search?q=%s&category=1&subcat=2&sort=seeders",
+          "domains": [
+              { "base": "https://bitsearch.to" }
+          ]
+      },
       "-bitcq": { "search": "", "domains": [{ "base": "" }] },
       "bt4g": {
           "search": "/movie/search/%s/byseeders/1",
