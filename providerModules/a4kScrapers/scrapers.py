@@ -113,8 +113,6 @@ class GenericTorrentScraper(object):
         response = normalize(response.text)
 
         return (
-            self._parse_rows(response, row_tag='search-result view-box') + #bitsearch
-            self._parse_rows(response, row_tag='tgxtablerow') + #torrentgalaxy
             self._parse_rows(response, row_tag='<tr') +
             self._parse_rows(response, row_tag='<dl') +
             self._parse_rows(response, row_tag='<ul')

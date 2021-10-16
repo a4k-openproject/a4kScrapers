@@ -1,3 +1,6 @@
+* [v2.68.1](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.68.1):
+  * small refactoring
+
 * [v2.68.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.68.0):
   * add bitsearch
 
