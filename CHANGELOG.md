@@ -1,3 +1,7 @@
+* [v2.69.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.69.0):
+  * change torrentz2 url
+  * fix piratebay matching by tv episode title
+
 * [v2.68.1](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.68.1):
   * small refactoring
 
