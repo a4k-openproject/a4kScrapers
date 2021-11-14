@@ -174,9 +174,9 @@
       },
       "torrenttm": { "search": "", "domains": [{ "base": "" }] },
       "torrentz2": {
-          "search": "/data.php?q=%s",
+          "search": "/kick.php?q=%s",
           "domains": [
-              { "base": "https://torrentzeu.org" }
+              { "base": "https://torrentz2eu.me" }
           ]
       },
       "-torrentz2_": { "search": "", "domains": [{ "base": "" }] },
