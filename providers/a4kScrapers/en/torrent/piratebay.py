@@ -15,10 +15,6 @@ class sources(core.DefaultSources):
             self._filter.type = self.scraper.filter_single_episode.type
             return True
 
-        if self.scraper.filter_single_special_episode.fn(title, clean_title):
-            self._filter.type = self.scraper.filter_single_special_episode.type
-            return True
-
         if self.scraper.filter_show_pack.fn(title, clean_title):
             self._filter.type = self.scraper.filter_show_pack.type
             return True
