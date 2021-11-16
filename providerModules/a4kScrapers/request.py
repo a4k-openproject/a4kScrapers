@@ -179,6 +179,9 @@ class Request(object):
 
             if self.exc_msg == '':
               exc = traceback.format_exc(limit=1)
+              if 'PreemptiveCancellation' in exc:
+                raise Exception("PreemptiveCancellation")
+
               if 'ConnectTimeout' in exc or 'ReadTimeout' in exc:
                   self.exc_msg = 'request timed out'
               if 'Detected the new Cloudflare challenge.' in exc and cf_retries > 0 and self.request_time < 2:

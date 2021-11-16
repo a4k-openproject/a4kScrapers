@@ -41,7 +41,7 @@ from providers.a4kScrapers.en import torrent as torrent_module
 
 torrent_scrapers = {}
 for scraper in torrent_module.__all__:
-    if scraper in ['bitlord', 'glo', 'kickass', 'lime', 'magnetdl', 'nyaa', 'piratebay', 'solidtorrents', 'torrentapi', 'torrentdownload', 'torrentgalaxy', 'torrentparadise', 'yts']:
+    if scraper in ['bitcq', 'bitlord', 'glo', 'kickass', 'lime', 'magnetdl', 'nyaa', 'piratebay', 'solidtorrents', 'torrentapi', 'torrentdownload', 'torrentgalaxy', 'torrentparadise', 'torrentz2', 'yts']:
         torrent_scrapers[scraper] = importlib.import_module('providers.a4kScrapers.en.torrent.%s' % scraper)
 
 url = os.getenv('A4KSCRAPERS_TRAKT_API_URL')
