@@ -1,3 +1,7 @@
+* [v2.70.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.70.0):
+  * bring back bitcq
+  * propagate pre-emptive termination exc from request
+
 * [v2.69.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.69.0):
   * change torrentz2 url
   * fix piratebay matching by tv episode title
