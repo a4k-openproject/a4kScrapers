@@ -7,6 +7,7 @@ import sys
 import re
 import os
 import json
+import requests
 
 from collections import OrderedDict
 from . import source_utils
@@ -73,12 +74,15 @@ def _get(cfscrape, url, headers, timeout, allow_redirects, update_options_fn):
         'url': url,
         'headers': headers,
         'timeout': timeout,
-        'allow_redirects': allow_redirects
+        'allow_redirects': allow_redirects,
     }
 
     if update_options_fn is not None:
         update_options_fn(request_options)
 
+    if url.endswith('.json'):
+        request_options['verify']=False
+        return requests.request(**request_options)
     return cfscrape.request(**request_options)
 
 def _is_cloudflare_iuam_challenge(resp, allow_empty_body=False):

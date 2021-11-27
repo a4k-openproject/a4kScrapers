@@ -176,7 +176,7 @@ class DefaultSources(object):
     def is_movie_query(self):
         return self.query_type == 'movie'
 
-    def movie(self, title, year, imdb=None, auto_query=True):
+    def movie(self, title, year, imdb=None, auto_query=True, **kwargs):
         self.query_type = 'movie'
         return self._get_scraper(title) \
                    .movie_query(title,
@@ -185,7 +185,7 @@ class DefaultSources(object):
                                 auto_query=auto_query,
                                 single_query=self._single_query)
 
-    def episode(self, simple_info, all_info, auto_query=True, query_seasons=True, query_show_packs=True):
+    def episode(self, simple_info, all_info, auto_query=True, query_seasons=True, query_show_packs=True, **kwargs):
         self.query_type = 'episode'
         return self._get_scraper(simple_info['show_title']) \
                    .episode_query(simple_info,
@@ -210,150 +210,6 @@ class DefaultExtraQuerySources(DefaultSources):
                                                                   genericScraper=genericScraper,
                                                                   use_thread_for_info=True,
                                                                   custom_filter=custom_filter)
-
-class DefaultHosterSources(DefaultSources):
-    def movie(self, imdb, title, localtitle, aliases, year):
-        self.start_time = time.time()
-        self.query_type = 'movie'
-
-        if isinstance(self._get_scraper(title), NoResultsScraper):
-            return None
-
-        self._request = self.scraper._request
-
-        simple_info = {}
-        simple_info['title'] = source_utils.clean_title(title)
-        simple_info['query_title'] = simple_info['title']
-        simple_info['year'] = year
-        return simple_info
-
-    def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
-        self.start_time = time.time()
-        self.query_type = 'episode'
-
-        if isinstance(self._get_scraper(tvshowtitle), NoResultsScraper):
-            return None
-
-        self._request = self.scraper._request
-
-        simple_info = {}
-        simple_info['show_title'] = re.sub(r'\s+', ' ', source_utils.clean_title(tvshowtitle).replace(year, ''))
-        simple_info['query_title'] = simple_info['show_title']
-        simple_info['year'] = year
-        return simple_info
-
-    def episode(self, simple_info, imdb, tvdb, title, premiered, season, episode):
-        if simple_info is None:
-            return None
-
-        simple_info['episode_title'] = title
-        simple_info['episode_number'] = episode
-        simple_info['season_number'] = season
-        simple_info['episode_number_xx'] = episode.zfill(2)
-        simple_info['season_number_xx'] = season.zfill(2)
-        simple_info['show_aliases'] = []
-
-        return simple_info
-
-    def resolve(self, url):
-        return url
-
-    def sources(self, simple_info, hostDict, hostprDict):
-        if simple_info is None:
-            return []
-
-        supported_hosts = hostDict + hostprDict
-        sources = []
-
-        try:
-            if self.is_movie_query():
-                query = '%s %s' % (source_utils.clean_title(simple_info['title']), simple_info['year'])
-            else:
-                query = '%s S%sE%s' % (source_utils.clean_title(simple_info['show_title']), simple_info['season_number_xx'], simple_info['episode_number_xx'])
-
-            if len(supported_hosts) > 0:
-                url = self.scraper._find_url()
-
-                def search(url):
-                    if self._cancellation_token.is_cancellation_requested:
-                        return []
-
-                    try:
-                        result = self.search(url, query)
-                        if result is None:
-                            raise requests.exceptions.RequestException()
-                        return result
-                    except requests.exceptions.RequestException:
-                        if self._request.exc_msg:
-                            deprioritize_url(self._caller_name)
-                            return []
-                        if self._request.request_time < 2:
-                            url = self.scraper._find_next_url(url)
-                            if url is None:
-                                return []
-                            return search(url)
-                        return []
-
-                hoster_results = search(url) if url is not None else []
-            else:
-                hoster_results = []
-
-            if self.query_type == 'episode':
-                filter_single_episode_fn = source_utils.get_filter_single_episode_fn(simple_info)
-
-            for result in hoster_results:
-                quality = source_utils.get_quality(result.title)
-                release_title = source_utils.clean_release_title_with_simple_info(result.title, simple_info)
-
-                if self.query_type == 'movie' and not source_utils.filter_movie_title(result.title, release_title, simple_info['title'], simple_info):
-                    continue
-
-                if self.query_type == 'episode' and not filter_single_episode_fn(release_title):
-                    continue
-
-                for url in result.urls:
-                    domain = re.findall(r"https?:\/\/(www\.)?(.*?)\/.*?", url)[0][1]
-
-                    if domain not in supported_hosts:
-                        continue
-                    if any(x in url for x in ['.rar', '.zip', '.iso']):
-                        continue
-
-                    quality_from_url = source_utils.get_quality(url)
-                    if quality_from_url != 'SD':
-                        quality = quality_from_url
-
-                    release_title = source_utils.strip_non_ascii_and_unprintable(result.title)
-                    if DEV_MODE and len(sources) == 0:
-                        tools.log(release_title, 'info')
-                    sources.append({
-                        'release_title': release_title,
-                        'source': domain,
-                        'quality': quality,
-                        'language': 'en',
-                        'url': url,
-                        'info': [],
-                        'direct': False,
-                        'debridonly': False
-                    })
-
-            sources.reverse()
-
-            result_count = len(sources) if len(supported_hosts) > 0 else 'disabled'
-            tools.log('a4kScrapers.%s.%s: %s' % (self.query_type, self._caller_name, result_count), 'notice')
-
-
-            self.end_time = time.time()
-            self.time_ms = clock_time_ms(self.start_time, self.end_time)
-            tools.log('a4kScrapers.%s.%s: took %s ms' % (self.query_type, self._caller_name, self.time_ms), 'notice')
-
-            return sources
-        except:
-            traceback.print_exc()
-            return sources
-
-    def search(self, hoster_url, query):
-        return []
 
 class CoreScraper(object):
     def __init__(self,
@@ -574,7 +430,7 @@ class CoreScraper(object):
         if self._url is not None:
             return self._url
 
-        if self.caller_name in ['showrss', 'lime', 'bt4g', 'btscene', 'glo', 'torrentapi', 'torrentz2', 'scenerls', 'piratebay', 'magnetdl']:
+        if self.caller_name in ['showrss', 'lime', 'bt4g', 'btscene', 'glo', 'torrentapi', 'torrentz2', 'scenerls', 'piratebay', 'magnetdl', 'torrentio']:
             self._request.skip_head = True
 
         return self._request.find_url(self._urls)

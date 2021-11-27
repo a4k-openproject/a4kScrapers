@@ -41,7 +41,7 @@
       },
       "-ext": { "search": "", "domains": [{ "base": "" }] },
       "-extratorrent": { "search": "", "domains": [{ "base": "" }] },
-      "eztv_api": {
+      "eztv": {
           "search": "/api/get-torrents?limit=100&imdb_id=%s",
           "domains": [
               { "base": "https://eztv.re" },
@@ -51,16 +51,6 @@
               { "base": "https://eztv.unblocked.llc" }
           ]
       },
-      "eztv": {
-        "search": "/search/%s",
-        "domains": [
-            { "base": "https://eztv.re" },
-            { "base": "https://eztv.ag" },
-            { "base": "https://eztv.it" },
-            { "base": "https://eztv.ch" },
-            { "base": "https://eztv.unblocked.llc" }
-        ]
-    },
       "glo": {
           "search": "/search_results.php?search=%s&cat={{category}}&incldead=0&inclexternal=0&lang=1&sort=seeders&order=desc",
           "cat_movie": "1",
@@ -144,12 +134,7 @@
           ]
       },
       "-skytorrents": { "search": "", "domains": [{ "base": "" }] },
-      "solidtorrents": {
-          "search": "/api/v1/search?q=%s&category=video&sort=size",
-          "domains": [
-              { "base": "https://solidtorrents.net" }
-          ]
-      },
+      "-solidtorrents": { "search": "", "domains": [{ "base": "" }] },
       "torrentapi": {
           "search": "&mode=search&search_string=%s&token=%s&sort=seeders&ranked=0&limit=100&format=json_extended",
           "domains": [
@@ -171,13 +156,16 @@
               { "base": "https://torrentgalaxy.su" }
           ]
       },
-      "torrentparadise": {
-          "search": "/api/search?q=%s",
+      "-torrentparadise": { "search": "", "domains": [{ "base": "" }] },
+      "torrenttm": { "search": "", "domains": [{ "base": "" }] },
+      "torrentio": {
+          "search": "/language=english/stream/{{category}}/%s.json",
+          "cat_movie": "movie",
+          "cat_episode": "series",
           "domains": [
-              { "base": "https://torrent-paradise.ml" }
+              { "base": "https://torrentio.strem.fun" }
           ]
       },
-      "torrenttm": { "search": "", "domains": [{ "base": "" }] },
       "torrentz2": {
           "search": "/kick.php?q=%s",
           "domains": [

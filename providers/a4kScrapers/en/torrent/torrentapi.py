@@ -89,11 +89,11 @@ class sources(core.DefaultSources):
         custom_filter = core.Filter(fn=filter_fn, type='single')
         return super(sources, self)._get_scraper(title, custom_filter=custom_filter)
 
-    def movie(self, title, year, imdb=None):
+    def movie(self, title, year, imdb=None, **kwargs):
         self._imdb = imdb
         return super(sources, self).movie(title, year, imdb, auto_query=False)
 
-    def episode(self, simple_info, all_info):
+    def episode(self, simple_info, all_info, **kwargs):
         self._imdb = all_info.get('info', {}).get('tvshow.imdb_id', None)
         if self._imdb is None:
             self._imdb = all_info.get('showInfo', {}).get('ids', {}).get('imdb', None)
