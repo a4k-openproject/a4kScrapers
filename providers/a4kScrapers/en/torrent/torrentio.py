@@ -11,10 +11,6 @@ class sources(core.DefaultSources):
         if self.is_movie_query():
             return False
 
-        # ignore title
-        title = core.re.sub(r'.*(S\d\d.*)', r'%s \1' % self.scraper.show_title, title)
-        clean_title = core.re.sub(r'.*(s\d\d.*)', r'%s \1' % self.scraper.show_title, clean_title)
-
         if self.scraper.filter_single_episode.fn(title, clean_title):
             self._filter.type = self.scraper.filter_single_episode.type
             return True
@@ -32,9 +28,12 @@ class sources(core.DefaultSources):
     def _get_scraper(self, title):
         return super(sources, self)._get_scraper(title, custom_filter=self._filter)
 
-    def _search_request(self, url, query, page=1, prev_total=0):
-        query = core.quote_plus(self._imdb.replace('tt', ''))
-        response = self._request.get(url.base + (url.search % query) + ('&page=%s' % page))
+    def _search_request(self, url, query):
+        query = self._imdb
+        if not self.is_movie_query():
+            query += ':' + self.scraper.season_x + ':' + self.scraper.episode_x
+
+        response = self._request.get(url.base + (url.search % core.quote_plus(query)))
 
         if response.status_code != 200:
             return []
@@ -45,34 +44,29 @@ class sources(core.DefaultSources):
             self._request.exc_msg = 'Failed to parse json: %s' % response.text
             return []
 
-        if not results or not results.get('torrents', None) or len(results['torrents']) == 0:
+        if not results or 'streams' not in results or len(results['streams']) == 0:
             return []
-
-        torrents = results['torrents']
-        total = len(torrents) + prev_total
-        if total < results['torrents_count']:
-            more_results = self._search_request(url, None, page+1, total)
-            torrents += more_results
-
-        return torrents
+        else:
+            return results['streams']
 
     def _soup_filter(self, response):
         return response
 
     def _title_filter(self, el):
-        return el['filename']
+        return el['title']
 
     def _info(self, el, url, torrent):
-        torrent['hash'] = el['hash']
-        torrent['size'] = int(el['size_bytes']) / 1024 / 1024
-        torrent['seeds'] = el['seeds']
+        torrent['hash'] = el['infoHash']
+        torrent['size'] = core.source_utils.de_string_size(self.genericScraper.parse_size(el['title']))
+        torrent['seeds'] = self.genericScraper.parse_seeds(el['title'])
 
         return torrent
 
-    def movie(self, title, year, imdb=None):
-        return []
+    def movie(self, title, year, imdb=None, **kwargs):
+        self._imdb = imdb
+        return super(sources, self).movie(title, year, imdb, auto_query=False)
 
-    def episode(self, simple_info, all_info):
+    def episode(self, simple_info, all_info, **kwargs):
         self._imdb = all_info.get('info', {}).get('tvshow.imdb_id', None)
         if self._imdb is None:
             self._imdb = all_info.get('showInfo', {}).get('ids', {}).get('imdb', None)

@@ -19,7 +19,7 @@ class sources(core.DefaultSources):
     def _parse_seeds(self, row):
         return core.safe_list_get(core.re.findall(r'color=\'green\'><b>(\d+)</b>.*', row), 0)
 
-    def movie(self, title, year, imdb=None):
+    def movie(self, title, year, imdb=None, **kwargs):
         self._imdb = imdb
         auto_query = False if imdb else True
         return super(sources, self).movie(title, year, imdb, auto_query=auto_query)

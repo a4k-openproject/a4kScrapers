@@ -103,6 +103,8 @@ class GenericTorrentScraper(object):
         if seeds == '':
             seeds = safe_list_get(re.findall(r'Seed:?.*?(\d+)', row), 0)
         if seeds == '':
+            seeds = safe_list_get(re.findall(r'\n👤 (\d+) ', row), 0)
+        if seeds == '':
             seeds = self._parse_number(row, -2)
         if seeds == 'N/A':
             seeds = '0'

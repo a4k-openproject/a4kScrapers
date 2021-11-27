@@ -171,7 +171,10 @@ def _disable_warnings():
 
 def test_torrent(self, scraper_module, scraper, url=None):
     _disable_warnings()
-    if scraper in ['showrss', 'eztv', 'eztv_api']:
+    if os.getenv('WERCKER_MAIN_PIPELINE_STARTED') and scraper in ['torrentio']:
+        tools.log('skipping %s in Travis build' % scraper, 'notice')
+        return
+    if scraper in ['showrss', 'eztv', 'torrentio']:
         return _episode(scraper_module, scraper, url, test=self)
     return _movie(scraper_module, scraper, url, test=self)
 
