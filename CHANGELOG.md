@@ -1,3 +1,9 @@
+* [v2.71.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.71.0):
+  * remove solidtorrents - dead
+  * remove torrentparadise - broken search
+  * remove eztv - keeping only eztv_api
+  * add torrentio
+
 * [v2.70.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.70.0):
   * bring back bitcq
   * propagate pre-emptive termination exc from request

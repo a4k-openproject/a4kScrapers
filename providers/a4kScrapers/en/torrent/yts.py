@@ -31,5 +31,5 @@ class sources(core.DefaultSources):
 
         return results
 
-    def episode(self, simple_info, all_info):
+    def episode(self, simple_info, all_info, **kwargs):
         return []
