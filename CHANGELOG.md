@@ -1,3 +1,9 @@
+* [v2.72.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.72.0):
+  * strip redundant info from torrentio release titles
+  * verify torrentio ssl cert
+  * fix movie alternative name transformation
+  * update sorting for torrentdownload
+
 * [v2.71.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.71.0):
   * remove solidtorrents - dead
   * remove torrentparadise - broken search
