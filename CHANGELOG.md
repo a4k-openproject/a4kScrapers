@@ -1,3 +1,6 @@
+* [v2.73.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.73.0):
+  * support streaming urls
+
 * [v2.72.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.72.0):
   * strip redundant info from torrentio release titles
   * verify torrentio ssl cert
