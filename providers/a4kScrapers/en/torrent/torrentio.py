@@ -59,6 +59,8 @@ class sources(core.DefaultSources):
         torrent['hash'] = el['infoHash']
         torrent['size'] = core.source_utils.de_string_size(self.genericScraper.parse_size(el['title']))
         torrent['seeds'] = self.genericScraper.parse_seeds(el['title'])
+        if '\n' in torrent['release_title']:
+            torrent['release_title'] = torrent['release_title'].split('\n', 1)[0]
 
         return torrent
 

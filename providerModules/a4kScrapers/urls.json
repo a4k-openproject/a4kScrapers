@@ -142,7 +142,7 @@
           ]
       },
       "torrentdownload": {
-        "search": "/search?q=%s",
+        "search": "/searchs?q=%s",
         "domains": [
             { "base": "https://www.torrentdownload.info" }
         ]
