@@ -318,8 +318,8 @@ class CoreScraper(object):
 
         try:
             result = self._info(el, url, torrent)
-            if result is not None and (result['hash'] != '' or result.get('magnet', '').startswith('magnet:?')):
-                if result['hash'] == '':
+            if result is not None and (result['hash'] != '' or result.get('url', '') != '' or result.get('magnet', '').startswith('magnet:?')):
+                if result['hash'] == '' and not result.get('url', None):
                     result['hash'] = re.findall(r'btih:(.*?)\&', result['magnet'])[0]
                 self._results.append(result)
         except:
@@ -441,8 +441,10 @@ class CoreScraper(object):
         missing_seeds = 0
 
         for torrent in self._results:
-            torrent['hash'] = torrent['hash'].strip('"\'\\/')
-            torrent['magnet'] = 'magnet:?xt=urn:btih:%s&' % torrent['hash']
+            if 'url' not in torrent:
+                torrent['hash'] = torrent['hash'].strip('"\'\\/')
+                torrent['magnet'] = 'magnet:?xt=urn:btih:%s&' % torrent['hash']
+
             torrent['release_title'] = source_utils.strip_non_ascii_and_unprintable(torrent['release_title'])
 
             if DEV_MODE:
@@ -465,11 +467,14 @@ class CoreScraper(object):
 
         results = {}
         for result in self._results:
-            item_key = result['hash']
-            if len(item_key) < 40:
-                item_key = b32toHex(item_key)
+            if 'url' in result:
+                item_key = result['url']
+            else:
+                item_key = result['hash']
+                if len(item_key) < 40:
+                    item_key = b32toHex(item_key)
 
-            item = results.get(result['hash'], None)
+            item = results.get(item_key, None)
             if item is None:
                 results[item_key] = result
                 continue
