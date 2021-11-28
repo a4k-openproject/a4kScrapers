@@ -159,7 +159,7 @@
       "-torrentparadise": { "search": "", "domains": [{ "base": "" }] },
       "torrenttm": { "search": "", "domains": [{ "base": "" }] },
       "torrentio": {
-          "search": "/language=english/stream/{{category}}/%s.json",
+          "search": "/stream/{{category}}/%s.json",
           "cat_movie": "movie",
           "cat_episode": "series",
           "domains": [
