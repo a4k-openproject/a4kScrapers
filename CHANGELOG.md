@@ -1,3 +1,6 @@
+* [v2.74.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.74.0):
+  * improve torrentio episode filtering
+
 * [v2.73.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.73.0):
   * support streaming urls
 
