@@ -8,4 +8,4 @@ class sources(core.DefaultSources):
 
     def _soup_filter(self, response):
         response = core.normalize(response.text)
-        return self.genericScraper._parse_rows(response, row_tag='search-result view-box')
+        return self.genericScraper._parse_rows(response, row_tag='search-result')
