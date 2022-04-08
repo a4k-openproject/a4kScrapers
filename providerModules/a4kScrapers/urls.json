@@ -20,12 +20,7 @@
             { "base": "https://bitcq.com" }
         ]
       },
-      "bt4g": {
-          "search": "/movie/search/%s/byseeders/1",
-          "domains": [
-              { "base": "https://bt4g.org" }
-          ]
-      },
+      "-bt4g": { "search": "", "domains": [{ "base": "" }] },
       "-btdb": { "search": "", "domains": [{ "base": "" }] },
       "btdig": {
           "search": "/search?q=%s",
@@ -151,9 +146,9 @@
       "torrentgalaxy": {
           "search": "/torrents.php?&search=%s&nox=1&sort=seeders&order=desc",
           "domains": [
+              { "base": "https://torrentgalaxy.su" },
               { "base": "https://torrentgalaxy.to" },
-              { "base": "https://torrentgalaxy.mx" },
-              { "base": "https://torrentgalaxy.su" }
+              { "base": "https://torrentgalaxy.mx" }
           ]
       },
       "-torrentparadise": { "search": "", "domains": [{ "base": "" }] },
@@ -167,9 +162,9 @@
           ]
       },
       "torrentz2": {
-          "search": "/kick.php?q=%s",
+          "search": "/search?q=%s",
           "domains": [
-              { "base": "https://torrentz2eu.me" }
+              { "base": "https://torrentz2.nz" }
           ]
       },
       "-torrentz2_": { "search": "", "domains": [{ "base": "" }] },

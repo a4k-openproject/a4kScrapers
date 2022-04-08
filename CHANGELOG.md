@@ -1,3 +1,8 @@
+* [v2.75.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.75.0):
+  * url updates
+  * bt4g removal - cfv2
+  * bitsearch fix
+
 * [v2.74.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.74.0):
   * improve torrentio episode filtering
 
