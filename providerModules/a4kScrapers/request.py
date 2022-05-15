@@ -183,8 +183,6 @@ class Request(object):
               if 'PreemptiveCancellation' in exc:
                 raise Exception("PreemptiveCancellation")
 
-              if 'ConnectTimeout' in exc or 'ReadTimeout' in exc:
-                  self.exc_msg = 'request timed out'
               if 'Detected the new Cloudflare challenge.' in exc and cf_retries > 0 and self.request_time < 2:
                   cf_retries -= 1
                   tools.log('cf_new_challenge_retry: %s' % request.url, 'notice')
@@ -193,6 +191,8 @@ class Request(object):
                   self.exc_msg = 'failed Cloudflare protection'
               elif 'Max retries exceeded with url' in exc:
                   self.exc_msg = 'Max retries exceeded'
+              elif 'ConnectTimeout' in exc or 'ReadTimeout' in exc:
+                  self.exc_msg = 'request timed out'
               else:
                   self.exc_msg = 'failed - %s' % exc
 
