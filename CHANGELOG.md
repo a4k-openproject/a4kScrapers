@@ -1,3 +1,6 @@
+* [v2.76.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.76.0):
+  * zooqle removal - blocked
+
 * [v2.75.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.75.0):
   * url updates
   * bt4g removal - cfv2
