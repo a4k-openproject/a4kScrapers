@@ -174,17 +174,7 @@
               { "base": "https://yts.mx" }
           ]
       },
-      "zooqle": {
-          "search": "/search?q=%s+category%%3A{{category}}",
-          "cat_movie": "Movies",
-          "cat_episode": "TV",
-          "domains": [
-              { "base": "https://zooqle.com" },
-              { "base": "https://zooqle.unblocked.win" },
-              { "base": "https://zooqle.unblocked.llc" },
-              { "base": "https://zooqle.unblocked.krd" }
-          ]
-      }
+      "-zooqle": { "search": "", "domains": [{ "base": "" }] }
   },
   "hosters": {
       "-rlsbb": { "search": "", "domains": [{ "base": "" }] },
