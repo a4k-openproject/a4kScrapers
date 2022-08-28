@@ -9,7 +9,7 @@
           ]
       },
       "bitsearch": {
-          "search": "/search?q=%s&category=1&subcat=2&sort=seeders",
+          "search": "/search?q=%s&sort=size",
           "domains": [
               { "base": "https://bitsearch.to" }
           ]
@@ -28,12 +28,7 @@
               { "base": "https://www.btdig.com" }
           ]
       },
-      "btscene": {
-          "search": "/search?q=%s",
-          "domains": [
-              { "base": "http://btscene.nl" }
-          ]
-      },
+      "-btscene": { "search": "", "domains": [{ "base": "" }] },
       "-ext": { "search": "", "domains": [{ "base": "" }] },
       "-extratorrent": { "search": "", "domains": [{ "base": "" }] },
       "eztv": {
