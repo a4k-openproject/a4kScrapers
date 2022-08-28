@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/project
     docker:
-      - image: circleci/python:3.6.4
+      - image: cimg/python:3.9.13
     steps:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
