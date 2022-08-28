@@ -1,8 +1,0 @@
-box: python:3.7
-build:
-  steps:
-    - pip-install
-    - script:
-        name: unit tests
-        code: |
-          python -m unittest tests_runner.py
