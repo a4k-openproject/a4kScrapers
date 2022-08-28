@@ -12,10 +12,16 @@ class sources(core.DefaultSources):
 
     def _get_token(self, url):
         response = self._request.get(url.base + '&get_token=get_token')
-        return core.json.loads(response.text)['token']
+        try:
+            return core.json.loads(response.text)['token']
+        except:
+            return None
 
     def _search_request(self, url, query, force_token_refresh=False, too_many_requests_max_retries=2, no_results_max_retries=2):
         token = core.database.get(self._get_token, 0 if force_token_refresh else 1, url)
+
+        if token is None:
+            return []
 
         search = url.search
         if self._imdb is not None:
