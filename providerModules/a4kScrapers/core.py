@@ -176,11 +176,12 @@ class DefaultSources(object):
     def is_movie_query(self):
         return self.query_type == 'movie'
 
-    def movie(self, title, year, imdb=None, auto_query=True, **kwargs):
+    def movie(self, title, year, imdb_id=None, auto_query=True, **kwargs):
         self.query_type = 'movie'
         return self._get_scraper(title) \
                    .movie_query(title,
                                 year,
+                                imdb_id,
                                 caller_name=self._caller_name,
                                 auto_query=auto_query,
                                 single_query=self._single_query)
@@ -513,7 +514,7 @@ class CoreScraper(object):
     def _pack_and_season(self, query):
         return self._query_thread(query, [self.filter_show_pack, self.filter_season_pack])
 
-    def movie_query(self, title, year, auto_query=True, single_query=False, caller_name=None):
+    def movie_query(self, title, year, imdb_id, auto_query=True, single_query=False, caller_name=None):
         self.start_time = time.time()
         self._deprioritize_url = False
 
@@ -524,7 +525,7 @@ class CoreScraper(object):
 
         self.title = source_utils.clean_title(title)
         self.year = str(year)
-        self.simple_info = {'query_title': self.title, 'year':self.year}
+        self.simple_info = {'query_title': self.title, 'year': self.year, 'imdb_id': imdb_id}
         self.full_query = '%s %s' % (source_utils.strip_accents(title), year)
 
         try:
