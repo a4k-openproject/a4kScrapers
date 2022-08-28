@@ -1,7 +1,7 @@
 version: '1.0'
 steps:
   tests:
-    image: python:3.7
+    image: python:3.9
     working_directory: ${{main_clone}}
     description: unit tests
     commands:
