@@ -360,7 +360,7 @@ def check_episode_title_match(titles, release_title, simple_info):
     return False
 
 def filter_movie_title(org_release_title, release_title, movie_title, simple_info):
-    if org_release_title is not None and simple_info['year'] not in org_release_title:
+    if simple_info['imdb_id'] is None and org_release_title is not None and simple_info['year'] not in org_release_title:
         log('movienoyear]: %s' % release_title, 'notice')
         return False
 

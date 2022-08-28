@@ -1,3 +1,9 @@
+* [v2.77.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.77.0):
+  * movie queries with imdb id ignore title year
+  * bitsearch results sort by size without category
+  * torrentapi token retrieval error handling
+  * btscene removal - down
+
 * [v2.76.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.76.0):
   * zooqle removal - blocked
 
