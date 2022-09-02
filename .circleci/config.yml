@@ -1,22 +1,28 @@
 version: 2.1
-orbs:
-  python: circleci/python@2.0.3
-
 jobs:
   build:
-    executor: python/default
+    working_directory: ~/project
+    docker:
+      - image: circleci/python:3.7
     steps:
       - checkout
-      - python/install-packages:
-          pkg-manager: pip
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
       - run:
           command: |
-            python -m unittest tests_runner.py
-      - persist_to_workspace:
-          root: ~/project
-          paths:
-            - .
+            sudo pip install pipenv
+            pipenv install
+      - run:
+          command: |
+            pipenv run python -m unittest tests_runner.py
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: test-results
+          destination: tr1
+
 workflows:
+  version: 2
   tests:
     jobs:
       - build
