@@ -1,3 +1,6 @@
+* [v2.80.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.80.0):
+  * update torrentz2 url
+
 * [v2.79.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.79.0):
   * size fix for bitsearch
 
