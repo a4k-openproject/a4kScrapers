@@ -330,10 +330,10 @@ def check_title_match(title_parts, release_title, simple_info, is_special=False)
     title = remove_country(title, country)
     title = remove_from_title(title, year)
 
-    if release_title.startswith(title + year):
-        return True
-
-    return False
+    if simple_info['imdb_id'] is None:
+        return release_title.startswith(title + year)
+    else:
+        return release_title.startswith(title)
 
 def check_episode_number_match(release_title):
     episode_number_match = re.search(r'[+|-|_|.| ]s\d{1,3}[+|-|_|.| ]?e\d{1,3}[+|-|_|.| ]', release_title, re.IGNORECASE)
