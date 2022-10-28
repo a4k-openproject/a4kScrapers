@@ -1,3 +1,7 @@
+* [v2.78.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.78.0):
+  * movie queries with imdb id ignore title year properly
+  * ep_size for torrentio
+
 * [v2.77.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.77.0):
   * movie queries with imdb id ignore title year
   * bitsearch results sort by size without category
