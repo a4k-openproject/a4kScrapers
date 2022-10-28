@@ -1,3 +1,6 @@
+* [v2.79.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.79.0):
+  * size fix for bitsearch
+
 * [v2.78.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.78.0):
   * movie queries with imdb id ignore title year properly
   * ep_size for torrentio
