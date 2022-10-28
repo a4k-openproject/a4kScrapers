@@ -462,7 +462,7 @@ class CoreScraper(object):
 
             try:
                 if self.caller_name == 'torrentio':
-                    torrent['ep_size'] = torrent['size']
+                    torrent['episode_size'] = torrent['size']
                 if self.caller_name == 'bitsearch':
                     torrent['size'] = torrent['size'] * 0.93
             except: pass
