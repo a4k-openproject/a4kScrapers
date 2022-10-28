@@ -14,12 +14,7 @@
               { "base": "https://bitsearch.to" }
           ]
       },
-      "bitcq": {
-        "search": "/search?q=%s&category%%5B%%5D=1",
-        "domains": [
-            { "base": "https://bitcq.com" }
-        ]
-      },
+      "-bitcq": { "search": "", "domains": [{ "base": "" }] },
       "-bt4g": { "search": "", "domains": [{ "base": "" }] },
       "-btdb": { "search": "", "domains": [{ "base": "" }] },
       "btdig": {

@@ -455,6 +455,8 @@ class CoreScraper(object):
                 missing_size += 1
                 if not DEV_MODE:
                     torrent['size'] = 0
+            if self.caller_name == 'torrentio':
+                torrent['ep_size'] = torrent['size']
             if torrent['seeds'] is None:
                 missing_seeds += 1
                 if not DEV_MODE:
