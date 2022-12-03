@@ -34,7 +34,6 @@ jobs:
         CIRCLECI: ${{ secrets.CIRCLECI }}
       run: |
         curl -d 'accountName=newt-sc&projectSlug=a4kScrapers&branch=master' -H "Authorization: Bearer $APPVEYOR" -X POST https://ci.appveyor.com/api/account/newt-sc/builds
-        curl -d '{"pipelineId":"5c7a9ea79fb4180b007ce3c5"}' -H 'Content-Type: application/json' -H "Authorization: Bearer $WERCKER" -X POST https://app.wercker.com/api/v3/runs/
         curl -d '{}' -H 'Content-Type: application/json' -X POST "https://circleci.com/api/v1.1/project/github/a4k-openproject/a4kScrapers/tree/master?circle-token=$CIRCLECI"
 
     - name: test
