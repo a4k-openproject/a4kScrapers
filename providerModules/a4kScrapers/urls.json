@@ -102,6 +102,12 @@
               { "base": "https://apibay.org" }
           ]
       },
+      "rutor": {
+          "search": "/search/0/0/000/2/%s",
+          "domains": [
+              { "base": "https://rutor.info" }
+          ]
+      },
       "showrss": {
           "search": "/browse",
           "domains": [
