@@ -2,6 +2,12 @@
   "trackers": {
     "cached": { "search": "", "domains": [{ "base": "" }] },
       "-7torrents": { "search": "", "domains": [{ "base": "" }] },
+      "anirena": {
+        "search": "/?s=%s",
+        "domains": [
+            { "base": "https://www.anirena.com" }
+        ]
+      },
       "bitlord": {
           "search": "/get_list",
           "domains": [
@@ -29,11 +35,11 @@
       "eztv": {
           "search": "/api/get-torrents?limit=100&imdb_id=%s",
           "domains": [
-              { "base": "https://eztv.re" },
+              { "base": "https://eztvx.to" },
               { "base": "https://eztv.ag" },
               { "base": "https://eztv.it" },
               { "base": "https://eztv.ch" },
-              { "base": "https://eztv.unblocked.llc" }
+              { "base": "https://eztv.li" }
           ]
       },
       "glo": {
@@ -42,8 +48,7 @@
           "cat_episode": "41",
           "domains": [
               { "base": "https://glodls.to" },
-              { "base": "https://gtdb.to" },
-              { "base": "https://glotorrents.unblockit.link" }
+              { "base": "https://gtdb.to" }
           ]
       },
       "kickass": {
@@ -72,7 +77,6 @@
           "cat_episode": "TV",
           "domains": [
               { "base": "https://1337x.to" },
-              { "base": "https://1337x.unblocked.llc" },
               { "base": "https://1337x.st" },
               { "base": "https://x1337x.ws" },
               { "base": "https://x1337x.eu" },
@@ -80,16 +84,7 @@
               { "base": "https://1337x.is" }
           ]
       },
-      "lime": {
-          "search": "/search/{{category}}/%s/seeds/1/",
-          "cat_movie": "movies",
-          "cat_episode": "tv",
-          "domains": [
-              { "base": "https://www.limetorrents.info" },
-              { "base": "https://www.limetorrents.asia" },
-              { "base": "https://www.limetorrents.zone" }
-          ]
-      },
+      "-lime": { "search": "", "domains": [{ "base": "" }] },
       "magnetdl": {
           "search": "/%s/%s/se/desc/",
           "domains": [
@@ -98,12 +93,7 @@
           ]
       },
       "-movcr": { "search": "", "domains": [{ "base": "" }] },
-      "nyaa": {
-          "search": "/?f=0&c=1_0&q=%s",
-          "domains": [
-              { "base": "https://nyaa.si" }
-          ]
-      },
+      "-nyaa": { "search": "", "domains": [{ "base": "" }] },
       "piratebay": {
           "search": "/q.php?q=%s&cat={{category}}",
           "cat_movie": "207,202,201",
@@ -136,7 +126,6 @@
       "torrentgalaxy": {
           "search": "/torrents.php?&search=%s&nox=1&sort=seeders&order=desc",
           "domains": [
-              { "base": "https://torrentgalaxy.su" },
               { "base": "https://torrentgalaxy.to" },
               { "base": "https://torrentgalaxy.mx" }
           ]
@@ -152,9 +141,9 @@
           ]
       },
       "torrentz2": {
-          "search": "/data.php?q=%s",
+          "search": "/search?q=%s",
           "domains": [
-              { "base": "https://torrentz2.pics" }
+              { "base": "https://torrentz2.nz" }
           ]
       },
       "-torrentz2_": { "search": "", "domains": [{ "base": "" }] },

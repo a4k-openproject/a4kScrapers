@@ -55,7 +55,7 @@ def _get_movie_query(scraper):
     if scraper == 'movcr':
         movie_title = 'Star Trek'
         movie_year = '2009'
-    elif scraper == 'nyaa':
+    elif scraper == 'nyaa' or scraper == 'anirena':
         movie_title = 'Ghost in the Shell'
         movie_year = '1995'
     elif scraper == 'rlsbb':

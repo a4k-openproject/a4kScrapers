@@ -1,3 +1,9 @@
+* [v2.81.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.81.0):
+  * update urls for eztv, glo, leet, torrentgalaxy, torrentz2
+  * remove lime, nyaa
+  * add anirena
+  * retry on 500
+
 * [v2.80.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.80.0):
   * update torrentz2 url
 
