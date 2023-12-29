@@ -195,6 +195,9 @@ class Request(object):
                   self.exc_msg = 'request timed out'
               else:
                   self.exc_msg = 'failed - %s' % exc
+            elif 'response status code 500' in self.exc_msg:
+                  cf_retries -= 1
+                  return self._request_core(request, sequental, cf_retries)
 
             tools.log('%s %s' % (request.url, self.exc_msg), 'notice')
 
