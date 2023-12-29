@@ -1,3 +1,6 @@
+* [v2.82.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.82.0):
+  * add rutor
+
 * [v2.81.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.81.0):
   * update urls for eztv, glo, leet, torrentgalaxy, torrentz2
   * remove lime, nyaa
