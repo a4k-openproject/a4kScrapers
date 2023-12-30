@@ -1,3 +1,6 @@
+* [v2.83.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.83.0):
+  * remove btdig, torrentapi
+
 * [v2.82.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.82.0):
   * add rutor
 
