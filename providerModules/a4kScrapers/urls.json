@@ -112,12 +112,7 @@
       "-skytorrents": { "search": "", "domains": [{ "base": "" }] },
       "-solidtorrents": { "search": "", "domains": [{ "base": "" }] },
       "-torrentapi": { "search": "", "domains": [{ "base": "" }] },
-      "torrentdownload": {
-        "search": "/searchs?q=%s",
-        "domains": [
-            { "base": "https://www.torrentdownload.info" }
-        ]
-      },
+      "-torrentdownload": { "search": "", "domains": [{ "base": "" }] },
       "-torrentdownloads": { "search": "", "domains": [{ "base": "" }] },
       "torrentgalaxy": {
           "search": "/torrents.php?&search=%s&nox=1&sort=seeders&order=desc",
@@ -134,6 +129,14 @@
           "cat_episode": "series",
           "domains": [
               { "base": "https://torrentio.strem.fun" }
+          ]
+      },
+      "torrentioelf": {
+          "search": "/stream/{{category}}/%s.json",
+          "cat_movie": "movie",
+          "cat_episode": "series",
+          "domains": [
+              { "base": "https://torrentio.elfhosted.com" }
           ]
       },
       "torrentz2": {

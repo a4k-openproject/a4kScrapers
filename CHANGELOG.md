@@ -1,3 +1,7 @@
+* [v2.84.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.84.0):
+  * remove torrentdownload
+  * add torrentio-elfhosted
+
 * [v2.83.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.83.0):
   * remove btdig, torrentapi
 
