@@ -64,7 +64,8 @@ class sources(core.DefaultSources):
     def _title_filter(self, el):
         if not self.is_movie_query():
             parts = el['title'].split('\n')
-            if len(parts) > 1 and '👤' not in parts[1]:
+            #if len(parts) > 1 and '👤' not in parts[1]:
+            if len(parts) > 1 and '💾' not in parts[1]:
                 parts.pop(1)
                 return '\n'.join(parts)
 
@@ -86,7 +87,8 @@ class sources(core.DefaultSources):
         torrent['size'] = core.source_utils.de_string_size(self.genericScraper.parse_size(el['title']))
         torrent['seeds'] = self.genericScraper.parse_seeds(el['title'])
         if '\n' in torrent['release_title']:
-            torrent['release_title'] = torrent['release_title'].split('\n👤', 1)[0]
+            #torrent['release_title'] = torrent['release_title'].split('\n👤', 1)[0]
+            torrent['release_title'] = torrent['release_title'].split('\n💾', 1)[0]
         if '\n' in torrent['release_title']:
             torrent['release_title'] = torrent['release_title'].split('\n', 1)[1]
 
