@@ -1,3 +1,7 @@
+* [v2.85.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.85.0):
+  * fix torrentio-elfhosted
+  * add piratebay uhd categories
+
 * [v2.84.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.84.0):
   * remove torrentdownload
   * add torrentio-elfhosted
