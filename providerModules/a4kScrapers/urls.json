@@ -91,8 +91,8 @@
       "-nyaa": { "search": "", "domains": [{ "base": "" }] },
       "piratebay": {
           "search": "/q.php?q=%s&cat={{category}}",
-          "cat_movie": "207,202,201",
-          "cat_episode": "208,205",
+          "cat_movie": "207,202,201,211",
+          "cat_episode": "208,205,212",
           "domains": [
               { "base": "https://apibay.org" }
           ]
