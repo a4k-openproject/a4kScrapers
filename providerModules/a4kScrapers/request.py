@@ -183,7 +183,10 @@ class Request(object):
               if 'PreemptiveCancellation' in exc:
                 raise Exception("PreemptiveCancellation")
 
-              if 'Detected the new Cloudflare challenge.' in exc and cf_retries > 0 and self.request_time < 2:
+              if cf_retries <= 0:
+                  return response_err
+
+              if 'Detected the new Cloudflare challenge.' in exc and self.request_time < 2:
                   cf_retries -= 1
                   tools.log('cf_new_challenge_retry: %s' % request.url, 'notice')
                   return self._request_core(request, sequental, cf_retries)

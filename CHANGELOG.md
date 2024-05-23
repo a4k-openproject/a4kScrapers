@@ -1,3 +1,6 @@
+* [v2.86.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.86.0):
+  * remove anirena and glo
+
 * [v2.85.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.85.0):
   * fix torrentio-elfhosted
   * add piratebay uhd categories

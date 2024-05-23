@@ -2,12 +2,7 @@
   "trackers": {
     "cached": { "search": "", "domains": [{ "base": "" }] },
       "-7torrents": { "search": "", "domains": [{ "base": "" }] },
-      "anirena": {
-        "search": "/?s=%s",
-        "domains": [
-            { "base": "https://www.anirena.com" }
-        ]
-      },
+      "-anirena": { "search": "", "domains": [{ "base": "" }] },
       "bitlord": {
           "search": "/get_list",
           "domains": [
@@ -37,15 +32,7 @@
               { "base": "https://eztv.li" }
           ]
       },
-      "glo": {
-          "search": "/search_results.php?search=%s&cat={{category}}&incldead=0&inclexternal=0&lang=1&sort=seeders&order=desc",
-          "cat_movie": "1",
-          "cat_episode": "41",
-          "domains": [
-              { "base": "https://glodls.to" },
-              { "base": "https://gtdb.to" }
-          ]
-      },
+      "-glo": { "search": "", "domains": [{ "base": "" }] },
       "kickass": {
           "search": "/usearch/%s category:{{category}}/",
           "cat_movie": "movies",
