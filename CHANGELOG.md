@@ -1,3 +1,7 @@
+* [v2.87.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.87.0):
+  * remove magnetdl, torrentgalaxy
+  * bring back nyaa
+
 * [v2.86.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.86.0):
   * remove anirena and glo
 

@@ -105,3 +105,5 @@ venv.bak/
 .vscode/settings.json
 .DS_Store
 providerModules/a4kScrapers/temp/*.json
+.vim
+pyrightconfig.json
