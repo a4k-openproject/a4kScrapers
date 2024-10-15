@@ -67,15 +67,14 @@
           ]
       },
       "-lime": { "search": "", "domains": [{ "base": "" }] },
-      "magnetdl": {
-          "search": "/%s/%s/se/desc/",
+      "-magnetdl": { "search": "", "domains": [{ "base": "" }] },
+      "-movcr": { "search": "", "domains": [{ "base": "" }] },
+      "nyaa": {
+          "search": "/?f=0&c=1_0&q=%s",
           "domains": [
-              { "base": "https://www.magnetdl.com" },
-              { "base": "https://torrentquest.com" }
+              { "base": "https://nyaa.si" }
           ]
       },
-      "-movcr": { "search": "", "domains": [{ "base": "" }] },
-      "-nyaa": { "search": "", "domains": [{ "base": "" }] },
       "piratebay": {
           "search": "/q.php?q=%s&cat={{category}}",
           "cat_movie": "207,202,201,211",
@@ -101,13 +100,7 @@
       "-torrentapi": { "search": "", "domains": [{ "base": "" }] },
       "-torrentdownload": { "search": "", "domains": [{ "base": "" }] },
       "-torrentdownloads": { "search": "", "domains": [{ "base": "" }] },
-      "torrentgalaxy": {
-          "search": "/torrents.php?&search=%s&nox=1&sort=seeders&order=desc",
-          "domains": [
-              { "base": "https://torrentgalaxy.to" },
-              { "base": "https://torrentgalaxy.mx" }
-          ]
-      },
+      "-torrentgalaxy": { "search": "", "domains": [{ "base": "" }] },
       "-torrentparadise": { "search": "", "domains": [{ "base": "" }] },
       "torrenttm": { "search": "", "domains": [{ "base": "" }] },
       "torrentio": {
