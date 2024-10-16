@@ -1,3 +1,6 @@
+* [v2.88.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.88.0):
+  * Increase bitsearch limit
+
 * [v2.87.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.87.0):
   * remove magnetdl, torrentgalaxy
   * bring back nyaa
