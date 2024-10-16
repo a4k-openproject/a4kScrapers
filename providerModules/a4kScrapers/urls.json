@@ -10,7 +10,7 @@
           ]
       },
       "bitsearch": {
-          "search": "/search?q=%s&sort=size",
+          "search": "/search?q=%s&sort=size&limit=100",
           "domains": [
               { "base": "https://bitsearch.to" }
           ]
