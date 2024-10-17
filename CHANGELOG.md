@@ -1,3 +1,6 @@
+* [v2.89.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.89.0):
+  * bring back magnetdl
+
 * [v2.88.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.88.0):
   * increase bitsearch limit
 

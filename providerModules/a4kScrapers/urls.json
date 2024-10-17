@@ -67,7 +67,12 @@
           ]
       },
       "-lime": { "search": "", "domains": [{ "base": "" }] },
-      "-magnetdl": { "search": "", "domains": [{ "base": "" }] },
+      "magnetdl": {
+          "search": "/%s/%s/se/desc/",
+          "domains": [
+              { "base": "https://torrentquest.com" }
+          ]
+      },
       "-movcr": { "search": "", "domains": [{ "base": "" }] },
       "nyaa": {
           "search": "/?f=0&c=1_0&q=%s",
