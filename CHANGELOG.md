@@ -1,3 +1,7 @@
+* [v2.90.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.90.0):
+  * add mediafusion
+  * remove torrentioelf (eol & too many issues)
+
 * [v2.89.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.89.0):
   * bring back magnetdl
 
