@@ -284,6 +284,10 @@ def clean_release_title_with_simple_info(title, simple_info):
     title = remove_sep(title, simple_info['query_title'])
     title = clean_title(title) + ' '
 
+    # remove packs if season is currently airing due to incomplete season packs
+    fnrus = re.search(r'(?:s\d{1,2}\W', title, re.IGNORECASE)
+    if simple_info.get('is_airing') and fnrus: return ''
+
     for group in release_groups_blacklist:
         target = ' %s ' % group
         if target not in (simple_info['query_title'] + ' ') and target in (title + ' '):
