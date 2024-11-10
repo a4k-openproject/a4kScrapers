@@ -285,7 +285,7 @@ def clean_release_title_with_simple_info(title, simple_info):
     title = clean_title(title) + ' '
 
     # remove packs if season is currently airing due to incomplete season packs
-    packs = re.search(r's\d{1,2}\W', title, re.IGNORECASE)
+    fnrus = re.search(r's\d{1,2}\W', title, re.IGNORECASE)
     if simple_info.get('is_airing') and fnrus: return ''
 
     for group in release_groups_blacklist:
