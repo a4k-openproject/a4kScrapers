@@ -65,6 +65,7 @@ class sources(core.DefaultSources):
 
     def _title_filter(self, el):
         el['description'] = el['description'].replace('📂 - ', '').replace('📂 ', '').replace('/None', '').replace(' / ', '')
+        el['description'] = re.sub(r'www.*? - ', '', el['description'])
         if not self.is_movie_query():
             el['description'] = re.sub(r'💾.*?💾', '💾', el['description'])
             el['description'] = el['description'].replace('/', '\n')
