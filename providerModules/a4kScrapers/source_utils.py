@@ -275,6 +275,7 @@ def clean_release_title_with_simple_info(title, simple_info):
 
     title = decode_text_py2(title)
     title = strip_non_ascii_and_unprintable(title)
+    title = re.sub(r'www.*? - ', '', title)
 
     year = simple_info.get('year', '')
     title = clean_year_range(title, year) + ' '
