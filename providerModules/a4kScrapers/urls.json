@@ -116,12 +116,12 @@
               { "base": "https://torrentio.strem.fun" }
           ]
       },
-      "torrentioelf": {
+      "mediafusion": {
           "search": "/stream/{{category}}/%s.json",
           "cat_movie": "movie",
           "cat_episode": "series",
           "domains": [
-              { "base": "https://torrentio.elfhosted.com" }
+              { "base": "https://mediafusion.elfhosted.com" }
           ]
       },
       "torrentz2": {

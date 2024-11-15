@@ -275,6 +275,7 @@ def clean_release_title_with_simple_info(title, simple_info):
 
     title = decode_text_py2(title)
     title = strip_non_ascii_and_unprintable(title)
+    title = re.sub(r'www.*? - ', '', title)
 
     year = simple_info.get('year', '')
     title = clean_year_range(title, year) + ' '
@@ -283,6 +284,12 @@ def clean_release_title_with_simple_info(title, simple_info):
     title = remove_country(title, country, False)
     title = remove_sep(title, simple_info['query_title'])
     title = clean_title(title) + ' '
+
+    # remove packs if season is currently airing due to incomplete season packs
+    packs = re.search(r'(?:s\d{1,2}\W|season|complete|series)', title, re.IGNORECASE)
+    if simple_info.get('is_airing') and packs:
+        if all(t not in simple_info['query_title'] for t in ['season', 'complete', 'series']):
+            return ''
 
     for group in release_groups_blacklist:
         target = ' %s ' % group

@@ -62,6 +62,7 @@ class sources(core.DefaultSources):
         return response
 
     def _title_filter(self, el):
+        el['title'] = el['title'].replace(' / ', '')
         if not self.is_movie_query():
             parts = el['title'].split('\n')
             if len(parts) > 1 and '👤' not in parts[1]:

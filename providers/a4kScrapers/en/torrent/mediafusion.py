@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from providerModules.a4kScrapers import core
+import re
 
 class sources(core.DefaultSources):
     def __init__(self, *args, **kwargs):
@@ -32,8 +33,8 @@ class sources(core.DefaultSources):
         query = self._imdb
         if not self.is_movie_query():
             query += ':' + self.scraper.season_x + ':' + self.scraper.episode_x
-
-        params = 'language=english|debridoptions=nodownloadlinks,nocatalog'
+            
+        params = ''
         if self._pm_apikey:
             params += '|premiumize=' + self._pm_apikey
         if self._rd_apikey:
@@ -41,7 +42,9 @@ class sources(core.DefaultSources):
         if self._ad_apikey:
             params += '|alldebrid=' + self._ad_apikey
 
-        request_url = url.base + '/' + core.quote_plus(params) + (url.search % core.quote_plus(query))
+        config = 'eJwBYACf_92uqrL8vhmebCYzGgX6Q2BMyNhn5SMWS_XitAKLTUul8nAqQEcj0k2wPpBs1ceClvb4mT2darthTiMrk2XGFdUx3XR4MB5WJT3hZWla9v-cQY6bloboXr6BxVJfNgTC3xazL_8='
+        #request_url = url.base + '/' + core.quote_plus(params) + (url.search % core.quote_plus(query))
+        request_url = url.base + '/' + core.quote_plus(config) + (url.search % core.quote_plus(query))
         response = self._request.get(request_url)
 
         if response.status_code != 200:
@@ -51,8 +54,7 @@ class sources(core.DefaultSources):
             results = core.json.loads(response.text)
         except Exception as e:
             self._request.exc_msg = 'Failed to parse json: %s' % response.text
-            return []
-
+            return []           
         if not results or 'streams' not in results or len(results['streams']) == 0:
             return []
         else:
@@ -62,14 +64,17 @@ class sources(core.DefaultSources):
         return response
 
     def _title_filter(self, el):
+        el['description'] = el['description'].replace('📂 - ', '').replace('📂 ', '').replace('/None', '').replace(' / ', '')
+        el['description'] = re.sub(r'www.*? - ', '', el['description'])
         if not self.is_movie_query():
-            parts = el['title'].split('\n')
-            #if len(parts) > 1 and '👤' not in parts[1]:
+            el['description'] = re.sub(r'💾.*?💾', '💾', el['description'])
+            el['description'] = el['description'].replace('/', '\n')
+            parts = el['description'].split('\n')
             if len(parts) > 1 and '💾' not in parts[1]:
                 parts.pop(1)
                 return '\n'.join(parts)
 
-        return el['title']
+        return el['description']
 
     def _info(self, el, url, torrent):
         if 'infoHash' in el:
@@ -84,14 +89,12 @@ class sources(core.DefaultSources):
         if '[AD+]' in el['name']:
             torrent['debrid'] = 'AD'
 
-        torrent['size'] = core.source_utils.de_string_size(self.genericScraper.parse_size(el['title']))
-        torrent['seeds'] = self.genericScraper.parse_seeds(el['title'])
+        torrent['size'] = core.source_utils.de_string_size(self.genericScraper.parse_size(el['description']))
+        torrent['seeds'] = self.genericScraper.parse_seeds(el['description'])
         if '\n' in torrent['release_title']:
-            #torrent['release_title'] = torrent['release_title'].split('\n👤', 1)[0]
             torrent['release_title'] = torrent['release_title'].split('\n💾', 1)[0]
         if '\n' in torrent['release_title']:
             torrent['release_title'] = torrent['release_title'].split('\n', 1)[1]
-
         return torrent
 
     def _set_apikeys(self, kwargs):
