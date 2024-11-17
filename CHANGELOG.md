@@ -1,3 +1,6 @@
+* [v2.91.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.91.0):
+  * remove bitlord (down)
+
 * [v2.90.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.90.0):
   * add mediafusion
   * remove torrentioelf (eol & too many issues)

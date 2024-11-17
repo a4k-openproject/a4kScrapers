@@ -3,12 +3,7 @@
     "cached": { "search": "", "domains": [{ "base": "" }] },
       "-7torrents": { "search": "", "domains": [{ "base": "" }] },
       "-anirena": { "search": "", "domains": [{ "base": "" }] },
-      "bitlord": {
-          "search": "/get_list",
-          "domains": [
-              { "base": "https://bitlordsearch.com" }
-          ]
-      },
+      "-bitlord": { "search": "", "domains": [{ "base": "" }] },
       "bitsearch": {
           "search": "/search?q=%s&sort=size&limit=100",
           "domains": [
