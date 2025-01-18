@@ -77,7 +77,7 @@ def _get_episode_query():
     simple_info['episode_title'] = 'The Dragon and the Wolf'
     simple_info['year'] = '2011'
     simple_info['season_number'] = '7'
-    simple_info['episode_number'] = '7'
+    simple_info['episode_number'] = '6'
     simple_info['show_aliases'] = ''
     simple_info['country'] = 'US'
     simple_info['no_seasons'] = '7'
