@@ -480,7 +480,8 @@ class CoreScraper(object):
             else:
                 item_key = result['hash']
                 if len(item_key) < 40:
-                    item_key = b32toHex(item_key)
+                    try: item_key = b32toHex(item_key)
+                    except: pass
 
             item = results.get(item_key, None)
             if item is None:
