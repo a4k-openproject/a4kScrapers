@@ -1,3 +1,6 @@
+* [v2.92.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.92.0):
+  * ignore b32toHex conversion issues
+
 * [v2.91.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.91.0):
   * remove bitlord (down)
 
