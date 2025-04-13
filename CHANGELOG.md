@@ -1,3 +1,6 @@
+* [v2.93.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.93.0):
+  * Update mediafusion
+
 * [v2.92.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.92.0):
   * ignore b32toHex conversion issues
 

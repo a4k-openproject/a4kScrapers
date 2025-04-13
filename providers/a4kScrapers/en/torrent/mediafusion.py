@@ -42,8 +42,7 @@ class sources(core.DefaultSources):
         if self._ad_apikey:
             params += '|alldebrid=' + self._ad_apikey
 
-        config = 'eJwBYACf_92uqrL8vhmebCYzGgX6Q2BMyNhn5SMWS_XitAKLTUul8nAqQEcj0k2wPpBs1ceClvb4mT2darthTiMrk2XGFdUx3XR4MB5WJT3hZWla9v-cQY6bloboXr6BxVJfNgTC3xazL_8='
-        #request_url = url.base + '/' + core.quote_plus(params) + (url.search % core.quote_plus(query))
+        config = 'D-zn4qJLK4wUZVWscY9ESCnoZBEiNJCZ9uwfCvmxuliDjY7vkc-fu0OdxUPxwsP3_A'
         request_url = url.base + '/' + core.quote_plus(config) + (url.search % core.quote_plus(query))
         response = self._request.get(request_url)
 
