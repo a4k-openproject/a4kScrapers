@@ -19,7 +19,7 @@ jobs:
     - name: setup-python
       uses: actions/setup-python@v5
       with:
-        python-version: 3.11
+        python-version: '3.11'
 
     - name: install
       run: |
@@ -41,7 +41,7 @@ jobs:
         python3 -m unittest tests_runner.py
 
     - name: update
-      if: ${{ github.event_name == 'schedule' && success() }}
+      if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
       env:
         A4KSCRAPERS_ENV: ${{ secrets.A4KSCRAPERS_ENV }}
       run: |

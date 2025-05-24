@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import random
+import string
 import sys
 import os
 import ntpath
@@ -257,6 +259,23 @@ def check_timeout(datetime, timeout_in_hours):
 
 def clock_time_ms(start, end):
   return int(round((end - start) * 1000))
+
+def random_digit_str(length):
+    return ''.join(random.choice(string.digits) for _ in range(length))
+
+def imdb_auth_request_props():
+    return {
+        'headers': {
+            'content-type': 'application/json',
+            'x-amzn-sessionid': '%s-%s-%s' % (random_digit_str(3), random_digit_str(7), random_digit_str(7)),
+            'x-imdb-client-name': 'imdb-web-next',
+            'x-imdb-user-language': 'en-US',
+            'x-imdb-user-country': 'US'
+        },
+        'cookies': {
+            'ubid-main': '%s-%s-%s' % (random_digit_str(3), random_digit_str(7), random_digit_str(7)),
+        }
+    }
 
 def b32toHex(value):
     value = base64.b32decode(value)
