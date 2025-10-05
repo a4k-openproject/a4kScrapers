@@ -1,3 +1,6 @@
+* [v2.94.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.94.0):
+  * Fix bitsearch
+
 * [v2.93.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.93.0):
   * Update mediafusion
 
