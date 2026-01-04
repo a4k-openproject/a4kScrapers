@@ -42,7 +42,7 @@ class sources(core.DefaultSources):
         if self._ad_apikey:
             params += '|alldebrid=' + self._ad_apikey
 
-        config = 'D-zn4qJLK4wUZVWscY9ESCnoZBEiNJCZ9uwfCvmxuliDjY7vkc-fu0OdxUPxwsP3_A'
+        config = 'D-VB6XV7ihJSEIwDttLGJEBwGOm5jk0SauzzN776n-vpQACSP9gqDv6r_EOlRRgXABiH52LcNFY3QdsRHHlqHId-ZwrsLx3RkuaW4fp3LzLP8'
         request_url = url.base + '/' + core.quote_plus(config) + (url.search % core.quote_plus(query))
         response = self._request.get(request_url)
 
@@ -63,7 +63,7 @@ class sources(core.DefaultSources):
         return response
 
     def _title_filter(self, el):
-        el['description'] = el['description'].replace('📂 - ', '').replace('📂 ', '').replace('/None', '').replace(' / ', '')
+        el['description'] = el['description'].replace('📂 - ', '').replace('📂 ', '').replace('/None', '').replace(' / ', '').replace(' ┈➤ ', '\n')
         el['description'] = re.sub(r'www.*? - ', '', el['description'])
         if not self.is_movie_query():
             el['description'] = re.sub(r'💾.*?💾', '💾', el['description'])

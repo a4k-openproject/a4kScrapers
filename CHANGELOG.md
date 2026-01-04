@@ -1,3 +1,6 @@
+* [v2.95.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.94.0):
+  * Change mediafusion public instance (elfhosted depricated)
+
 * [v2.94.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.94.0):
   * Fix bitsearch
 
