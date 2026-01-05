@@ -1,4 +1,7 @@
-* [v2.95.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.94.0):
+* [v2.95.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.96.0):
+  * Add better mediafusion public instance as primary with other kept as fallback
+
+* [v2.95.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.95.0):
   * Change mediafusion public instance (elfhosted depricated)
 
 * [v2.94.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.94.0):
