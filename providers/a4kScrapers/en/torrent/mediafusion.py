@@ -42,7 +42,9 @@ class sources(core.DefaultSources):
         if self._ad_apikey:
             params += '|alldebrid=' + self._ad_apikey
 
-        config = 'D-VB6XV7ihJSEIwDttLGJEBwGOm5jk0SauzzN776n-vpQACSP9gqDv6r_EOlRRgXABiH52LcNFY3QdsRHHlqHId-ZwrsLx3RkuaW4fp3LzLP8'
+        if 'ru' in url.base: 
+            config = 'D-cL6-bnks38LpUSoByVLy0vFJEH1S2qqt7K1Tw7tG6_iUy7Znn5w04YKnJBUGbthk978Ag1aKEMbGj8-qNOBmLlBf5ccM3N8q49dtETI2YDs'
+        else: config = 'D-VB6XV7ihJSEIwDttLGJEBwGOm5jk0SauzzN776n-vpQACSP9gqDv6r_EOlRRgXABiH52LcNFY3QdsRHHlqHId-ZwrsLx3RkuaW4fp3LzLP8'
         request_url = url.base + '/' + core.quote_plus(config) + (url.search % core.quote_plus(query))
         response = self._request.get(request_url)
 
