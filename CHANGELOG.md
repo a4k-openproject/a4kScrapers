@@ -1,3 +1,6 @@
+* [v2.97.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.97.0):
+  * Add piratebay title search fallback
+
 * [v2.96.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.96.0):
   * Add better mediafusion public instance as primary with other kept as fallback
 
