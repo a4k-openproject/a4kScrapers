@@ -29,22 +29,21 @@ class sources(core.DefaultSources):
         return super(sources, self)._get_scraper(title, custom_filter=self._filter)
 
     def _search_request(self, url, query):
-        query = core.quote_plus(self._imdb)
-        response = self._request.get(url.base + (url.search % query))
-
-        if response.status_code != 200:
-            return []
-
-        try:
-            results = core.json.loads(response.text)
-        except Exception as e:
-            self._request.exc_msg = 'Failed to parse json: %s' % response.text
-            return []
-
-        if len(results) == 0 or results[0]['id'] == '0':
-            return []
-        else:
-            return results
+        title_query = query.decode('utf-8') if isinstance(query, bytes) else query
+        for q in [self._imdb, title_query]:
+            if not q:
+                continue
+            response = self._request.get(url.base + (url.search % core.quote_plus(q)))
+            if response.status_code != 200:
+                continue
+            try:
+                results = core.json.loads(response.text)
+            except Exception as e:
+                self._request.exc_msg = 'Failed to parse json: %s' % response.text
+                continue
+            if len(results) > 0 and results[0]['id'] != '0':
+                return results
+        return []
 
     def _soup_filter(self, response):
         return response
