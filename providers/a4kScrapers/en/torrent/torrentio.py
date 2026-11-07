@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import random
+
 from providerModules.a4kScrapers import core
 
 class sources(core.DefaultSources):
+    # listed by get_quick(): with a debrid key it returns only rows cached on that service
+    quick = True
+
     def __init__(self, *args, **kwargs):
         super(sources, self).__init__(__name__, *args, single_query=True, **kwargs)
         self._filter = core.Filter(fn=self._filter_fn, type='single')
@@ -42,9 +47,24 @@ class sources(core.DefaultSources):
             params += '|alldebrid=' + self._ad_apikey
 
         request_url = url.base + '/' + core.quote_plus(params) + (url.search % core.quote_plus(query))
+        streams = self._get_streams(request_url)
+
+        if (self._pm_apikey or self._rd_apikey or self._ad_apikey) and len(streams) < 5:
+            # a failed or thin cached-only answer is usually a degraded one, and Cloudflare keeps it for
+            # about an hour: one retry past that cache, keeping whichever answer has more streams
+            exc_msg = self._request.exc_msg
+            retry = self._get_streams(request_url + '?r=%s' % random.randint(1, 10 ** 9))
+            if len(retry) > len(streams):
+                streams = retry
+            else:
+                self._request.exc_msg = exc_msg
+
+        return streams
+
+    def _get_streams(self, request_url):
         response = self._request.get(request_url)
 
-        if response.status_code != 200:
+        if response is None or response.status_code != 200:
             return []
 
         try:
@@ -76,6 +96,11 @@ class sources(core.DefaultSources):
             torrent['hash'] = el['infoHash']
         if 'url' in el:
             torrent['url'] = el['url']
+            # cached debrid rows carry no infoHash, only a resolve url with the hash as a path segment after the key
+            keys = (self._pm_apikey, self._rd_apikey, self._ad_apikey)
+            hashes = [h for h in core.re.findall(r'/([a-fA-F0-9]{40})(?=/|$)', el['url']) if h not in keys]
+            if not torrent['hash'] and hashes:
+                torrent['hash'] = hashes[0].lower()
 
         if '[PM+]' in el['name']:
             torrent['debrid'] = 'PM'
