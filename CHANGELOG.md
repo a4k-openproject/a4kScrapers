@@ -1,3 +1,8 @@
+* [v2.100.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.100.0):
+  * Add get_quick(): providers that return debrid-cached results fast, for a quick first search
+  * Torrentio: read the hash of debrid-cached results, retry a thin cached answer once
+  * Redact debrid keys from logged urls and errors
+
 * [v2.99.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.99.0):
   * Fix mediafusion returning no results (new response format, retired instance removed)
   * Change bitsearch domain
