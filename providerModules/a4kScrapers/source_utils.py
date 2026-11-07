@@ -487,7 +487,7 @@ def get_filter_show_pack_fn(simple_info):
         simple_info['show_title'], \
         simple_info['season_number'], \
         simple_info['show_aliases'], \
-        simple_info['no_seasons'], \
+        simple_info.get('no_seasons'), \
         simple_info['country'], \
         simple_info['year']
 
@@ -495,6 +495,10 @@ def get_filter_show_pack_fn(simple_info):
     titles.insert(0, show_title)
     for idx, title in enumerate(titles):
         titles[idx] = clean_title_with_simple_info(title, simple_info)
+
+    no_seasons = str(no_seasons or '').strip()
+    if not no_seasons.isdigit():
+        no_seasons = season
 
     all_season_ranges = []
     all_seasons = '1 '

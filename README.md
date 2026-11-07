@@ -10,3 +10,10 @@ Codefresh:&nbsp;&nbsp;&nbsp;[![Codefresh build status]( https://g.codefresh.io/a
 CircleCI:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![CircleCI](https://circleci.com/gh/a4k-openproject/a4kScrapers.svg?style=svg)](https://circleci.com/gh/a4k-openproject/a4kScrapers)  
 Github:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[![cron](https://github.com/a4k-openproject/a4kScrapers/actions/workflows/cron.yml/badge.svg)](https://github.com/a4k-openproject/a4kScrapers/actions/workflows/cron.yml)  
 Semaphore:&nbsp;&nbsp;[![Build Status](https://newt-sc.semaphoreci.com/badges/a4kScrapers/branches/master.svg)](https://newt-sc.semaphoreci.com/projects/a4kScrapers)
+
+**Testing env vars**  
+`A4KSCRAPERS_TEST=1` (`utils.DEV_MODE`, set by `tests_runner.py`) is a unit-test limiter. Never set it when running a4kScrapers outside its own tests. While it is set:
+- each query stops at the first matching result, so a provider returns about one result per query
+- cached results are truncated to one
+- episode searches run one query only: the season query (`<show> Sxx`) matched against season/show packs, or the single-episode query (`<show> SxxEyy`) for eztv; the remaining episode/pack queries, special-episode and airing-show handling are skipped
+- missing size/seeds stay `None` instead of defaulting to `0`

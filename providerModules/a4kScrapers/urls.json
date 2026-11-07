@@ -28,6 +28,14 @@
           ]
       },
       "-glo": { "search": "", "domains": [{ "base": "" }] },
+      "knaben": {
+          "search": "/v2/search?q=%s&c={{category}}&o=seeders&s=100",
+          "cat_movie": "3000000",
+          "cat_episode": "2000000",
+          "domains": [
+              { "base": "https://api.knaben.org" }
+          ]
+      },
       "kickass": {
           "search": "/usearch/%s category:{{category}}/",
           "cat_movie": "movies",
