@@ -42,9 +42,7 @@ class sources(core.DefaultSources):
         if self._ad_apikey:
             params += '|alldebrid=' + self._ad_apikey
 
-        if 'ru' in url.base: 
-            config = 'D-cL6-bnks38LpUSoByVLy0vFJEH1S2qqt7K1Tw7tG6_iUy7Znn5w04YKnJBUGbthk978Ag1aKEMbGj8-qNOBmLlBf5ccM3N8q49dtETI2YDs'
-        else: config = 'D-VB6XV7ihJSEIwDttLGJEBwGOm5jk0SauzzN776n-vpQACSP9gqDv6r_EOlRRgXABiH52LcNFY3QdsRHHlqHId-ZwrsLx3RkuaW4fp3LzLP8'
+        config = 'D-VB6XV7ihJSEIwDttLGJEBwGOm5jk0SauzzN776n-vpQACSP9gqDv6r_EOlRRgXABiH52LcNFY3QdsRHHlqHId-ZwrsLx3RkuaW4fp3LzLP8'
         request_url = url.base + '/' + core.quote_plus(config) + (url.search % core.quote_plus(query))
         response = self._request.get(request_url)
 
@@ -65,6 +63,10 @@ class sources(core.DefaultSources):
         return response
 
     def _title_filter(self, el):
+        filename = (el.get('behaviorHints') or {}).get('filename')
+        if filename:
+            return filename
+
         el['description'] = el['description'].replace('📂 - ', '').replace('📂 ', '').replace('/None', '').replace(' / ', '').replace(' ┈➤ ', '\n')
         el['description'] = re.sub(r'www.*? - ', '', el['description'])
         if not self.is_movie_query():
@@ -91,7 +93,8 @@ class sources(core.DefaultSources):
             torrent['debrid'] = 'AD'
 
         torrent['size'] = core.source_utils.de_string_size(self.genericScraper.parse_size(el['description']))
-        torrent['seeds'] = self.genericScraper.parse_seeds(el['description'])
+        seeds = re.search(r'👤 (\d+)', el['description'])
+        torrent['seeds'] = seeds.group(1) if seeds else '0'
         if '\n' in torrent['release_title']:
             torrent['release_title'] = torrent['release_title'].split('\n💾', 1)[0]
         if '\n' in torrent['release_title']:

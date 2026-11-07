@@ -74,6 +74,7 @@ def cache_save(key, data):
 def cache_get(key):
     return database.cache_get(key)
 
+# Set only by tests_runner.py: limits each provider to about one result per query, for fast tests.
 DEV_MODE = os.getenv('A4KSCRAPERS_TEST') == '1'
 DEV_MODE_ALL = os.getenv('A4KSCRAPERS_TEST_ALL') == '1'
 DEV_MODE_TOTAL = os.getenv('A4KSCRAPERS_TEST_TOTAL') == '1'

@@ -1,7 +1,10 @@
+* [v2.99.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.99.0):
+  * Fix mediafusion returning no results (new response format, retired instance removed)
+  * Change bitsearch domain
+
 * [v2.98.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.98.0):
   * Add knaben provider
   * Fix show pack filter failing on missing no_seasons (falls back to the requested season)
-  * Document A4KSCRAPERS_TEST as a test-only limiter in README
 
 * [v2.97.0](https://github.com/a4k-openproject/a4kScrapers/releases/tag/a4kScrapers-2.97.0):
   * Add piratebay title search fallback
