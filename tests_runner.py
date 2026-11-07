@@ -77,6 +77,16 @@ class TestQuickProviders(unittest.TestCase):
         row = source._info(stream, url, {'hash': '', 'release_title': stream['title']})
         self.assertEqual((row['hash'], row['debrid']), (hash, 'PM'))
 
+    def test_redact_debrid_keys(self):
+        from providerModules.a4kScrapers.request import redact
+        config = 'https://example.com/language=english|premiumize=test-key|realdebrid=test-key/stream/movie/tt0000001.json'
+        encoded = 'https://example.com/language%3Denglish%7Cpremiumize%3Dtest-key%7Calldebrid%3Dtest-key/stream/movie/tt0000001.json?r=1'
+        resolve = 'https://example.com/resolve/premiumize/test-key/%s/null/0/Example.mkv' % ('ab' * 20)
+        for url in (config, encoded, resolve):
+            self.assertNotIn('test-key', redact(url))
+        self.assertEqual(redact(encoded), 'https://example.com/language%3Denglish%7Cpremiumize%3D***%7Calldebrid%3D***/stream/movie/tt0000001.json?r=1')
+        self.assertEqual(redact(resolve), resolve.replace('test-key', '***'))
+
 if os.getenv('A4KSCRAPERS_TEST_TOTAL') == '1':
     def log_results(self):
         for title in total_results.keys():

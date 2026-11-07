@@ -103,6 +103,12 @@ def _get_domain(url):
     scheme = parsed_url.scheme if parsed_url.scheme != '' else 'https'
     return "%s://%s" % (scheme, parsed_url.netloc)
 
+_redact_re = re.compile(r'((?:premiumize|realdebrid|alldebrid)(?:=|%3D))(?:(?!%7C)[^|/?&])+|(/resolve/[^/]+/)[^/]+', re.I)
+
+def redact(text):
+    # debrid keys ride in provider urls (config params or resolve paths): mask them before logging
+    return _redact_re.sub(lambda m: (m.group(1) or m.group(2)) + '***', str(text))
+
 def _get_head_check(url):
     result = _head_checks.get(url, None)
     if isinstance(result, bool):
@@ -188,7 +194,7 @@ class Request(object):
 
               if 'Detected the new Cloudflare challenge.' in exc and self.request_time < 2:
                   cf_retries -= 1
-                  tools.log('cf_new_challenge_retry: %s' % request.url, 'notice')
+                  tools.log('cf_new_challenge_retry: %s' % redact(request.url), 'notice')
                   return self._request_core(request, sequental, cf_retries)
               elif 'Cloudflare' in exc or '!!Loop Protection!!' in exc:
                   self.exc_msg = 'failed Cloudflare protection'
@@ -197,12 +203,12 @@ class Request(object):
               elif 'ConnectTimeout' in exc or 'ReadTimeout' in exc:
                   self.exc_msg = 'request timed out'
               else:
-                  self.exc_msg = 'failed - %s' % exc
+                  self.exc_msg = 'failed - %s' % redact(exc)
             elif 'response status code 500' in self.exc_msg:
                   cf_retries -= 1
                   return self._request_core(request, sequental, cf_retries)
 
-            tools.log('%s %s' % (request.url, self.exc_msg), 'notice')
+            tools.log(redact('%s %s' % (request.url, self.exc_msg)), 'notice')
 
             return response_err
 
@@ -230,7 +236,7 @@ class Request(object):
             return (url, 500)
 
         url = _get_domain(url)
-        tools.log('HEAD: %s' % url, 'debug')
+        tools.log('HEAD: %s' % redact(url), 'debug')
         request = lambda _: self._request.head(url, timeout=2)
         request.url = url
 
@@ -305,14 +311,14 @@ class Request(object):
             )
         )
 
-        tools.log('GET: %s' % url, 'debug')
+        tools.log('GET: %s' % redact(url), 'debug')
         request = lambda x: _get(self._cfscrape, url, headers, self._timeout, allow_redirects, x)
         request.url = url
 
         return self._request_core(request)
 
     def post(self, url, data, headers={}):
-        tools.log('POST: %s' % url, 'debug')
+        tools.log('POST: %s' % redact(url), 'debug')
         request = lambda _: self._cfscrape.post(url, data, headers=headers, timeout=self._timeout)
         request.url = url
         return self._request_core(request)

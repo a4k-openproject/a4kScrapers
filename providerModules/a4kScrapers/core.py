@@ -5,7 +5,7 @@ import json
 import requests
 
 from string import capwords
-from .request import threading, Request
+from .request import threading, Request, redact
 from . import source_utils
 from .source_utils import tools
 from .utils import beautifulSoup, encode, decode, now, time, clock_time_ms, safe_list_get, get_caller_name, replace_text_with_int, b32toHex, database
@@ -300,7 +300,7 @@ class CoreScraper(object):
         except:
             exc = traceback.format_exc(limit=1)
             if 'PreemptiveCancellation' not in exc:
-              traceback.print_exc()
+              tools.log(redact(traceback.format_exc()), 'error')
             return empty_result
 
         results = []

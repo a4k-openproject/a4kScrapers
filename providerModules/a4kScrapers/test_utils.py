@@ -5,6 +5,7 @@ import warnings
 import time
 from .source_utils import tools
 from .urls import trackers, hosters, get_urls
+from .request import redact
 
 _scraper_sources_dict = {}
 total_results = {}
@@ -26,7 +27,7 @@ def _assert_result(test, scraper_module, scraper_sources, scraper, torrent_list)
         expected_count = len(get_urls(scraper))
 
     if scraper_sources._request is not None and scraper_sources._request.exc_msg:
-        tools.log('%s exception: %s' % (scraper, scraper_sources._request.exc_msg), 'notice')
+        tools.log('%s exception: %s' % (scraper, redact(scraper_sources._request.exc_msg)), 'notice')
         expected_count = 0
 
     test.assertEqual(results_count, expected_count, '%s failed to find torrent' % scraper)
